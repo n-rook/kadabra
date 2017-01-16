@@ -6,6 +6,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^3.4.7",
+    "lodash": "^4.17.4",
     "ws": "^1.1.1"
   }
 }
