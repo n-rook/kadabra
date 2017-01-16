@@ -1,0 +1,56 @@
+Alakazam @ Alakazite  
+Ability: Synchronize  
+EVs: 252 SpA / 4 SpD / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Psychic  
+- Focus Blast  
+- Shadow Ball  
+- Substitute  
+
+Skarmory @ Leftovers  
+Ability: Sturdy  
+EVs: 252 HP / 252 Def / 4 Spe  
+Impish Nature  
+- Roost  
+- Spikes  
+- Brave Bird  
+- Whirlwind  
+
+Garchomp @ Choice Band  
+Ability: Rough Skin  
+EVs: 252 Atk / 4 SpD / 252 Spe  
+Jolly Nature  
+- Earthquake  
+- Outrage  
+- Stone Edge  
+- Poison Jab  
+
+Marowak-Alola @ Thick Club  
+Ability: Lightning Rod  
+EVs: 248 HP / 252 Atk / 8 SpD  
+Adamant Nature  
+- Bonemerang  
+- Flare Blitz  
+- Iron Head  
+- Iron Head  
+
+Nihilego @ Leftovers  
+Ability: Beast Boost  
+EVs: 252 HP / 252 SpA / 4 SpD  
+Modest Nature  
+IVs: 0 Atk  
+- Power Gem  
+- Sludge Bomb  
+- Toxic Spikes  
+- Rest  
+
+Togekiss @ Leftovers  
+Ability: Serene Grace  
+EVs: 252 HP / 4 SpA / 252 SpD  
+Calm Nature  
+IVs: 0 Atk  
+- Air Slash  
+- Nasty Plot  
+- Roost  
+- Thunder Wave  
