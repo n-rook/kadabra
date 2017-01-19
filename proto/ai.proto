@@ -1,0 +1,28 @@
+
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.nrook.kadabra";
+
+package kadabra;
+
+service TeamBuilder {
+  // Ask for a team.
+  rpc GetTeam(TeamRequest) returns (TeamSpec) {}
+}
+
+message TeamRequest {
+  string metagame = 1;
+}
+
+message TeamSpec {
+  repeated PokemonSpec pokemon = 1;
+}
+
+message PokemonSpec {
+
+  // The kind of Pokemon this is.
+  // Calling this "species" is slightly inaccurate. Rather, this is the
+  // canonical name of the Pokemon type in Pokemon Showdown. For instance,
+  // Alolan Marowak is called Marowak-Alola, not Marowak.
+  string species = 1;
+}
