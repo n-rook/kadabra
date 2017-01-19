@@ -5,7 +5,7 @@ option java_package = "com.nrook.kadabra";
 
 package kadabra;
 
-service TeamBuilder {
+service TeamService {
   // Ask for a team.
   rpc GetTeam(TeamRequest) returns (TeamSpec) {}
 }
