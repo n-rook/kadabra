@@ -1,5 +1,7 @@
 package com.nrook.kadabra
 
+import com.nrook.kadabra.proto.TeamRequest
+import com.nrook.kadabra.proto.TeamServiceGrpc
 import io.grpc.ManagedChannel
 import io.grpc.Server
 import io.grpc.inprocess.InProcessChannelBuilder

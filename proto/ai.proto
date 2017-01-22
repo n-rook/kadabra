@@ -1,7 +1,7 @@
 
 syntax = "proto3";
 option java_multiple_files = true;
-option java_package = "com.nrook.kadabra";
+option java_package = "com.nrook.kadabra.proto";
 
 package kadabra;
 
@@ -25,4 +25,67 @@ message PokemonSpec {
   // canonical name of the Pokemon type in Pokemon Showdown. For instance,
   // Alolan Marowak is called Marowak-Alola, not Marowak.
   string species = 1;
+
+  // The Pokemon's ability, e.g. "Synchronize".
+  string ability = 2;
+
+  EvSpread evs = 3;
+
+  IvSpread ivs = 4;
+
+  // The Pokemon's item. If absent, no item will be used.
+  string item = 5;
+
+  Nature nature = 6;
+
+  // The Pokemon's moveset. Must be nonempty.
+  repeated string move = 7;
+}
+
+// Legal values for each stat here range from 0 to 252.
+message EvSpread {
+  int32 hp = 1;
+  int32 attack = 2;
+  int32 defense = 3;
+  int32 specialAttack = 4;
+  int32 specialDefense = 5;
+  int32 speed = 6;
+}
+
+// Legal values for each stat here range from 0 to 31.
+message IvSpread {
+  int32 hp = 1;
+  int32 attack = 2;
+  int32 defense = 3;
+  int32 specialAttack = 4;
+  int32 specialDefense = 5;
+  int32 speed = 6;
+}
+
+enum Nature {
+  HARDY = 0;
+  LONELY = 1;
+  BRAVE = 2;
+  ADAMANT = 3;
+  NAUGHTY = 4;
+  BOLD = 5;
+  DOCILE = 6;
+  RELAXED = 7;
+  IMPISH = 8;
+  LAX = 9;
+  TIMID = 10;
+  HASTY = 11;
+  SERIOUS = 12;
+  JOLLY = 13;
+  NAIVE = 14;
+  MODEST = 15;
+  MILD = 16;
+  QUIET = 17;
+  BASHFUL = 18;
+  RASH = 19;
+  CALM = 20;
+  GENTLE = 21;
+  SASSY = 22;
+  CAREFUL = 23;
+  QUIRKY = 24;
 }

@@ -9,7 +9,6 @@ const aiDescriptor = grpc.load(protoPath + '/ai.proto');
 class TeamClient {
   constructor(port) {
     this.stub = new aiDescriptor.kadabra.TeamService('localhost:' + 8080, grpc.credentials.createInsecure());
-    console.log('stub', this.stub);
   }
 
   getTeam(metagame) {

@@ -1,5 +1,9 @@
 package com.nrook.kadabra
 
+import com.nrook.kadabra.proto.PokemonSpec
+import com.nrook.kadabra.proto.TeamRequest
+import com.nrook.kadabra.proto.TeamServiceGrpc
+import com.nrook.kadabra.proto.TeamSpec
 import io.grpc.stub.StreamObserver
 
 /**
