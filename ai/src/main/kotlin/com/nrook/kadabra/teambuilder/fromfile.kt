@@ -1,11 +1,14 @@
 package com.nrook.kadabra.teambuilder
 
+import com.google.common.io.Resources
 import com.nrook.kadabra.info.PokemonDefinition
 import com.nrook.kadabra.info.SetStatOnEvSpread
 import com.nrook.kadabra.info.StatFromAbbreviation
 import com.nrook.kadabra.proto.EvSpread
 import com.nrook.kadabra.proto.Nature
 import com.nrook.kadabra.proto.PokemonSpec
+import java.net.URL
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -19,11 +22,14 @@ val MATCH_RELEVANT_PART_OF_IV_LINE = Regex("""IVs: (.*)""")
 val MATCH_MOVE = Regex("""- (.*)""")
 
 /**
- * Transforms a file into a team object.
+ * Load a team from a Java resource.
  */
-internal fun loadTeamFromFile(file : Path) : List<PokemonDefinition> {
-  val lines: List<String> = Files.lines(file).collect(Collectors.toList<String>())
+fun loadTeamFromResource(resource : URL) : List<PokemonDefinition> {
+  return loadTeamFromLines(Resources.readLines(resource, Charset.forName("UTF-8")));
+}
 
+
+internal fun loadTeamFromLines(lines : List<String>) : List<PokemonDefinition> {
   var index = 0
   val team : MutableList<PokemonDefinition> = mutableListOf()
   while (true) {
@@ -102,13 +108,13 @@ fun readEvLine(line: String) : EvSpread {
   return builder.build()
 }
 
-
-/**
- * Loads teams by name from a specific directory.
- */
-class FileBasedTeamLoader(val teamDirectory : Path) {
-
-  fun loadTeam(teamName : String) : List<PokemonDefinition> {
-    return loadTeamFromFile(teamDirectory.resolve(teamName))
-  }
-}
+//
+///**
+// * Loads teams by name from a specific directory.
+// */
+//class FileBasedTeamLoader(val teamDirectory : Path) {
+//
+//  fun loadTeam(teamName : String) : List<PokemonDefinition> {
+//    return loadTeamFromFile(teamDirectory.resolve(teamName))
+//  }
+//}

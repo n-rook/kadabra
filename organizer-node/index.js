@@ -1,10 +1,16 @@
 const WebSocket = require('ws');
 
 const showdown = require('./showdown');
-const TeamClient = require('./teamclient')
+const TeamClient = require('./teamclient');
 
 const teamClient = new TeamClient();
-teamClient.getTeam('magikarp');
+teamClient.getTeam('ou')
+    .then((team) => {
+      console.log(team);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
 
 
 // showdown().then((connection) => {

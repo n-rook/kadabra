@@ -1,7 +1,10 @@
 package com.nrook.kadabra
 
+import com.nrook.kadabra.info.PokemonDefinition
+import com.nrook.kadabra.proto.PokemonSpec
 import com.nrook.kadabra.proto.TeamRequest
 import com.nrook.kadabra.proto.TeamServiceGrpc
+import com.nrook.kadabra.teambuilder.TeamPickingStrategy
 import io.grpc.ManagedChannel
 import io.grpc.Server
 import io.grpc.inprocess.InProcessChannelBuilder
@@ -18,11 +21,19 @@ class TeamServiceTest {
   var inProcessChannel : ManagedChannel? = null
   var server : Server? = null
 
+  private class MagikarpPicker: TeamPickingStrategy {
+    override fun pick(): List<PokemonDefinition> {
+      return listOf(PokemonDefinition(PokemonSpec.newBuilder()
+          .setSpecies("Magikarp")
+          .build()))
+    }
+  }
+
   @Before
   fun setUp() {
     val serverName : String = "Test server " + javaClass.canonicalName
     server = InProcessServerBuilder.forName(serverName)
-        .addService(TeamService())
+        .addService(TeamService(mapOf("magikarp" to MagikarpPicker())))
         .directExecutor()
         .build()
     server?.start()

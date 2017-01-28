@@ -39,4 +39,8 @@ class PokemonDefinition(val spec : PokemonSpec) {
 
   val moves: List<String>
     get() = this.spec.moveList
+
+  fun toSpec() : PokemonSpec {
+    return spec
+  }
 }

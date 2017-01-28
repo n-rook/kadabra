@@ -1,7 +1,19 @@
 package com.nrook.kadabra
 
+import com.google.common.io.Resources
+import com.nrook.kadabra.info.PokemonDefinition
+import com.nrook.kadabra.teambuilder.TeamPickingStrategy
+import com.nrook.kadabra.teambuilder.loadTeamFromResource
 import io.grpc.Server
 import io.grpc.ServerBuilder
+
+private class JustGetTestTeam : TeamPickingStrategy {
+  override fun pick(): List<PokemonDefinition> {
+    return loadTeamFromResource(Resources.getResource("testTeam.txt"))
+  }
+
+}
+val TEAM_SELECTOR : TeamPickingStrategy = JustGetTestTeam()
 
 /**
  * Wrapper class for the AI server.
@@ -18,7 +30,7 @@ class AiServer(val server: Server) {
 
 fun createAndStartAiServer(port: Int): AiServer {
   val server = ServerBuilder.forPort(port)
-      .addService(TeamService())
+      .addService(TeamService(mapOf("ou" to TEAM_SELECTOR)))
       .build()
   server.start()
   return AiServer(server)

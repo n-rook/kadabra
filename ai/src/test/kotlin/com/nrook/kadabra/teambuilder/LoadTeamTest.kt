@@ -1,43 +1,27 @@
 package com.nrook.kadabra.teambuilder
 
 import com.google.common.io.Resources
-import com.google.common.jimfs.Jimfs
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.proto.Nature
-import org.junit.Before
 import org.junit.Test
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import java.nio.file.Path
+import java.net.URL
 
-class FileBasedTeamLoaderTest {
-  lateinit var fs : FileSystem
-  lateinit var dataDirectory: Path
-  lateinit var teamLoader: FileBasedTeamLoader
-
-  @Before
-  fun setUp() {
-    fs = Jimfs.newFileSystem()
-    val resource = Resources.getResource("testTeam.txt")
-    dataDirectory = fs.getPath("teams")
-    Files.createDirectory(dataDirectory)
-    Resources.copy(resource, Files.newOutputStream(dataDirectory.resolve("team.txt")))
-    teamLoader = FileBasedTeamLoader(dataDirectory)
-  }
+class LoadTeamTest {
+  val RESOURCE: URL = Resources.getResource("testTeam.txt")
 
   @Test
   fun loadsTeam() {
-    teamLoader.loadTeam("team.txt")
+    loadTeamFromResource(RESOURCE)
   }
 
   @Test fun loadsSixTeamMembers() {
-    val team = teamLoader.loadTeam("team.txt")
+    val team = loadTeamFromResource(RESOURCE)
     assertThat(team).hasSize(6)
   }
 
   @Test fun loadsFirstMemberProperly() {
-    val team = teamLoader.loadTeam("team.txt")
+    val team = loadTeamFromResource(RESOURCE)
     val lead = team[0]
     assertThat(lead.species).isEqualTo("Alakazam")
     assertThat(lead.item).isEqualTo("Alakazite")
