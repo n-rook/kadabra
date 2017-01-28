@@ -1,3 +1,5 @@
+'use strict';
+
 const EventEmitter = require('events');
 
 const Promise = require('bluebird');
@@ -8,6 +10,8 @@ const URL = 'ws://localhost:8000/showdown/websocket';
 class ShowdownConnection extends EventEmitter {
   constructor(connection) {
     super();
+
+    // WebSocket
     this.connection = connection;
     this.connection.on('message', this.handleMessage.bind(this));
   }
@@ -19,6 +23,13 @@ class ShowdownConnection extends EventEmitter {
     }
     console.log('Received a message!\n' + data);
     this.emit('message', parseShowdownMessage(data));
+  }
+
+  send(data) {
+    console.log('> ', data);
+    return Promise.fromCallback((resolver) => {
+      this.connection.send(data, {}, resolver);
+    });
   }
 }
 
@@ -72,11 +83,17 @@ class ShowdownMessage {
   }
 }
 
-function connect() {
+function connect(url) {
   return new Promise(function(resolve) {
-    const connection = new WebSocket(URL);
+    console.log('Establishing connection to ' + url)
+
+    const connection = new WebSocket(url);
     connection.on('open', function() {
       resolve(new ShowdownConnection(connection));
+    });
+    
+    connection.on('error', function(err) {
+      console.log('Oh no! Error.', err);
     });
   });
 };

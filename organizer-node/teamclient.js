@@ -15,8 +15,14 @@ class TeamClient {
     return Promise.fromCallback((callback) => {
       this.stub.getTeam({metagame}, callback);
     }).then((response) => {
-      console.log(response);
+      return new Team(response);
     });
+  }
+}
+
+class Team {
+  constructor(teamObject) {
+    this.teamObject = teamObject;
   }
 }
 
