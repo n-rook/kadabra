@@ -5,15 +5,13 @@ import com.nrook.kadabra.info.PokemonDefinition
 import com.nrook.kadabra.info.SetStatOnEvSpread
 import com.nrook.kadabra.info.StatFromAbbreviation
 import com.nrook.kadabra.proto.EvSpread
+import com.nrook.kadabra.proto.IvSpread
 import com.nrook.kadabra.proto.Nature
 import com.nrook.kadabra.proto.PokemonSpec
 import java.net.URL
 import java.nio.charset.Charset
-import java.nio.file.Files
-import java.nio.file.Path
-import java.util.stream.Collectors
 
-val MATCH_SPECIES_LINE = Regex("""([\S]+) @ ([\S]+)""")
+val MATCH_SPECIES_LINE = Regex("""([\S]+) @ ([\S].*\S)""")
 val MATCH_ABILITY_LINE = Regex("""Ability: ([\S]+)""")
 val MATCH_RELEVANT_PART_OF_EV_LINE = Regex("""EVs: (.*)""")
 val MATCH_SINGLE_EV_DECLARATION = Regex("""(\d{1,3}) (\w{3})""")
@@ -21,13 +19,21 @@ val MATCH_NATURE = Regex("""(\w*) Nature""")
 val MATCH_RELEVANT_PART_OF_IV_LINE = Regex("""IVs: (.*)""")
 val MATCH_MOVE = Regex("""- (.*)""")
 
+val MAX_IVS : IvSpread = IvSpread.newBuilder()
+    .setHp(31)
+    .setAttack(31)
+    .setDefense(31)
+    .setSpecialAttack(31)
+    .setSpecialDefense(31)
+    .setSpeed(31)
+    .build()
+
 /**
  * Load a team from a Java resource.
  */
 fun loadTeamFromResource(resource : URL) : List<PokemonDefinition> {
   return loadTeamFromLines(Resources.readLines(resource, Charset.forName("UTF-8")));
 }
-
 
 internal fun loadTeamFromLines(lines : List<String>) : List<PokemonDefinition> {
   var index = 0
@@ -76,9 +82,9 @@ private fun readSinglePokemon(lines : List<String>, startIndex: Int) : ReadSingl
   index++
   if (MATCH_RELEVANT_PART_OF_IV_LINE.matches(lines[index])) {
     // TODO: Actually set this stuff!
-
     index++
   }
+  builder.ivs = MAX_IVS
 
   while (true) {
     if (index == lines.size) {

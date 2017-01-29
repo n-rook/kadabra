@@ -27,6 +27,9 @@ message PokemonSpec {
   string species = 1;
 
   // The Pokemon's ability, e.g. "Synchronize".
+  // TODO: Pokemon Showdown's wire format serializes this as an integer based
+  // on which index ability this is. As such, we'll have to send that over the
+  // wire here, too. Ugh.
   string ability = 2;
 
   EvSpread evs = 3;
@@ -53,6 +56,7 @@ message EvSpread {
 }
 
 // Legal values for each stat here range from 0 to 31.
+// Be aware: If omitted, the default is ZERO!
 message IvSpread {
   int32 hp = 1;
   int32 attack = 2;

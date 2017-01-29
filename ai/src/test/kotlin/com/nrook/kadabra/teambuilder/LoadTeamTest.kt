@@ -38,4 +38,10 @@ class LoadTeamTest {
     assertThat(lead.moves).containsExactly(
         "Psychic", "Focus Blast", "Shadow Ball", "Substitute")
   }
+
+  @Test
+  fun loadsTwoWordItems() {
+    val team = loadTeamFromResource(RESOURCE)
+    assertThat(team[2].item).isEqualTo("Choice Band")
+  }
 }

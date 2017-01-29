@@ -6,8 +6,7 @@ const TeamClient = require('./teamclient');
 
 const LOCALHOST_URL = 'ws://localhost:8000/showdown/websocket';
 
-const GIANT_UTM_STRING = '|/utm |alakazam|alakazite||psychic,focusblast,shadowball,substitute|Timid|,,,252,4,252||,0,,,,|||]|skarmory|leftovers|1|roost,spikes,bravebird,whirlwind|Impish|252,,252,,,4|||||]|garchomp|choiceband|H|earthquake,outrage,stoneedge,poisonjab|Jolly|,252,,,4,252|||||]|marowakalola|thickclub|1|bonemerang,flareblitz,ironhead,ironhead|Adamant|248,252,,,8,|||||]|nihilego|leftovers||powergem,sludgebomb,toxicspikes,rest|Modest|252,,,252,4,||,0,,,,|||]|togekiss|leftovers|1|airslash,nastyplot,roost,thunderwave|Calm|252,,,4,252,||,0,,,,|||'
-
+const teamClient = new TeamClient();
 showdown(LOCALHOST_URL).then((connection) => {
   connection.on('message', function(message) {
     console.log(message);
@@ -31,8 +30,12 @@ showdown(LOCALHOST_URL).then((connection) => {
           console.log('We are challenged by these folks', Object.keys(challengeData.challengesFrom));
           console.log('Well, we should get them back!');
 
-          // First send 'utm'.
-          connection.send(GIANT_UTM_STRING)
+          teamClient.getTeam('ou')
+              .then((team) => {
+                const utmString = '|/utm ' + team.toShowdownPayload();
+                console.log('Sending UTM string', utmString);
+                return connection.send(utmString);
+              })
               .then(() => {
                 const sendString = '|/accept ' + Object.keys(challengeData.challengesFrom)[0]
                 return connection.send(sendString);
@@ -51,22 +54,3 @@ showdown(LOCALHOST_URL).then((connection) => {
     });
   });
 });
-
-// const teamClient = new TeamClient();
-// teamClient.getTeam('ou')
-//     .then((team) => {
-//       console.log(team);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     })
-
-
-// showdown().then((connection) => {
-//   connection.on('message', function(message) {
-//     console.log(message);
-//   });
-// })
-// .catch((err) => {
-//   console.log('EVERYTHING BROKE', err);
-// });
