@@ -2,19 +2,20 @@ const path = require('path');
 const util = require('util');
 
 const grpc = require('grpc');
-const Promise = require('bluebird');
+import * as Promise from 'bluebird';
 
-const Team = require('./team');
+import Team = require('./team');
 
 const protoPath = path.normalize('../proto');
 const aiDescriptor = grpc.load(protoPath + '/ai.proto');
 
 class TeamClient {
+  stub: any
   constructor(port) {
     this.stub = new aiDescriptor.kadabra.TeamService(`localhost:${port}`, grpc.credentials.createInsecure());
   }
 
-  getTeam(metagame) {
+  getTeam(metagame): Promise<Team> {
     return Promise.fromCallback((callback) => {
       this.stub.getTeam({metagame}, callback);
     }).then((response) => {
@@ -24,4 +25,4 @@ class TeamClient {
   }
 }
 
-module.exports = TeamClient;
+export = TeamClient;

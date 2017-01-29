@@ -51,7 +51,7 @@ class Team {
     this.teamObject = teamObject;
   }
 
-  toShowdownPayload() {
+  toShowdownPayload() : String {
     const individualPayloads = this.teamObject.pokemon.map((data) => {
       const moves = toShowdownInColumnArray(data.move.map(convertMoveName), 4);
 
