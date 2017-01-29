@@ -9,7 +9,7 @@ import Team = require('./team');
 const protoPath = path.normalize('../proto');
 const aiDescriptor = grpc.load(protoPath + '/ai.proto');
 
-class TeamClient {
+export class TeamClient {
   stub: any
   constructor(port) {
     this.stub = new aiDescriptor.kadabra.TeamService(`localhost:${port}`, grpc.credentials.createInsecure());
@@ -24,5 +24,3 @@ class TeamClient {
     });
   }
 }
-
-export = TeamClient;

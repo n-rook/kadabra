@@ -6,7 +6,7 @@ import * as Promise from 'bluebird';
 import * as request from 'request-promise';
 
 import { ShowdownConnection, ShowdownMessage } from './showdown';
-import TeamClient = require('./teamclient');
+import { TeamClient } from './teamclient';
 
 const _ = require('lodash');
 
@@ -44,7 +44,7 @@ interface Challenges {
   challengesTo: any
 }
 
-class ShowdownDirector {
+export class ShowdownDirector {
   connection: ShowdownConnection;
   teamClient: TeamClient;
   challenges: Challenges;
@@ -179,5 +179,3 @@ class ShowdownDirector {
     return this.connection.send('|/autojoin');
   }
 }
-
-module.exports = ShowdownDirector;
