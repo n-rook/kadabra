@@ -1,6 +1,7 @@
-const expect = require('chai').expect;
+import * as Chai from 'chai';
+const expect = Chai.expect;
 
-const Team = require('./team');
+import Team = require('./team');
 
 const CONSTANT_TEAM = {pokemon: [
   {

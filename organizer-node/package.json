@@ -6,6 +6,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.38",
+    "@types/node": "^7.0.4",
     "bluebird": "^3.4.7",
     "grpc": "^1.0.1",
     "lodash": "^4.17.4",
@@ -29,7 +32,7 @@
     "gulp-typescript": "^3.1.4",
     "gulp-util": "^3.0.8",
     "install-peerdeps": "^1.1.2",
-    "mocha": "^3.2.0",
+    "mocha": "~3.2.0",
     "typescript": "^2.1.5"
   }
 }

@@ -16,7 +16,7 @@ gulp.task('build', function() {
 });
 
 gulp.task('test', function() {
-  gulp.src('**/*_spec.js')
+  gulp.src('built/**/*_spec.js')
       .pipe($.mocha());
 });
 
