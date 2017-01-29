@@ -19,6 +19,7 @@
       "no-use-before-define": ["off"],
       "no-trailing-spaces": ["error", {"skipBlankLines": true}],
       "arrow-body-style": ["off"],
-      "no-unused-vars": ["error", { "vars": "local", "args": "after-used", "varsIgnorePattern": "unused" }]
+      "no-unused-vars": ["error", { "vars": "local", "args": "after-used", "varsIgnorePattern": "unused" }],
+      "no-underscore-dangle": ["off"]
     }
 }
