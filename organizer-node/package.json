@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "del": "^2.2.2",
     "eslint": "^3.13.0",
     "eslint-config-airbnb": "^14.0.0",
     "eslint-plugin-import": "^2.2.0",
@@ -25,8 +26,10 @@
     "gulp-live-server": "0.0.30",
     "gulp-load-plugins": "^1.4.0",
     "gulp-mocha": "^3.0.1",
+    "gulp-typescript": "^3.1.4",
     "gulp-util": "^3.0.8",
     "install-peerdeps": "^1.1.2",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "typescript": "^2.1.5"
   }
 }

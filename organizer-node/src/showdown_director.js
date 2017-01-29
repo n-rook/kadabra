@@ -125,6 +125,7 @@ class ShowdownDirector {
    * @return {!Promise} The outcome of logging in.
    */
   setUsername(username) {
+    console.log(`Starting the process of logging in as ${username}`)
     return this._loginStatus.challstr
         .then((challstr) => {
           const urlString = CENTRAL_SERVER_HOSTNAME + '/~~localhost/action.php';

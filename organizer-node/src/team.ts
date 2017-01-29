@@ -1,4 +1,4 @@
-const _ = require('lodash');
+import * as _ from 'lodash';
 
 function convertMoveName(name) {
   // Convert a real move name to the Showdown move name.
@@ -45,6 +45,8 @@ function toShowdownInColumnArray(values, size) {
 }
 
 class Team {
+  teamObject: any;
+
   constructor(teamObject) {
     this.teamObject = teamObject;
   }
@@ -73,4 +75,4 @@ class Team {
   }
 }
 
-module.exports = Team;
+export = Team;
