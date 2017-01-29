@@ -1,5 +1,3 @@
-// const _ = require('lodash');
-
 const showdown = require('./showdown');
 const ShowdownDirector = require('./showdown_director');
 const TeamClient = require('./teamclient');
