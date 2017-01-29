@@ -2,23 +2,32 @@
  * @fileOverview A high-level class which handles a connection to Showdown.
  */
 
-const Promise = require('bluebird');
+import * as Promise from 'bluebird';
+import * as request from 'request-promise';
 
-const request = require('request-promise');
+import { ShowdownConnection, ShowdownMessage } from './showdown';
+import TeamClient = require('./teamclient');
 
 const _ = require('lodash');
 
 const CENTRAL_SERVER_HOSTNAME = 'play.pokemonshowdown.com';
 
+/**
+ * A private helper class to manage authentication status.
+ */
 class LoginStatus {
+  challstr: Promise<String>;
+  _resolve_challstr: (string) => void;
+  _challstr_is_set: boolean;
+
   constructor() {
     this.challstr = new Promise((resolve) => {
       this._resolve_challstr = resolve;
-    });
+    }) as Promise<String>;
     this._challstr_is_set = false;
   }
 
-  setChallstr(challstr) {
+  setChallstr(challstr: string): void {
     if (this._challstr_is_set) {
       throw Error('Cannot set challstr; it is already set');
     }
@@ -27,7 +36,20 @@ class LoginStatus {
   }
 }
 
+interface Challenges {
+  challengesFrom: {
+    [key:string]: string
+  },
+  // I don't actually know this format right now
+  challengesTo: any
+}
+
 class ShowdownDirector {
+  connection: ShowdownConnection;
+  teamClient: TeamClient;
+  challenges: Challenges;
+  _loginStatus: LoginStatus;
+
   /**
    * @param {!Showdown} connection Connection to Showdown.
    * @param {!TeamClient} teamClient
@@ -45,9 +67,11 @@ class ShowdownDirector {
   }
 
   /**
-   * @param {!Showdown.Message}
+   * Handles an incoming message. Sometimes kicks off async actions.
+   * 
+   * @param {!ShowdownMessage}
    */
-  handleMessage(message) {
+  handleMessage(message: ShowdownMessage): void {
     if (!message.splitLines) {
       return;
     }
@@ -124,7 +148,7 @@ class ShowdownDirector {
    * @param {string} username The intended username.
    * @return {!Promise} The outcome of logging in.
    */
-  setUsername(username) {
+  setUsername(username): Promise<{}> {
     console.log(`Starting the process of logging in as ${username}`)
     return this._loginStatus.challstr
         .then((challstr) => {
@@ -151,7 +175,7 @@ class ShowdownDirector {
    *
    * @return {!Promise}
    */
-  autoJoin() {
+  autoJoin() : Promise<{}> {
     return this.connection.send('|/autojoin');
   }
 }

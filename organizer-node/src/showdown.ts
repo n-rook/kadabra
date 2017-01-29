@@ -1,18 +1,20 @@
-const EventEmitter = require('events');
+import * as EventEmitter from 'events';
 
-const Promise = require('bluebird');
-const WebSocket = require('ws');
+import * as Promise from 'bluebird';
+import * as WebSocket from 'ws';
 
-class ShowdownConnection extends EventEmitter {
+export class ShowdownConnection extends EventEmitter {
+
+  _connection: WebSocket
   constructor(connection) {
     super();
 
     // WebSocket
-    this.connection = connection;
-    this.connection.on('message', this.handleMessage.bind(this));
+    this._connection = connection;
+    this._connection.on('message', this.handleMessage.bind(this));
   }
 
-  handleMessage(data, flags) {
+  handleMessage(data, flags): void {
     if (flags.binary) {
       console.log('This is odd: received binary data.');
       return;
@@ -21,15 +23,15 @@ class ShowdownConnection extends EventEmitter {
     this.emit('message', parseShowdownMessage(data));
   }
 
-  send(data) {
+  send(data): Promise<any> {
     console.log('> ', data);
     return Promise.fromCallback((resolver) => {
-      this.connection.send(data, {}, resolver);
+      this._connection.send(data, {}, resolver);
     });
   }
 }
 
-function parseShowdownMessage(data) {
+function parseShowdownMessage(data) : ShowdownMessage {
   // Showdown websockets messages consist of the following data:
   // Header: An optional leading line that begins with >. Used for battles.
   // For instance, >battle-gen7randombattle-34
@@ -72,14 +74,17 @@ function parseShowdownMessage(data) {
   return new ShowdownMessage(header, splitLines);
 }
 
-class ShowdownMessage {
+export class ShowdownMessage {
+  header: string;
+  splitLines: string[][]
+
   constructor(header, splitLines) {
     this.header = header;
     this.splitLines = splitLines;
   }
 }
 
-function connect(url) {
+export function connect(url): Promise<ShowdownConnection> {
   return new Promise(function(resolve) {
     console.log('Establishing connection to ' + url);
 
@@ -91,7 +96,5 @@ function connect(url) {
     connection.on('error', function(err) {
       console.log('Oh no! Error.', err);
     });
-  });
+  }) as Promise<ShowdownConnection>;
 }
-
-module.exports = connect;

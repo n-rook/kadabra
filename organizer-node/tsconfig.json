@@ -8,7 +8,9 @@
             "chai", 
             "bluebird",
             "mocha",
-            "node"] 
+            "node",
+            "request-promise",
+            "ws"] 
     },
     "include": [
         "./src/**/*"
