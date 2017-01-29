@@ -1,11 +1,7 @@
-'use strict';
-
 const EventEmitter = require('events');
 
 const Promise = require('bluebird');
 const WebSocket = require('ws');
-
-const URL = 'ws://localhost:8000/showdown/websocket';
 
 class ShowdownConnection extends EventEmitter {
   constructor(connection) {
@@ -44,7 +40,7 @@ function parseShowdownMessage(data) {
   // Example:
   // |init|battle
   // |title|nrook vs. Guest 14
-  // 
+  //
   // Empty lines:
   // For some reason, sometimes Showdown transmits empty lines. I don't know why.
   const lines = data.split('\n');
@@ -85,7 +81,7 @@ class ShowdownMessage {
 
 function connect(url) {
   return new Promise(function(resolve) {
-    console.log('Establishing connection to ' + url)
+    console.log('Establishing connection to ' + url);
 
     const connection = new WebSocket(url);
     connection.on('open', function() {
@@ -96,6 +92,6 @@ function connect(url) {
       console.log('Oh no! Error.', err);
     });
   });
-};
+}
 
 module.exports = connect;

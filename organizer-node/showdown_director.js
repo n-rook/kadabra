@@ -2,7 +2,7 @@
  * @fileOverview A high-level class which handles a connection to Showdown.
  */
 
-'use strict';
+const _ = require('lodash');
 
 class ShowdownDirector {
   /**
@@ -11,13 +11,13 @@ class ShowdownDirector {
    */
   constructor(connection, teamClient) {
     this.connection = connection;
-    this.teamClient = teamClient
+    this.teamClient = teamClient;
     this.challenges = {
       challengesFrom: {},
       challengesTo: {}
     };
 
-    this.connection.on('message', this.handleMessage.bind(this))
+    this.connection.on('message', this.handleMessage.bind(this));
   }
 
   /**
@@ -28,7 +28,6 @@ class ShowdownDirector {
       return;
     }
 
-    
     console.log(message);
 
     if (!message.splitLines) {

@@ -1,0 +1,24 @@
+{
+    "extends": "airbnb",
+    "env": {
+      "node": true,
+      "mocha": true
+    },
+    "rules": {
+      "linebreak-style": ["error", "windows"],
+      "import/no-extraneous-dependencies": ["error", {"devDependencies": ["gulpfile.js", "**/*_spec.js"]}],
+      "comma-dangle": ["error", "never"],
+      "object-curly-spacing": ["error", "never"],
+      "func-names": ["off"],
+      "prefer-arrow-callback": ["off"],
+      "space-before-function-paren": ["off"],
+      "prefer-template": ["off"],
+      "no-console": ["off"],
+      "no-plusplus": ["off"],
+      "arrow-parens": ["off"],
+      "no-use-before-define": ["off"],
+      "no-trailing-spaces": ["error", {"skipBlankLines": true}],
+      "arrow-body-style": ["off"],
+      "no-unused-vars": ["error", { "vars": "local", "args": "after-used", "varsIgnorePattern": "unused" }]
+    }
+}

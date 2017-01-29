@@ -12,11 +12,18 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "eslint": "^3.13.0",
+    "eslint-config-airbnb": "^14.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.9.0",
     "gulp": "^3.9.1",
+    "gulp-eslint": "^3.0.1",
     "gulp-live-server": "0.0.30",
     "gulp-load-plugins": "^1.4.0",
     "gulp-mocha": "^3.0.1",
     "gulp-util": "^3.0.8",
+    "install-peerdeps": "^1.1.2",
     "mocha": "^3.2.0"
   }
 }

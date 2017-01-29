@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 
 function convertMoveName(name) {
@@ -65,7 +63,7 @@ class Team {
         '', // unknown
         convertIvs(data.ivs),
         '', // unknown
-        '', // unknown
+        '' // unknown
       ];
 
       return columnList.join('|');
