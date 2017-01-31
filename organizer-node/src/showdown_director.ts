@@ -2,13 +2,13 @@
  * @fileOverview A high-level class which handles a connection to Showdown.
  */
 
+import * as _ from 'lodash';
 import * as Promise from 'bluebird';
 import * as request from 'request-promise';
+import * as logger from 'winston';
 
 import { ShowdownConnection, ShowdownMessage } from './showdown';
 import { TeamClient } from './teamclient';
-
-const _ = require('lodash');
 
 const CENTRAL_SERVER_HOSTNAME = 'play.pokemonshowdown.com';
 
@@ -76,8 +76,6 @@ export class ShowdownDirector {
       return;
     }
 
-    console.log(message);
-
     if (!message.splitLines) {
       return;
     }
@@ -90,8 +88,6 @@ export class ShowdownDirector {
         }
         case 'challstr': {
           const challstr = submessage.slice(1).join('|');
-          // const challstr = submessage[2];
-          console.log(`Received challenge string: ${challstr}`);
           this._loginStatus.setChallstr(challstr);
           break;
         }
@@ -106,7 +102,7 @@ export class ShowdownDirector {
           break;
         }
         default: {
-          console.log('Got message', submessage[0]);
+          logger.info('Received unhandled message', submessage[0]);
         }
       }
     });
@@ -119,7 +115,7 @@ export class ShowdownDirector {
     const challenges = this.challenges.challengesFrom;
     
     // For now, just consider the first challenger.
-    if (!challenges) {
+    if (_.isEmpty(challenges)) {
       return;
     }
     const challenger = Object.keys(challenges)[0];

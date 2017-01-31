@@ -3,6 +3,13 @@ import * as EventEmitter from 'events';
 import * as Promise from 'bluebird';
 import * as WebSocket from 'ws';
 
+import * as logger from 'winston';
+const showdownLogger = new (logger.Logger)({
+  transports: [
+    new (logger.transports.Console)()
+  ]
+});
+
 export class ShowdownConnection extends EventEmitter {
 
   _connection: WebSocket
@@ -16,15 +23,15 @@ export class ShowdownConnection extends EventEmitter {
 
   handleMessage(data, flags): void {
     if (flags.binary) {
-      console.log('This is odd: received binary data.');
+      logger.warn('Received binary data from Showdown');
       return;
     }
-    console.log('Received a message!\n' + data);
+    showdownLogger.info('<', data);
     this.emit('message', parseShowdownMessage(data));
   }
 
   send(data): Promise<any> {
-    console.log('> ', data);
+    showdownLogger.info('>', data);
     return Promise.fromCallback((resolver) => {
       this._connection.send(data, {}, resolver);
     });
@@ -86,7 +93,7 @@ export class ShowdownMessage {
 
 export function connect(url): Promise<ShowdownConnection> {
   return new Promise(function(resolve) {
-    console.log('Establishing connection to ' + url);
+    logger.info('Establishing connection to', url);
 
     const connection = new WebSocket(url);
     connection.on('open', function() {
@@ -94,7 +101,7 @@ export function connect(url): Promise<ShowdownConnection> {
     });
     
     connection.on('error', function(err) {
-      console.log('Oh no! Error.', err);
+      logger.error('Connection error:', err);
     });
   }) as Promise<ShowdownConnection>;
 }
