@@ -12,7 +12,7 @@ const showdownLogger = new (logger.Logger)({
 
 export class ShowdownConnection extends EventEmitter {
 
-  _connection: WebSocket
+  _connection: WebSocket;
   constructor(connection) {
     super();
 
@@ -38,7 +38,7 @@ export class ShowdownConnection extends EventEmitter {
   }
 }
 
-function parseShowdownMessage(data) : ShowdownMessage {
+function parseShowdownMessage(data): ShowdownMessage {
   // Showdown websockets messages consist of the following data:
   // Header: An optional leading line that begins with >. Used for battles.
   // For instance, >battle-gen7randombattle-34
@@ -83,7 +83,7 @@ function parseShowdownMessage(data) : ShowdownMessage {
 
 export class ShowdownMessage {
   header: string;
-  splitLines: string[][]
+  splitLines: string[][];
 
   constructor(header, splitLines) {
     this.header = header;

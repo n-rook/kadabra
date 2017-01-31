@@ -36,18 +36,18 @@ class LoginStatus {
   }
 }
 
-interface Challenges {
+interface IChallenges {
   challengesFrom: {
-    [key:string]: string
-  },
+    [key: string]: string
+  };
   // I don't actually know this format right now
-  challengesTo: any
+  challengesTo: any;
 }
 
 export class ShowdownDirector {
   connection: ShowdownConnection;
   teamClient: TeamClient;
-  challenges: Challenges;
+  challenges: IChallenges;
   _loginStatus: LoginStatus;
 
   /**
@@ -145,7 +145,7 @@ export class ShowdownDirector {
    * @return {!Promise} The outcome of logging in.
    */
   setUsername(username): Promise<{}> {
-    console.log(`Starting the process of logging in as ${username}`)
+    console.log(`Starting the process of logging in as ${username}`);
     return this._loginStatus.challstr
         .then((challstr) => {
           const urlString = CENTRAL_SERVER_HOSTNAME + '/~~localhost/action.php';
@@ -171,7 +171,7 @@ export class ShowdownDirector {
    *
    * @return {!Promise}
    */
-  autoJoin() : Promise<{}> {
+  autoJoin(): Promise<{}> {
     return this.connection.send('|/autojoin');
   }
 }

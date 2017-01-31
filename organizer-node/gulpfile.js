@@ -21,10 +21,12 @@ gulp.task('test', function() {
 });
 
 gulp.task('lint', function() {
-  return gulp.src('**/*.js')
-      .pipe($.eslint())
-      .pipe($.eslint.format())
-      .pipe($.eslint.failAfterError());
+  return gulp.src('src/**/*.ts')
+      .pipe($.tslint({
+          formatter: "verbose",
+          configuration: ".tslint.json"
+      }))
+      .pipe($.tslint.report({summarizeFailureOutput: true}));
 });
 
 gulp.task('default', ['build'], function() {

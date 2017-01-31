@@ -161,7 +161,6 @@ const CONSTANT_TEAM = {pokemon: [
 
 const ADJUSTED_EXPECTED_OUTPUT = '|alakazam|alakazite||psychic,focusblast,shadowball,substitute|Timid|0,0,0,252,4,252||,0,,,,|||]|skarmory|leftovers|1|roost,spikes,bravebird,whirlwind|Impish|252,0,252,0,0,4|||||]|garchomp|choiceband|H|earthquake,outrage,stoneedge,poisonjab|Jolly|0,252,0,0,4,252|||||]|marowakalola|thickclub|1|bonemerang,flareblitz,ironhead,|Adamant|248,252,0,0,8,0|||||]|nihilego|leftovers||powergem,sludgebomb,toxicspikes,rest|Modest|252,0,0,252,4,0||,0,,,,|||]|togekiss|leftovers|1|airslash,nastyplot,roost,thunderwave|Calm|252,0,0,4,252,0||,0,,,,|||';
 
-
 // const EXPECTED_OUTPUT = '|alakazam|alakazite||psychic,focusblast,shadowball,substitute|Timid|,,,252,4,252||,0,,,,|||]|skarmory|leftovers|1|roost,spikes,bravebird,whirlwind|Impish|252,,252,,,4|||||]|garchomp|choiceband|H|earthquake,outrage,stoneedge,poisonjab|Jolly|,252,,,4,252|||||]|marowakalola|thickclub|1|bonemerang,flareblitz,ironhead,ironhead|Adamant|248,252,,,8,|||||]|nihilego|leftovers||powergem,sludgebomb,toxicspikes,rest|Modest|252,,,252,4,||,0,,,,|||]|togekiss|leftovers|1|airslash,nastyplot,roost,thunderwave|Calm|252,,,4,252,||,0,,,,|||';
 /* eslint-enable max-len */
 

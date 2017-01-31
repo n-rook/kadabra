@@ -10,7 +10,7 @@ const protoPath = path.normalize('../proto');
 const aiDescriptor = grpc.load(protoPath + '/ai.proto');
 
 export class TeamClient {
-  stub: any
+  stub: any;
   constructor(port) {
     this.stub = new aiDescriptor.kadabra.TeamService(`localhost:${port}`, grpc.credentials.createInsecure());
   }
