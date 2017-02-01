@@ -32,6 +32,7 @@ fun createAndStartAiServer(port: Int): AiServer {
   val server = ServerBuilder.forPort(port)
       .addService(TeamService(mapOf("gen7ou" to TEAM_SELECTOR)))
       .build()
+  println("starting server on port " + port)
   server.start()
   return AiServer(server)
 }

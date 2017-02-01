@@ -12,6 +12,7 @@
     "max-classes-per-file": false,
     "ordered-imports": false,
     "max-line-length": false,
-    "member-access": false
+    "member-access": false,
+    "no-string-literal": false
   }
 }

@@ -15,8 +15,9 @@ gulp.task('build', function() {
         .js.pipe(gulp.dest("built"));
 });
 
-gulp.task('test', function() {
+gulp.task('test', ['build'], function() {
   gulp.src('built/**/*_spec.js')
+  // gulp.src('built/battle_director_spec.js')
       .pipe($.mocha());
 });
 

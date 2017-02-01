@@ -9,8 +9,12 @@ import * as logger from 'winston';
 
 import { ShowdownConnection, ShowdownMessage } from './showdown';
 import { TeamClient } from './teamclient';
+import { BattleDirector } from './battle_director';
 
 const CENTRAL_SERVER_HOSTNAME = 'play.pokemonshowdown.com';
+const BATTLE_MESSAGE_TYPES = new Set([
+  'player', 'gametype', 'gen', 'tier', 'rated', 'teampreview', 'clearpoke', 'seed', 'poke', 'rule'
+]);
 
 /**
  * A private helper class to manage authentication status.
@@ -49,6 +53,8 @@ export class ShowdownDirector {
   teamClient: TeamClient;
   challenges: IChallenges;
   _loginStatus: LoginStatus;
+  _ourUsername: string;
+  _battleDirector: BattleDirector;
 
   /**
    * @param {!Showdown} connection Connection to Showdown.
@@ -101,7 +107,24 @@ export class ShowdownDirector {
           console.log('POP-UP:\n' + popupLines.join('\n'));
           break;
         }
+        case 'init': {
+          if (submessage[1] === 'battle') {
+            logger.info(`Entered battle ${message.header}`);
+            this._battleDirector = new BattleDirector(message.header, this._ourUsername);
+          } else {
+            logger.info(`Entered chatroom ${message.header}`);
+          }
+          break;
+        }
         default: {
+          if (BATTLE_MESSAGE_TYPES.has(submessage[0])) {
+            if (!this._battleDirector) {
+              throw Error(`Received message ${submessage}, but we don't expect to be in a battle`);
+            }
+            this._battleDirector.handleMessage(submessage[0], submessage.slice(1));
+            break;
+          }
+
           logger.info('Received unhandled message', submessage[0]);
         }
       }
@@ -144,7 +167,7 @@ export class ShowdownDirector {
    * @param {string} username The intended username.
    * @return {!Promise} The outcome of logging in.
    */
-  setUsername(username): Promise<{}> {
+  setUsername(username): Promise<any> {
     console.log(`Starting the process of logging in as ${username}`);
     return this._loginStatus.challstr
         .then((challstr) => {
@@ -163,6 +186,9 @@ export class ShowdownDirector {
                 
                 return this.connection.send(`|/trn ${username},0,${assertion}`);
               });
+        })
+        .then(() => {
+          this._ourUsername = username;
         });
   }
 
