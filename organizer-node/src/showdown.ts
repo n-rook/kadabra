@@ -30,7 +30,7 @@ export class ShowdownConnection extends EventEmitter {
     this.emit('message', parseShowdownMessage(data));
   }
 
-  send(data): Promise<any> {
+  send(data): Promise<void> {
     showdownLogger.info('>', data);
     return Promise.fromCallback((resolver) => {
       this._connection.send(data, {}, resolver);

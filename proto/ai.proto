@@ -10,12 +10,27 @@ service TeamService {
   rpc GetTeam(TeamRequest) returns (TeamSpec) {}
 }
 
+// Makes decisions during battle.
+service BattleService {
+  rpc ChooseLead(LeadRequest) returns (LeadChoice) {}
+}
+
 message TeamRequest {
   string metagame = 1;
 }
 
 message TeamSpec {
   repeated PokemonSpec pokemon = 1;
+}
+
+message LeadRequest {
+  // TODO
+}
+
+message LeadChoice {
+  // The index of the lead to choose.
+  // Varies between 1 and 6.
+  int32 leadIndex = 1;
 }
 
 message PokemonSpec {

@@ -9,11 +9,12 @@ import * as logger from 'winston';
 
 import { ShowdownConnection, ShowdownMessage } from './showdown';
 import { TeamClient } from './teamclient';
+import { BattleClient } from './ai_client';
 import { BattleDirector } from './battle_director';
 
 const CENTRAL_SERVER_HOSTNAME = 'play.pokemonshowdown.com';
 const BATTLE_MESSAGE_TYPES = new Set([
-  'player', 'gametype', 'gen', 'tier', 'rated', 'teampreview', 'clearpoke', 'seed', 'poke', 'rule'
+  'player', 'gametype', 'gen', 'tier', 'rated', 'teampreview', 'clearpoke', 'seed', 'poke', 'rule', 'request'
 ]);
 
 /**
@@ -51,18 +52,21 @@ interface IChallenges {
 export class ShowdownDirector {
   connection: ShowdownConnection;
   teamClient: TeamClient;
+  battleClient: BattleClient;
   challenges: IChallenges;
   _loginStatus: LoginStatus;
   _ourUsername: string;
-  _battleDirector: BattleDirector;
+  private _battleDirector: BattleDirector;
 
   /**
    * @param {!Showdown} connection Connection to Showdown.
    * @param {!TeamClient} teamClient
+   * @param {!BattleClient} battleClient
    */
-  constructor(connection, teamClient) {
+  constructor(connection, teamClient, battleClient) {
     this.connection = connection;
     this.teamClient = teamClient;
+    this.battleClient = battleClient;
     this.challenges = {
       challengesFrom: {},
       challengesTo: {}
@@ -110,7 +114,12 @@ export class ShowdownDirector {
         case 'init': {
           if (submessage[1] === 'battle') {
             logger.info(`Entered battle ${message.header}`);
-            this._battleDirector = new BattleDirector(message.header, this._ourUsername);
+            logger.error(`battle client ${this.battleClient}`);
+            this._battleDirector = new BattleDirector(
+              message.header,
+              this._ourUsername,
+              this.battleClient,
+              this.connection);
           } else {
             logger.info(`Entered chatroom ${message.header}`);
           }
@@ -197,7 +206,7 @@ export class ShowdownDirector {
    *
    * @return {!Promise}
    */
-  autoJoin(): Promise<{}> {
+  autoJoin(): Promise<void> {
     return this.connection.send('|/autojoin');
   }
 }

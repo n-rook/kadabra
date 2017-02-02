@@ -31,6 +31,7 @@ class AiServer(val server: Server) {
 fun createAndStartAiServer(port: Int): AiServer {
   val server = ServerBuilder.forPort(port)
       .addService(TeamService(mapOf("gen7ou" to TEAM_SELECTOR)))
+      .addService(BattleService())
       .build()
   println("starting server on port " + port)
   server.start()
