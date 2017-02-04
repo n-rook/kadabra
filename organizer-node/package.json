@@ -11,6 +11,7 @@
     "@types/mocha": "^2.2.38",
     "@types/node": "^7.0.4",
     "@types/request-promise": "^4.1.33",
+    "@types/sinon": "^1.16.34",
     "@types/winston": "^2.2.0",
     "@types/ws": "0.0.38",
     "bluebird": "^3.4.7",
@@ -40,6 +41,7 @@
     "gulp-util": "^3.0.8",
     "install-peerdeps": "^1.1.2",
     "mocha": "~3.2.0",
+    "sinon": "^1.17.7",
     "typescript": "^2.1.5"
   }
 }

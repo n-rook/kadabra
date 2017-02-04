@@ -9,8 +9,8 @@ import { ShowdownConnection } from './showdown';
  * A helper class that sends messages to a specific room.
  */
 class RoomMessageSender {
-  private room: string;
-  private connection: ShowdownConnection;
+  private readonly room: string;
+  private readonly connection: ShowdownConnection;
 
   constructor(room: string, connection: ShowdownConnection) {
     this.room = room;
@@ -18,7 +18,8 @@ class RoomMessageSender {
   }
 
   send(message: string): Promise<void> {
-    return this.connection.send(`${this.room}|${message}`);
+    const ret = this.connection.send(`${this.room}|${message}`);
+    return ret;
   }
 }
 
@@ -28,10 +29,10 @@ class RoomMessageSender {
  */
 export class BattleDirector {
 
-  private room: string;
-  private ourUsername: string;
-  private battleClient: BattleClient;
-  private sender: RoomMessageSender;
+  private readonly room: string;
+  private readonly ourUsername: string;
+  private readonly battleClient: BattleClient;
+  private readonly sender: RoomMessageSender;
   
   private battleState: IBattleState;
   private battleMetadata: IBattleMetadata;
@@ -64,7 +65,15 @@ export class BattleDirector {
    * @param message The remainder of the message. For instance, if the message
    *  is |player|p1|abraca, this is ["p1", "abraca"].
    */
-  handleMessage(messageClass: string, message: string[]) {
+  handleMessage(messageClass: string, message: string[]): Promise<void> {
+    const f: () => Promise<void> = this._handleMessage.bind(this, messageClass, message);
+    return Promise.try(f);
+  }
+
+  /**
+   * Like handleMessage, but may return either undefined or a promise.
+   */
+  private _handleMessage(messageClass: string, message: string[]): Promise<void>|void {
     switch (messageClass) {
       case 'player': {
         if (message[0] === 'p1') {
@@ -74,23 +83,23 @@ export class BattleDirector {
         } else {
           throw Error('Strange player message: ' + message);
         }
-        break;
+        return;
       }
       case 'gametype': {
         this.battleMetadataBuilder['gametype'] = message[0];
-        break;
+        return;
       }
       case 'gen': {
         this.battleMetadataBuilder['generation'] = message[0];
-        break;
+        return;
       }
       case 'tier': {
         this.battleMetadataBuilder['tier'] = message[0];
-        break;
+        return;
       }
       case 'rated': {
         this.battleMetadataBuilder['rated'] = true;
-        break;
+        return;
       }
       case 'teampreview': {
         // It's not clear that this is a principled approach.
@@ -101,21 +110,19 @@ export class BattleDirector {
           this.handleRequest(this.pendingTeamBuilderRequest);
           delete this.pendingTeamBuilderRequest;
         }
-        break;
+        return;
       }
       case 'request': {
         switch (this.battleState) {
           case IBattleState.BATTLE_PREPARATIONS:
             this.pendingTeamBuilderRequest = message[0];
-            break;
+            return;
           case IBattleState.TEAM_PREVIEW:
             // TODO: test with team whose nickname contains a | symbol
-            this.handleRequest(message[0]);
-            break;
+            return this.handleRequest(message[0]);
           default:
             throw Error(`Cannot handle request in state ${this.battleState}`);
         }
-        break;
       }
       case 'j':
       case 'join':
@@ -125,7 +132,7 @@ export class BattleDirector {
       case 'poke':
       case 'rule': {
         logger.info('Received unhandled battle message', messageClass);
-        break;
+        return;
       }
       default: {
         throw Error(`Received unexpected message ${messageClass}, ${message}`);
@@ -142,16 +149,18 @@ export class BattleDirector {
     this.battleState = newState;
   }
 
-  private handleRequest(request: string): void {
+  private handleRequest(request: string): Promise<void> {
     logger.info('Handling request...');
     const parsedRequest = JSON.parse(request);
     if (parsedRequest.teamPreview) {
-      this.battleClient.chooseLead()
+      return this.battleClient.chooseLead()
           .then((leadIndex) => {
             this.shiftStateTo(IBattleState.START_OF_TURN);
             return this.sender.send(`/team ${leadIndex}`);
           });
     }
+
+    return Promise.resolve();
   }
 }
 

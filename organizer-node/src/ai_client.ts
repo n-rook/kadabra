@@ -13,7 +13,7 @@ const protoPath = path.normalize('../proto');
 const aiDescriptor = grpc.load(protoPath + '/ai.proto');
 
 export class BattleClient {
-  stub: any;
+  private stub: any;
   
   constructor(port) {
     this.stub = new aiDescriptor.kadabra.BattleService(`localhost:${port}`, grpc.credentials.createInsecure());

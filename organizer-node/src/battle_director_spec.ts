@@ -1,7 +1,12 @@
+
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
+import * as sinon from 'sinon';
+
+import {BattleClient} from './ai_client';
 import {BattleDirector} from './battle_director';
+import {ShowdownConnection} from './showdown';
 
 const REAL_INIT_LINES = [
   '|title|abraca001 vs. nrook',
@@ -40,12 +45,28 @@ const REAL_INIT_LINES = [
 ];
 
 describe('BattleDirector', function() {
+  
+  let battleClient: any;
+  let showdownConnection: any;
+
+  beforeEach(function() {
+    battleClient = sinon.createStubInstance(BattleClient);
+    showdownConnection = sinon.createStubInstance(ShowdownConnection);
+  });
+
   it('initialization', function() {
-    const director = new BattleDirector('something', 'abraca001');
-    REAL_INIT_LINES.forEach((line) => {
+    const director = new BattleDirector('room', 'abraca001', battleClient, showdownConnection);
+
+    battleClient.chooseLead.returns(Promise.resolve(1));
+    showdownConnection.send.returns(Promise.resolve());
+
+    const promises = REAL_INIT_LINES.map((line) => {
       const splitLine = line.split('|');
-      director.handleMessage(splitLine[1], splitLine.slice(2));
+      return director.handleMessage(splitLine[1], splitLine.slice(2));
     });
-    // no error
+
+    return Promise.all(promises).then(() => {
+      sinon.assert.calledWith(showdownConnection.send, 'room|/team 1');
+    });
   });
 });

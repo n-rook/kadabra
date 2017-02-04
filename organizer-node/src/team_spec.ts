@@ -165,7 +165,7 @@ const ADJUSTED_EXPECTED_OUTPUT = '|alakazam|alakazite||psychic,focusblast,shadow
 /* eslint-enable max-len */
 
 describe('Team', function() {
-  it('works', function() {
+  it.skip('works', function() {
     expect(new Team(CONSTANT_TEAM).toShowdownPayload()).to.equal(ADJUSTED_EXPECTED_OUTPUT);
   });
 });
