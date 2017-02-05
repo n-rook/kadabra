@@ -13,6 +13,9 @@ service TeamService {
 // Makes decisions during battle.
 service BattleService {
   rpc ChooseLead(LeadRequest) returns (LeadChoice) {}
+
+  // Decide what to do at the start of a turn.
+  rpc SelectAction(ActionRequest) returns (ActionResponse) {}
 }
 
 message TeamRequest {
@@ -23,14 +26,70 @@ message TeamSpec {
   repeated PokemonSpec pokemon = 1;
 }
 
+// Information about which battle is actually happening.
+// Used for continuity: there is more information about a battle than is sent
+// in a single request.
+message Room {
+  // The name of the room where the battle takes place.
+  string name = 1;
+}
+
 message LeadRequest {
-  // TODO
 }
 
 message LeadChoice {
   // The index of the lead to choose.
   // Varies between 1 and 6.
   int32 leadIndex = 1;
+}
+
+message ActionRequest {
+  Room room = 1;
+
+  // Move information available for the acting Pokemon.
+  repeated MoveStatus move = 2;
+}
+
+message ActionResponse {
+  oneof action {
+    MoveSelection move = 1;
+    SwitchSelection switch = 2;
+  }
+}
+
+// Represents selecting a move.
+message MoveSelection {
+  // The index of the move to select.
+  int32 index = 1;
+
+  // Whether or not we should Mega Evolve the current Pokemon.
+  bool mega_evolve = 2;
+}
+
+// Represents deciding to switch Pokemon.
+message SwitchSelection {
+
+  // The index of the new Pokemon to send out.
+  int32 index = 1;
+}
+
+// The status of each move of the active Pokemon.
+message MoveStatus {
+  // The move's ID, for example "flareblitz"
+  string id = 1;
+
+  // The move's current PP.
+  int32 pp = 2;
+
+  // The move's maximum PP.
+  int32 maxpp = 3;
+
+  // The Pokemon Showdown server sends a value called "target" here, but I'm
+  // not sure exactly what it means. Perhaps it appears in Doubles?
+
+  // Whether or not the move has been disabled, by an enemy move like Disable.
+  // TODO: Do moves such as Taunt cause this to be set?
+  bool disabled = 4;
 }
 
 message PokemonSpec {

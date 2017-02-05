@@ -3,6 +3,7 @@ import * as logger from 'winston';
 import * as Promise from 'bluebird';
 
 import { BattleClient } from './ai_client';
+import { get_moves } from './parse_request';
 import { ShowdownConnection } from './showdown';
 
 /**
@@ -33,7 +34,7 @@ export class BattleDirector {
   private readonly ourUsername: string;
   private readonly battleClient: BattleClient;
   private readonly sender: RoomMessageSender;
-  
+
   private battleState: IBattleState;
   private battleMetadata: IBattleMetadata;
   private battleMetadataBuilder: {};
@@ -59,7 +60,7 @@ export class BattleDirector {
 
   /**
    * Handles an incoming battle message.
-   * 
+   *
    * @param messageClass The message header. For instance, if the message is
    *  |player|p1|abraca, this is "player".
    * @param message The remainder of the message. For instance, if the message
@@ -120,6 +121,8 @@ export class BattleDirector {
           case IBattleState.TEAM_PREVIEW:
             // TODO: test with team whose nickname contains a | symbol
             return this.handleRequest(message[0]);
+          case IBattleState.START_OF_TURN:
+            return this.handleRequest(message[0]);
           default:
             throw Error(`Cannot handle request in state ${this.battleState}`);
         }
@@ -160,12 +163,16 @@ export class BattleDirector {
           });
     }
 
-    return Promise.resolve();
+    // This probably catches too much
+    return this.battleClient.selectAction(this.room, get_moves(parsedRequest))
+        .then((moveIndex) => {
+          // No shift state right now
+          return this.sender.send(`/move ${moveIndex}`);
+        });
   }
 }
 
 function buildBattleMetadata(battleMetadataBuilder: {}, ourUsername: string): IBattleMetadata {
-  logger.error(`${battleMetadataBuilder}`);
   const metadata = {
     player1: checkSet(battleMetadataBuilder, 'player1'),
     player2: checkSet(battleMetadataBuilder, 'player2'),

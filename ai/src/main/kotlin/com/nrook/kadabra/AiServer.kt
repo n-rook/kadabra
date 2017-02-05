@@ -1,6 +1,7 @@
 package com.nrook.kadabra
 
 import com.google.common.io.Resources
+import com.nrook.kadabra.ai.Ai
 import com.nrook.kadabra.info.PokemonDefinition
 import com.nrook.kadabra.teambuilder.TeamPickingStrategy
 import com.nrook.kadabra.teambuilder.loadTeamFromResource
@@ -31,7 +32,7 @@ class AiServer(val server: Server) {
 fun createAndStartAiServer(port: Int): AiServer {
   val server = ServerBuilder.forPort(port)
       .addService(TeamService(mapOf("gen7ou" to TEAM_SELECTOR)))
-      .addService(BattleService())
+      .addService(BattleService(Ai()))
       .build()
   println("starting server on port " + port)
   server.start()

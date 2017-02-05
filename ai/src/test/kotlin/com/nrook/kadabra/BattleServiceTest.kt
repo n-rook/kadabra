@@ -1,6 +1,7 @@
 package com.nrook.kadabra
 
 import com.google.common.truth.Truth.assertThat
+import com.nrook.kadabra.ai.Ai
 import com.nrook.kadabra.proto.BattleServiceGrpc
 import com.nrook.kadabra.proto.LeadRequest
 import io.grpc.ManagedChannel
@@ -20,7 +21,7 @@ class BattleServiceTest {
   fun setUp() {
     val serverName : String = "Test server " + javaClass.canonicalName
     server = InProcessServerBuilder.forName(serverName)
-        .addService(BattleService())
+        .addService(BattleService(Ai()))
         .directExecutor()
         .build()
     server.start()
