@@ -16,4 +16,8 @@ class BattleService(val ai: Ai): BattleServiceGrpc.BattleServiceImplBase() {
   override fun selectAction(request: ActionRequest, responseObserver: StreamObserver<ActionResponse>) {
     handleResponse({ai.pickStartOfTurnAction()}, responseObserver)
   }
+
+  override fun selectSwitchAfterFaint(request: SwitchAfterFaintRequest, responseObserver: StreamObserver<SwitchAfterFaintResponse>) {
+    handleResponse({ai.pickSwitchAfterFaintAction(request)}, responseObserver)
+  }
 }

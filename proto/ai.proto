@@ -16,6 +16,9 @@ service BattleService {
 
   // Decide what to do at the start of a turn.
   rpc SelectAction(ActionRequest) returns (ActionResponse) {}
+
+  // Decide what to do after a Pokemon faints.
+  rpc SelectSwitchAfterFaint(SwitchAfterFaintRequest) returns (SwitchAfterFaintResponse) {}
 }
 
 message TeamRequest {
@@ -41,6 +44,33 @@ message LeadChoice {
   // The index of the lead to choose.
   // Varies between 1 and 6.
   int32 leadIndex = 1;
+}
+
+message SwitchAfterFaintRequest {
+  Room room = 1;
+
+  SideInfo sideInfo = 2;
+}
+
+message SwitchAfterFaintResponse {
+  SwitchSelection switch = 1;
+}
+
+// Information we have about our side's Pokemon.
+message SideInfo {
+  repeated PokemonSideInfo team = 1;
+}
+
+message PokemonSideInfo {
+  string species = 1;
+
+  int32 hp = 2;
+
+  int32 maxHp = 3;
+
+  bool fainted = 4;
+
+  string item = 5;
 }
 
 message ActionRequest {

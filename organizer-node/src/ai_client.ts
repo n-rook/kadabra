@@ -9,7 +9,7 @@ import * as grpc from 'grpc';
 import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
-import {IMoveInfo} from './states';
+import { IMoveInfo, ISideInfo } from './states';
 
 const protoPath = path.normalize('../proto');
 const aiDescriptor = grpc.load(protoPath + '/ai.proto');
@@ -62,4 +62,34 @@ export class BattleClient {
       return response.move.index;
     });
   }
+
+  selectSwitchAfterFaintAction(room: string, sideInfo: ISideInfo) {
+    const request = {
+      room: {name: room},
+      sideInfo: convertSideInfoToProto(sideInfo);
+    };
+
+    return Promise.fromCallback((callback) => {
+      this.stub.selectSwitchAfterFaint(request, callback);
+    }).then((response) => {
+      return response.switch.index;
+    });
+  }
+}
+
+function convertSideInfoToProto(info: ISideInfo): {} {
+  return {
+    team: info.team.map((pokemonInfo) => {
+      const returnInfo = {
+        species: pokemonInfo.species,
+        hp: pokemonInfo.hp,
+        fainted: pokemonInfo.fainted,
+        item: pokemonInfo.item
+      };
+      if (pokemonInfo.maxHp !== null) {
+        returnInfo['maxHp'] = pokemonInfo.maxHp;
+      }
+      return returnInfo;
+    })
+  };
 }

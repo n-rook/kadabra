@@ -1,8 +1,6 @@
 package com.nrook.kadabra.ai
 
-import com.nrook.kadabra.proto.ActionResponse
-import com.nrook.kadabra.proto.LeadChoice
-import com.nrook.kadabra.proto.MoveSelection
+import com.nrook.kadabra.proto.*
 import java.util.Random
 
 
@@ -23,6 +21,30 @@ class Ai {
         .setMove(
             MoveSelection.newBuilder()
                 .setIndex(1)
+        )
+        .build()
+  }
+
+  fun pickSwitchAfterFaintAction(request: SwitchAfterFaintRequest): SwitchAfterFaintResponse {
+    val team = request.sideInfo.teamList
+
+    val indices: MutableList<Int> = mutableListOf()
+    for (i: Int in team.indices) {
+      val index = i + 1
+      val pokemon = team[i]
+
+      if (!pokemon.fainted) {
+        indices.add(index)
+      }
+    }
+
+    if (indices.size == 0) {
+      throw IllegalArgumentException("All these Pokemon are fainted! What's going on?")
+    }
+
+    return SwitchAfterFaintResponse.newBuilder()
+        .setSwitch(SwitchSelection.newBuilder()
+            .setIndex(indices[random.nextInt(indices.size)])
         )
         .build()
   }

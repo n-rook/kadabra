@@ -3,7 +3,7 @@ import * as logger from 'winston';
 import * as Promise from 'bluebird';
 
 import { BattleClient } from './ai_client';
-import { get_moves } from './parse_request';
+import { get_moves, get_side_info } from './parse_request';
 import { ShowdownConnection } from './showdown';
 
 /**
@@ -161,6 +161,20 @@ export class BattleDirector {
             this.shiftStateTo(IBattleState.START_OF_TURN);
             return this.sender.send(`/team ${leadIndex}`);
           });
+    }
+
+    if (parsedRequest.forceSwitch && parsedRequest.forceSwitch[0]) {
+      // Kind of a dubious way to detect this case
+      return this.battleClient.selectSwitchAfterFaintAction(
+        this.room, get_side_info(parsedRequest))
+        .then((switchIndex) => {
+          this.sender.send(`/switch ${switchIndex}`);
+        });
+    }
+
+    if (parsedRequest.wait) {
+      logger.info('Received "wait" request; doing nothing.');
+      return Promise.resolve();
     }
 
     // This probably catches too much
