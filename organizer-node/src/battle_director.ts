@@ -25,6 +25,60 @@ class RoomMessageSender {
 }
 
 /**
+ * A class which tracks the battle's outcome: whether we won or lost.
+ */
+class OutcomeTracker {
+
+  /**
+   * A promise containing the outcome of the game.
+   *
+   * True if we win; false if we lose; an error if we hit an error.
+   */
+  public readonly outcome: Promise<boolean>;
+
+  private state: String = 'NOT_DECIDED';
+  private resolve;
+  private reject;
+
+  constructor() {
+    this.outcome = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    }) as Promise<boolean>;
+  }
+
+  /**
+   * Record that we have won.
+   */
+  win() {
+    if (this.state !== 'NOT_DECIDED') {
+      throw Error(`Cannot have won: state already recorded as ${this.state}`);
+    }
+    this.state = 'WON';
+    this.resolve(true);
+  }
+
+  /**
+   * Record that we have lost.
+   */
+  lose() {
+    if (this.state !== 'NOT_DECIDED') {
+      throw Error(`Cannot have lost: state already recorded as ${this.state}`);
+    }
+    this.state = 'LOST';
+    this.resolve(false);
+  }
+
+  /**
+   * Record an error.
+   */
+  recordError(err: Error) {
+    logger.error(err as any);
+    this.reject(err);
+  }
+}
+
+/**
  * The battle director collects information regarding a battle, and passes
  * it along to the AI server backing this bot.
  */
@@ -34,6 +88,7 @@ export class BattleDirector {
   private readonly ourUsername: string;
   private readonly battleClient: BattleClient;
   private readonly sender: RoomMessageSender;
+  private readonly outcomeTracker: OutcomeTracker;
 
   private battleState: IBattleState;
   private battleMetadata: IBattleMetadata;
@@ -53,6 +108,7 @@ export class BattleDirector {
     this.ourUsername = ourUsername;
     this.battleClient = battleClient;
     this.sender = new RoomMessageSender(room, connection);
+    this.outcomeTracker = new OutcomeTracker();
 
     this.battleState = IBattleState.BATTLE_PREPARATIONS;
     this.battleMetadataBuilder = {};
@@ -68,7 +124,11 @@ export class BattleDirector {
    */
   handleMessage(messageClass: string, message: string[]): Promise<void> {
     const f: () => Promise<void> = this._handleMessage.bind(this, messageClass, message);
-    return Promise.try(f);
+    return Promise.try(f)
+        .catch((err) => {
+          this.outcomeTracker.recordError(err);
+          throw err;
+        });
   }
 
   /**
@@ -127,18 +187,20 @@ export class BattleDirector {
             throw Error(`Cannot handle request in state ${this.battleState}`);
         }
       }
-      case 'j':
-      case 'join':
-      case 'title':
-      case 'clearpoke':
-      case 'seed':
-      case 'poke':
-      case 'rule': {
-        logger.info('Received unhandled battle message', messageClass);
+      case 'win': {
+        const winner = message[0];
+        if (this.ourUsername === winner) {
+          logger.info('We won!');
+          this.outcomeTracker.win();
+        } else {
+          logger.info(`${winner} won :(`);
+          this.outcomeTracker.lose();
+        }
         return;
       }
       default: {
-        throw Error(`Received unexpected message ${messageClass}, ${message}`);
+        logger.info('Received unhandled battle message', messageClass);
+        return;
       }
     }
   }

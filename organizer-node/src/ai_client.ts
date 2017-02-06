@@ -63,10 +63,10 @@ export class BattleClient {
     });
   }
 
-  selectSwitchAfterFaintAction(room: string, sideInfo: ISideInfo) {
+  selectSwitchAfterFaintAction(room: string, sideInfo: ISideInfo): Promise<number> {
     const request = {
       room: {name: room},
-      sideInfo: convertSideInfoToProto(sideInfo);
+      sideInfo: convertSideInfoToProto(sideInfo)
     };
 
     return Promise.fromCallback((callback) => {

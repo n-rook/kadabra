@@ -14,7 +14,36 @@ import { BattleDirector } from './battle_director';
 
 const CENTRAL_SERVER_HOSTNAME = 'play.pokemonshowdown.com';
 const BATTLE_MESSAGE_TYPES = new Set([
-  'player', 'gametype', 'gen', 'tier', 'rated', 'teampreview', 'clearpoke', 'seed', 'poke', 'rule', 'request'
+  'choice',
+  'clearpoke',
+  'detailschange',
+  'faint',
+  'gametype',
+  'gen',
+  'immune',
+  'move',
+  'player',
+  'poke',
+  'rated',
+  'request',
+  'rule',
+  'teampreview',
+  'tier',
+  'turn',
+  'upkeep',
+  'start',
+  'seed',
+  'switch',
+  'win',
+  '-ability',
+  '-boost',
+  '-damage',
+  '-heal',
+  '-immune',
+  '-mega',
+  '-resisted',
+  '-supereffective',
+  '-unboost'
 ]);
 
 /**
@@ -78,7 +107,7 @@ export class ShowdownDirector {
 
   /**
    * Handles an incoming message. Sometimes kicks off async actions.
-   * 
+   *
    * @param {!ShowdownMessage}
    */
   handleMessage(message: ShowdownMessage): void {
@@ -145,14 +174,14 @@ export class ShowdownDirector {
    */
   considerAcceptingChallenge() {
     const challenges = this.challenges.challengesFrom;
-    
+
     // For now, just consider the first challenger.
     if (_.isEmpty(challenges)) {
       return;
     }
     const challenger = Object.keys(challenges)[0];
     const meta = challenges[challenger];
-    
+
     this.teamClient.getTeam(meta)
         .then((team) => {
           // TODO: Add error handling if team is rejected by server.
@@ -192,7 +221,7 @@ export class ShowdownDirector {
               .then((res) => {
                 const assertion = res.body;
                 console.log('Got assertion', assertion);
-                
+
                 return this.connection.send(`|/trn ${username},0,${assertion}`);
               });
         })
