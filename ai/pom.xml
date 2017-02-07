@@ -15,7 +15,8 @@
         <kotlin.version>1.0.6</kotlin.version>
         <junit.version>4.12</junit.version>
         <grpc.version>1.0.3</grpc.version>
-        <main.class>com.nrook.kadabra.MainKt</main.class>
+        <ai.class>com.nrook.kadabra.AiServerEntryPointKt</ai.class>
+        <promoter.class>com.nrook.kadabra.PromoterEntryPointKt</promoter.class>
     </properties>
 
     <dependencies>
@@ -132,13 +133,34 @@
                 <version>2.6</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
+                        <id>make-ai-server</id>
                         <phase>package</phase>
-                        <goals> <goal>single</goal> </goals>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
                         <configuration>
+                            <finalName>kadabra-ai</finalName>
                             <archive>
                                 <manifest>
-                                    <mainClass>${main.class}</mainClass>
+                                    <mainClass>${ai.class}</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-battle-runner</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>kadabra-promoter</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>${promoter.class}</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
