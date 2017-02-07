@@ -1,0 +1,35 @@
+// Contains a server which hosts and starts battles.
+
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.nrook.kadabra.proto";
+
+package kadabra;
+
+service StadiumService {
+  rpc SelfPlay(SelfPlayRequest) returns (SelfPlayResponse) {}
+}
+
+message SelfPlayRequest {
+
+}
+
+enum Winner {
+  NO_RESULT = 0;
+  PLAYER_1 = 1;
+  PLAYER_2 = 2;
+}
+
+enum Player {
+  UNKNOWN = 0;
+  ONE = 1;
+  TWO = 2;
+}
+
+message SelfPlayResponse {
+  // Who won. If UNKNOWN, then the battle ended due to some sort of error or
+  // unexpected result.
+
+  Player winner = 1;
+  string error = 2;
+}

@@ -10,9 +10,9 @@ import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
 import { IMoveInfo, ISideInfo } from './states';
+import {aiFile} from './proto_constants'
 
-const protoPath = path.normalize('../proto');
-const aiDescriptor = grpc.load(protoPath + '/ai.proto');
+const aiDescriptor = grpc.load(aiFile);
 
 // Represents a decision to use a specific move.
 export class IMoveAction {
