@@ -10,7 +10,7 @@ import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
 import { IMoveInfo, ISideInfo } from './states';
-import {aiFile} from './proto_constants';
+import { aiFile } from './proto_constants';
 
 const aiDescriptor = grpc.load(aiFile);
 

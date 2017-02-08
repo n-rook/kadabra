@@ -1,7 +1,8 @@
 const del = require('del');
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
-
+// Doesn't work through $. No idea why
+const gulpSourcemaps = require('gulp-sourcemaps');
 
 const tsProject = $.typescript.createProject("tsconfig.json");
 
@@ -10,14 +11,17 @@ gulp.task('clean', function() {
 });
 
 gulp.task('build', function() {
-  return tsProject.src()
-        .pipe(tsProject())
-        .js.pipe(gulp.dest("built"));
+  const tsResult = tsProject.src()
+      .pipe(gulpSourcemaps.init())
+      .pipe(tsProject());
+
+  return tsResult.js
+      .pipe(gulpSourcemaps.write())
+      .pipe(gulp.dest('built'));
 });
 
 gulp.task('test', ['build'], function() {
   gulp.src('built/**/*_spec.js')
-  // gulp.src('built/battle_director_spec.js')
       .pipe($.mocha());
 });
 

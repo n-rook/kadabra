@@ -1,3 +1,6 @@
+import * as sourceMapSupport from 'source-map-support';
+sourceMapSupport.install();
+
 import { connect } from './showdown';
 import { ShowdownDirector } from './showdown_director';
 import { TeamClient } from './teamclient';
