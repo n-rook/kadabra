@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
       println("Player 1 won")
     }
     Player.TWO -> {
-      println("Player 2 won");
+      println("Player 2 won")
     }
     Player.UNKNOWN -> {
       println("Error.")

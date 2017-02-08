@@ -4,7 +4,7 @@ const util = require('util');
 const grpc = require('grpc');
 import * as Promise from 'bluebird';
 
-import Team = require('./team');
+import { Team } from './team';
 
 const protoPath = path.normalize('../proto');
 const aiDescriptor = grpc.load(protoPath + '/ai.proto');

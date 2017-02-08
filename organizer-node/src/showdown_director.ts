@@ -8,6 +8,7 @@ import * as request from 'request-promise';
 import * as logger from 'winston';
 
 import { ShowdownConnection, ShowdownMessage } from './showdown';
+import { Team } from './team';
 import { TeamClient } from './teamclient';
 import { BattleClient } from './ai_client';
 import { BattleDirector } from './battle_director';
@@ -170,6 +171,15 @@ export class ShowdownDirector {
   }
 
   /**
+   * Challenge another user.
+   */
+  challenge(meta: string, challengedUser: string): Promise<void> {
+    return this.teamClient.getTeam(meta)
+        .then((team) => this._useTeam(team))
+        .then(() => this.connection.send(`|/challenge ${challengedUser}, ${meta}`));
+  }
+
+  /**
    * Consider accepting a challenge from someone who is challenging us.
    */
   considerAcceptingChallenge() {
@@ -183,17 +193,24 @@ export class ShowdownDirector {
     const meta = challenges[challenger];
 
     this.teamClient.getTeam(meta)
-        .then((team) => {
-          // TODO: Add error handling if team is rejected by server.
-          const useteam = '|/utm ' + team.toShowdownPayload();
-          return this.connection.send(useteam);
-        })
+        .then((team) => this._useTeam(team))
         .then(() => {
           return this.connection.send(`|/accept ${challenger}`);
         })
         .catch((err) => {
           console.log(`Failed to challenge ${challenger}: `, err);
         });
+  }
+
+  /**
+   * Sends a message selecting this team for battle.
+   *
+   * This must be called before challenging someone or accepting a challenge.
+   */
+  private _useTeam(team: Team): Promise<void> {
+      // TODO: Add error handling if team is rejected by server.
+      const useteam = '|/utm ' + team.toShowdownPayload();
+      return this.connection.send(useteam);
   }
 
   /**
@@ -205,7 +222,7 @@ export class ShowdownDirector {
    * @param {string} username The intended username.
    * @return {!Promise} The outcome of logging in.
    */
-  setUsername(username): Promise<any> {
+  setUsername(username): Promise<void> {
     console.log(`Starting the process of logging in as ${username}`);
     return this._loginStatus.challstr
         .then((challstr) => {

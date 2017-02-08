@@ -16,12 +16,20 @@ class Ai {
         .build()
   }
 
-  fun pickStartOfTurnAction(): ActionResponse {
+  fun pickStartOfTurnAction(request: ActionRequest): ActionResponse {
+    val legalMoves: MutableList<Int> = mutableListOf()
+    for (i: Int in 0 until request.moveCount) {
+      if (!request.moveList[i].disabled) {
+        legalMoves.add(i)
+      }
+    }
+
+    val moveIndex = legalMoves[random.nextInt(legalMoves.size)] + 1
+
     return ActionResponse.newBuilder()
         .setMove(
             MoveSelection.newBuilder()
-                .setIndex(1)
-        )
+                .setIndex(moveIndex))
         .build()
   }
 

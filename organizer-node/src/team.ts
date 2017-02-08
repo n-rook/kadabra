@@ -44,7 +44,7 @@ function toShowdownInColumnArray(values, size) {
   return values.join(',');
 }
 
-class Team {
+export class Team {
   teamObject: any;
 
   constructor(teamObject) {
@@ -74,5 +74,3 @@ class Team {
     return '|' + individualPayloads.join('|]|') + '|';
   }
 }
-
-export = Team;

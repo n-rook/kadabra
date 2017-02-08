@@ -2,11 +2,14 @@
  * Hosts the stadium service.
  */
 
+import * as Promise from 'bluebird';
 import * as grpc from 'grpc';
 
 import * as logger from 'winston';
 
+import { connect } from './showdown';
 import { BattleClient } from './ai_client';
+import { ShowdownDirector } from './showdown_director';
 import { TeamClient } from './teamclient';
 import { stadiumFile } from './proto_constants';
 
@@ -46,7 +49,37 @@ class StadiumServer {
     this.battleClient = battleClient;
   }
 
-  handleSelfPlay(selfPlayRequest): {} {
-    throw Error('no');
+  handleSelfPlay(selfPlayRequest, callback): void {
+    Promise.resolve(this._handleSelfPlay(selfPlayRequest))
+        .asCallback(callback);
+  }
+
+  _handleSelfPlay(selfPlayRequest): Promise<{}> {
+    // const connectionOne = this._newShowdownDirector('abraca001');
+    // const connectionTwo = this._newShowdownDirector('abraca002');
+
+    // Let's do them in order?
+    return this._newShowdownDirector('abraca001')
+        .then((directorOne) => {
+          return this._newShowdownDirector('abraca002')
+              .then((directorTwo) => [directorOne, directorTwo])
+        })
+        .then(([directorOne, directorTwo]) => {
+          return directorOne.challenge('gen7ou', 'abraca002')
+              .then(() => directorTwo.considerAcceptingChallenge());
+        })
+        .then(() => {
+          // not done yet...
+          return {};
+        });
+  }
+
+  _newShowdownDirector(username: string): Promise<ShowdownDirector> {
+    const director: Promise<ShowdownDirector> = connect(this.showdownWebSocketUrl)
+        .then((connection) => new ShowdownDirector(
+            connection, this.teamClient, this.battleClient));
+    return director.then((d) => {
+      return d.setUsername(username).then(() => d);
+    });
   }
 }

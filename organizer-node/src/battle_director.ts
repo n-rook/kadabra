@@ -127,6 +127,7 @@ export class BattleDirector {
     return Promise.try(f)
         .catch((err) => {
           this.outcomeTracker.recordError(err);
+          logger.error('Error handling battle message', err, messageClass, message);
           throw err;
         });
   }

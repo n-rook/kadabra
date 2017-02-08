@@ -1,7 +1,7 @@
 import * as Chai from 'chai';
 const expect = Chai.expect;
 
-import Team = require('./team');
+import { Team } from './team';
 
 const CONSTANT_TEAM = {pokemon: [
   {

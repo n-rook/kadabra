@@ -1,9 +1,7 @@
 package com.nrook.kadabra.ai
 
 import com.google.common.truth.Truth
-import com.nrook.kadabra.proto.PokemonSideInfo
-import com.nrook.kadabra.proto.SideInfo
-import com.nrook.kadabra.proto.SwitchAfterFaintRequest
+import com.nrook.kadabra.proto.*
 import org.junit.Before
 import org.junit.Test
 
@@ -24,8 +22,37 @@ class AiTest {
 
   @Test
   fun pickStartOfTurnAction() {
-    val result = ai.pickStartOfTurnAction()
-    Truth.assertThat(result.move.index).isEqualTo(1)
+    val result = ai.pickStartOfTurnAction(ActionRequest.newBuilder()
+        .addMove(MoveStatus.newBuilder()
+            .setId("flareblitz")
+            .setPp(5)
+            .setMaxpp(8)
+            .setDisabled(false))
+        .addMove(MoveStatus.newBuilder()
+            .setId("hyperbeam")
+            .setPp(5)
+            .setMaxpp(8)
+            .setDisabled(false))
+        .build())
+    Truth.assertThat(result.move.index).isAtLeast(1)
+    Truth.assertThat(result.move.index).isAtMost(2)
+  }
+
+  @Test
+  fun dontPickDisabledStuff() {
+    val result = ai.pickStartOfTurnAction(ActionRequest.newBuilder()
+        .addMove(MoveStatus.newBuilder()
+            .setId("flareblitz")
+            .setPp(5)
+            .setMaxpp(8)
+            .setDisabled(true))
+        .addMove(MoveStatus.newBuilder()
+            .setId("hyperbeam")
+            .setPp(5)
+            .setMaxpp(8)
+            .setDisabled(false))
+        .build())
+    Truth.assertThat(result.move.index).isEqualTo(2)
   }
 
   @Test
