@@ -17,12 +17,9 @@ class Ai {
   }
 
   fun pickStartOfTurnAction(request: ActionRequest): ActionResponse {
-    val legalMoves: MutableList<Int> = mutableListOf()
-    for (i: Int in 0 until request.moveCount) {
-      if (!request.moveList[i].disabled) {
-        legalMoves.add(i)
-      }
-    }
+    val legalMoves: List<Int> = (0 until request.moveCount)
+        .filterNot { request.moveList[it].disabled }
+        .toList()
 
     val moveIndex = legalMoves[random.nextInt(legalMoves.size)] + 1
 

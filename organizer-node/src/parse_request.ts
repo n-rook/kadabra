@@ -14,14 +14,23 @@ export function get_moves(parsedRequest: {}): IMoveInfo[] {
     throw Error('Request in unexpected state; no active Pokemon');
   }
   const active = parsedRequest['active'][0];
+  const trapped = !!active.trapped;
 
   if (!active['moves']) {
     throw Error('Request in unexpected state; no "moves" field in "active"');
   }
   const moves = active['moves'];
   return moves.map((data) => {
+    if (!data.hasOwnProperty('id')) {
+      throw Error (`Move data ${data} has no ID`);
+    }
+
+    if (trapped) {
+      // We expect less data if we're trapped.
+      return {id: data.id};
+    }
+
     if (
-      !data.hasOwnProperty('id') ||
       !data.hasOwnProperty('pp') ||
       !data.hasOwnProperty('maxpp') ||
       !data.hasOwnProperty('disabled')) {

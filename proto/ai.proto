@@ -78,6 +78,13 @@ message ActionRequest {
 
   // Move information available for the acting Pokemon.
   repeated MoveStatus move = 2;
+
+  // Whether or not we are "trapped" by a move like Outrage, able only to
+  // continue doing what we're doing. If "trapped" is true, we cannot even
+  // switch.
+  //
+  // Not yet used.
+  bool trapped = 3;
 }
 
 message ActionResponse {
@@ -109,9 +116,11 @@ message MoveStatus {
   string id = 1;
 
   // The move's current PP.
+  // If we are trapped, this is omitted.
   int32 pp = 2;
 
   // The move's maximum PP.
+  // If we are trapped, this is omitted.
   int32 maxpp = 3;
 
   // The Pokemon Showdown server sends a value called "target" here, but I'm
@@ -119,6 +128,7 @@ message MoveStatus {
 
   // Whether or not the move has been disabled, by an enemy move like Disable.
   // TODO: Do moves such as Taunt cause this to be set?
+  // If we are trapped, this is omitted.
   bool disabled = 4;
 }
 

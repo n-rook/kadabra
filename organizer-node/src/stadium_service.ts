@@ -9,7 +9,7 @@ import * as logger from 'winston';
 
 import { connect } from './showdown';
 import { BattleClient } from './ai_client';
-import { ShowdownDirector } from './showdown_director';
+import { ChallengeOutcome, ShowdownDirector } from './showdown_director';
 import { TeamClient } from './teamclient';
 import { stadiumFile } from './proto_constants';
 
@@ -55,22 +55,32 @@ class StadiumServer {
   }
 
   _handleSelfPlay(selfPlayRequest): Promise<{}> {
-    // const connectionOne = this._newShowdownDirector('abraca001');
-    // const connectionTwo = this._newShowdownDirector('abraca002');
-
     // Let's do them in order?
     return this._newShowdownDirector('abraca001')
         .then((directorOne) => {
           return this._newShowdownDirector('abraca002')
-              .then((directorTwo) => [directorOne, directorTwo])
+              .then((directorTwo) => [directorOne, directorTwo]);
         })
         .then(([directorOne, directorTwo]) => {
-          return directorOne.challenge('gen7ou', 'abraca002')
-              .then(() => directorTwo.considerAcceptingChallenge());
+          const challengeOne = directorOne.challenge('gen7ou', 'abraca002');
+          // TODO: Fix ShowdownDirector so a delay is not necessary
+          const acceptEventually = Promise.delay(5000).then(() => {
+              return directorTwo.considerAcceptingChallenge();
+          });
+          return Promise.all([challengeOne, acceptEventually])
+              .then(([outcomeOne, outcomeTwo]) => outcomeTwo);
         })
-        .then(() => {
-          // not done yet...
-          return {};
+        .then((playerTwoOutcome) => {
+          switch (playerTwoOutcome) {
+            case ChallengeOutcome.WIN:
+              return { winner: 2 };
+            case ChallengeOutcome.LOSS:
+              return { winner: 1 };
+            case ChallengeOutcome.CHALLENGE_REFUSED:
+              throw Error('Challenge refused!? This should never happen.');
+            default:
+              throw Error(`Unexpected outcome ${playerTwoOutcome}`);
+          }
         });
   }
 

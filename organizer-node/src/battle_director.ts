@@ -133,6 +133,13 @@ export class BattleDirector {
   }
 
   /**
+   * Returns a promise which fulfills as true if we win, or false if we lose.
+   */
+  getOutcome(): Promise<boolean> {
+    return this.outcomeTracker.outcome;
+  }
+
+  /**
    * Like handleMessage, but may return either undefined or a promise.
    */
   private _handleMessage(messageClass: string, message: string[]): Promise<void>|void {
