@@ -7,6 +7,7 @@ import * as Promise from 'bluebird';
 import * as request from 'request-promise';
 import * as logger from 'winston';
 
+import { Result, IBattleOutcome } from './states';
 import { ShowdownConnection, ShowdownMessage } from './showdown';
 import { Team } from './team';
 import { TeamClient } from './teamclient';
@@ -71,18 +72,6 @@ class LoginStatus {
   }
 }
 
-// Contains possible outcomes of issuing or waiting for a challenge.
-export enum ChallengeOutcome {
-  WIN,
-  LOSS,
-  CHALLENGE_REFUSED
-}
-
-function outcomeBooleanToChallengeOutcome(outcomeBoolean: boolean): ChallengeOutcome {
-  const returnValue = outcomeBoolean ? ChallengeOutcome.WIN : ChallengeOutcome.LOSS;
-  return returnValue;
-}
-
 interface IChallenges {
   challengesFrom: {
     [key: string]: string
@@ -98,8 +87,8 @@ export class ShowdownDirector {
   challenges: IChallenges;
   _loginStatus: LoginStatus;
   _ourUsername: string;
-  private _challengeOutcomeHandles:
-      Array<(resolution: ChallengeOutcome | Promise.Thenable<ChallengeOutcome>) => void>
+  private _outcomeHandles:
+      Array<(resolution: IBattleOutcome | Promise.Thenable<IBattleOutcome>) => void>
       = [];
   private _battleDirector: BattleDirector;
 
@@ -188,23 +177,25 @@ export class ShowdownDirector {
   /**
    * Challenge another user.
    */
-  challenge(meta: string, challengedUser: string): Promise<ChallengeOutcome> {
+  challenge(meta: string, challengedUser: string): Promise<IBattleOutcome> {
     return this.teamClient.getTeam(meta)
         .then((team) => this._useTeam(team))
         .then(() => this.connection.send(`|/challenge ${challengedUser}, ${meta}`))
-        .then(() => this._nextChallengeOutcome());
+        .then(() => this._nextOutcome());
   }
 
   /**
    * Consider accepting a challenge from someone who is challenging us.
    */
-  considerAcceptingChallenge(): Promise<ChallengeOutcome> {
+  considerAcceptingChallenge(): Promise<IBattleOutcome> {
     const challenges = this.challenges.challengesFrom;
 
     // For now, just consider the first challenger.
     if (_.isEmpty(challenges)) {
-      throw Error('no');
-      // return Promise.resolve(ChallengeOutcome.CHALLENGE_REFUSED);
+      return Promise.resolve({
+        result: Result.NO_RESULT,
+        logs: []
+      });
     }
     const challenger = Object.keys(challenges)[0];
     const meta = challenges[challenger];
@@ -212,25 +203,23 @@ export class ShowdownDirector {
     return this.teamClient.getTeam(meta)
         .then((team) => this._useTeam(team))
         .then(() => this.connection.send(`|/accept ${challenger}`))
-        .then(() => this._nextChallengeOutcome());
+        .then(() => this._nextOutcome());
 
   }
 
-  _nextChallengeOutcome(): Promise<ChallengeOutcome> {
+  _nextOutcome(): Promise<IBattleOutcome> {
     if (this._battleDirector) {
-      return this._battleDirector.getOutcome()
-          .then(outcomeBooleanToChallengeOutcome);
+      return this._battleDirector.getOutcome();
     } else {
-      const promise = new Promise((resolve) => this._challengeOutcomeHandles.push(resolve));
-      return promise as Promise<ChallengeOutcome>;
+      const promise = new Promise((resolve) => this._outcomeHandles.push(resolve));
+      return promise as Promise<IBattleOutcome>;
     }
   }
 
   private _associateAndClearChallengeOutcomeHandles(): void {
-    const challengeOutcomePromise = this._battleDirector.getOutcome()
-        .then(outcomeBooleanToChallengeOutcome);
-    this._challengeOutcomeHandles.forEach((resolve) => resolve(challengeOutcomePromise));
-    this._challengeOutcomeHandles.splice(0);
+    const challengeOutcomePromise = this._battleDirector.getOutcome();
+    this._outcomeHandles.forEach((resolve) => resolve(challengeOutcomePromise));
+    this._outcomeHandles.splice(0);
   }
 
   /**

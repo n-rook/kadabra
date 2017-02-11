@@ -21,4 +21,11 @@ fun main(args: Array<String>) {
       println(result.error)
     }
   }
+
+  println("--------------------")
+  println("Player 1 logs:\n")
+  println(result.playerOneLogsList.joinToString("\n"))
+  println("\n\n--------------------")
+  println("Player 2 logs:\n")
+  println(result.playerTwoLogsList.joinToString("\n"))
 }

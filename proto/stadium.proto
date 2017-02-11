@@ -32,4 +32,6 @@ message SelfPlayResponse {
 
   Player winner = 1;
   string error = 2;
+  repeated string playerOneLogs = 3;
+  repeated string playerTwoLogs = 4;
 }

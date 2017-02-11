@@ -5,6 +5,7 @@ import * as Promise from 'bluebird';
 import { BattleClient } from './ai_client';
 import { get_moves, get_side_info } from './parse_request';
 import { ShowdownConnection } from './showdown';
+import { Result, IBattleOutcome } from './states';
 
 /**
  * A helper class that sends messages to a specific room.
@@ -33,47 +34,63 @@ class OutcomeTracker {
    * A promise containing the outcome of the game.
    *
    * True if we win; false if we lose; an error if we hit an error.
+   *
+   * If this promise is rejected, we guarantee the 'logs' field of the error
+   * will be set with a value of type string[], representing all logs messages
+   * received before the error.
    */
-  public readonly outcome: Promise<boolean>;
+  public readonly outcome: Promise<IBattleOutcome>;
 
-  private state: String = 'NOT_DECIDED';
-  private resolve;
-  private reject;
+  /**
+   * Contains all log lines received for this battle.
+   */
+  public readonly logs: string[];
+
+  private state: string = 'NOT_DECIDED';
+  private resolve: (IBattleOutcome) => void;
+  private reject: (Error) => void;
 
   constructor() {
     this.outcome = new Promise((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
-    }) as Promise<boolean>;
+    }) as Promise<IBattleOutcome>;
   }
 
   /**
    * Record that we have won.
    */
-  win() {
+  win(logs: string[]) {
     if (this.state !== 'NOT_DECIDED') {
       throw Error(`Cannot have won: state already recorded as ${this.state}`);
     }
     this.state = 'WON';
-    this.resolve(true);
+    this.resolve({
+      result: Result.WIN,
+      logs: logs.slice()
+    });
   }
 
   /**
    * Record that we have lost.
    */
-  lose() {
+  lose(logs: string[]) {
     if (this.state !== 'NOT_DECIDED') {
       throw Error(`Cannot have lost: state already recorded as ${this.state}`);
     }
     this.state = 'LOST';
-    this.resolve(false);
+    this.resolve({
+      result: Result.LOSS,
+      logs: logs.slice()
+    });
   }
 
   /**
    * Record an error.
    */
-  recordError(err: Error) {
+  recordError(err: Error, logs: string[]) {
     logger.error(err as any);
+    err['logs'] = logs.slice();
     this.reject(err);
   }
 }
@@ -83,6 +100,9 @@ class OutcomeTracker {
  * it along to the AI server backing this bot.
  */
 export class BattleDirector {
+
+  // An array of each log line received.
+  readonly logs: string[] = [];
 
   private readonly room: string;
   private readonly ourUsername: string;
@@ -126,7 +146,7 @@ export class BattleDirector {
     const f: () => Promise<void> = this._handleMessage.bind(this, messageClass, message);
     return Promise.try(f)
         .catch((err) => {
-          this.outcomeTracker.recordError(err);
+          this.outcomeTracker.recordError(err, this.logs);
           logger.error('Error handling battle message', err, messageClass, message);
           throw err;
         });
@@ -135,7 +155,7 @@ export class BattleDirector {
   /**
    * Returns a promise which fulfills as true if we win, or false if we lose.
    */
-  getOutcome(): Promise<boolean> {
+  getOutcome(): Promise<IBattleOutcome> {
     return this.outcomeTracker.outcome;
   }
 
@@ -143,6 +163,8 @@ export class BattleDirector {
    * Like handleMessage, but may return either undefined or a promise.
    */
   private _handleMessage(messageClass: string, message: string[]): Promise<void>|void {
+    this.logs.push(`|${messageClass}|${message.join('|')}`);
+
     switch (messageClass) {
       case 'player': {
         if (message[0] === 'p1') {
@@ -199,10 +221,10 @@ export class BattleDirector {
         const winner = message[0];
         if (this.ourUsername === winner) {
           logger.info('We won!');
-          this.outcomeTracker.win();
+          this.outcomeTracker.win(this.logs);
         } else {
           logger.info(`${winner} won :(`);
-          this.outcomeTracker.lose();
+          this.outcomeTracker.lose(this.logs);
         }
         return;
       }

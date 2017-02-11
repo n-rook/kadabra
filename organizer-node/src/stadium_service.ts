@@ -9,7 +9,8 @@ import * as logger from 'winston';
 
 import { connect } from './showdown';
 import { BattleClient } from './ai_client';
-import { ChallengeOutcome, ShowdownDirector } from './showdown_director';
+import { Result } from './states';
+import { ShowdownDirector } from './showdown_director';
 import { TeamClient } from './teamclient';
 import { stadiumFile } from './proto_constants';
 
@@ -64,23 +65,32 @@ class StadiumServer {
         .then(([directorOne, directorTwo]) => {
           const challengeOne = directorOne.challenge('gen7ou', 'abraca002');
           // TODO: Fix ShowdownDirector so a delay is not necessary
-          const acceptEventually = Promise.delay(5000).then(() => {
+          const acceptEventually = Promise.delay(3000).then(() => {
               return directorTwo.considerAcceptingChallenge();
           });
-          return Promise.all([challengeOne, acceptEventually])
-              .then(([outcomeOne, outcomeTwo]) => outcomeTwo);
+          return Promise.all([challengeOne, acceptEventually]);
         })
-        .then((playerTwoOutcome) => {
-          switch (playerTwoOutcome) {
-            case ChallengeOutcome.WIN:
-              return { winner: 2 };
-            case ChallengeOutcome.LOSS:
-              return { winner: 1 };
-            case ChallengeOutcome.CHALLENGE_REFUSED:
+        .then((results) => {
+          // TODO: When I come up with a good way to return it with grpc,
+          // send logs even in error cases.
+          const [playerOneOutcome, playerTwoOutcome] = results;
+          const returnValue = {
+            playerOneLogs: playerOneOutcome.logs,
+            playerTwoLogs: playerTwoOutcome.logs
+          };
+          switch (playerTwoOutcome.result) {
+            case Result.WIN:
+              returnValue['winner'] = 2;
+              break;
+            case Result.LOSS:
+              returnValue['winner'] = 1;
+              break;
+            case Result.NO_RESULT:
               throw Error('Challenge refused!? This should never happen.');
             default:
               throw Error(`Unexpected outcome ${playerTwoOutcome}`);
           }
+          return returnValue;
         });
   }
 
