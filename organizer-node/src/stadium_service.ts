@@ -63,7 +63,7 @@ class StadiumServer {
               .then((directorTwo) => [directorOne, directorTwo]);
         })
         .then(([directorOne, directorTwo]) => {
-          const challengeOne = directorOne.challenge('gen7ou', 'abraca002');
+          const challengeOne = directorOne.challenge('gen7pokebankou', 'abraca002');
           // TODO: Fix ShowdownDirector so a delay is not necessary
           const acceptEventually = Promise.delay(3000).then(() => {
               return directorTwo.considerAcceptingChallenge();
@@ -91,6 +91,10 @@ class StadiumServer {
               throw Error(`Unexpected outcome ${playerTwoOutcome}`);
           }
           return returnValue;
+        })
+        .catch((err) => {
+          logger.error(err)
+          throw err
         });
   }
 

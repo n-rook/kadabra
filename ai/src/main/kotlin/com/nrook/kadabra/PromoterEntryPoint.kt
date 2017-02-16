@@ -4,6 +4,7 @@ import com.nrook.kadabra.proto.Player
 import com.nrook.kadabra.proto.StadiumServiceGrpc
 import io.grpc.ManagedChannelBuilder
 
+class TestClass
 
 fun main(args: Array<String>) {
   val channel = ManagedChannelBuilder.forAddress("localhost", 8081).usePlaintext(true).build()
