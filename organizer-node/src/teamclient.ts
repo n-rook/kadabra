@@ -12,15 +12,15 @@ const aiDescriptor = grpc.load(protoPath + '/ai.proto');
 export class TeamClient {
   stub: any;
   constructor(port) {
-    this.stub = new aiDescriptor.kadabra.TeamService(`localhost:${port}`, grpc.credentials.createInsecure());
+    this.stub = Promise.promisifyAll(
+      new aiDescriptor.kadabra.TeamService(
+        `localhost:${port}`, grpc.credentials.createInsecure()));
   }
 
   getTeam(metagame): Promise<Team> {
-    return Promise.fromCallback((callback) => {
-      this.stub.getTeam({metagame}, callback);
-    }).then((response) => {
-      console.log(util.inspect(response, {showHidden: false, depth: null}));
-      return new Team(response);
-    });
+    return this.stub.getTeamAsync(metagame)
+      .then((response) => {
+        return new Team(response);
+      });
   }
 }

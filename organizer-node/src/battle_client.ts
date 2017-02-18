@@ -56,38 +56,31 @@ export class BattleClient {
   private stub: any;
 
   constructor(port) {
-    this.stub = new aiDescriptor.kadabra.BattleService(`localhost:${port}`, grpc.credentials.createInsecure());
+    this.stub = Promise.promisifyAll(
+      new aiDescriptor.kadabra.BattleService(
+        `localhost:${port}`, grpc.credentials.createInsecure()));
   }
 
   private _selectAction(room: string, activeMoves: IMoveInfo[],
       sideInfo: ISideInfo, forceSwitch: boolean): Promise<IAction> {
-    // Try promisifyAll?
+
     const request = {
       room: {name: room},
       move: activeMoves,
       sideInfo: convertSideInfoToProto(sideInfo),
       forceSwitch
     };
-    logger.info('HELLO HELLO HELLO');
-    logger.info(util.inspect(request, {showHidden: true, depth: null}));
 
-    return Promise.fromCallback((callback) => {
-      this.stub.selectAction(request, callback);
-    }).then((response) => {
-      logger.info(util.inspect(response, {showHidden: false, depth: null}));
-      return actionResponseToIAction(response);
-    });
+    return this.stub.selectActionAsync(request)
+        .then((response) => actionResponseToIAction(response));
   }
 
   /**
    * Returns the index of the lead to use.
    */
   chooseLead(): Promise<string> {
-    return Promise.fromCallback((callback) => {
-      this.stub.chooseLead({}, callback);
-    }).then((response) => {
-      return response.leadIndex.toString();
-    });
+    return this.stub.chooseLeadAsync({})
+      .then((response) => response.leadIndex.toString());
   }
 
   selectAction(room: string, activeMoves: IMoveInfo[], sideInfo: ISideInfo): Promise<IAction> {

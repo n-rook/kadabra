@@ -10,6 +10,5 @@ Automatic realistic team generation is still dubious.
 
 ## TO-DO LIST:
 
-- Try PromisifyAll in ai_client
-- Rename ai_client to battle_client
 - Bring in Showdown as a submodule
+- If force_switch is true, don't pick the active Pokemon, it won't work
