@@ -16,9 +16,6 @@ service BattleService {
 
   // Decide what to do at the start of a turn.
   rpc SelectAction(ActionRequest) returns (ActionResponse) {}
-
-  // Decide what to do after a Pokemon faints.
-  rpc SelectSwitchAfterFaint(SwitchAfterFaintRequest) returns (SwitchAfterFaintResponse) {}
 }
 
 message TeamRequest {
@@ -46,16 +43,6 @@ message LeadChoice {
   int32 leadIndex = 1;
 }
 
-message SwitchAfterFaintRequest {
-  Room room = 1;
-
-  SideInfo sideInfo = 2;
-}
-
-message SwitchAfterFaintResponse {
-  SwitchSelection switch = 1;
-}
-
 // Information we have about our side's Pokemon.
 message SideInfo {
   repeated PokemonSideInfo team = 1;
@@ -77,6 +64,9 @@ message ActionRequest {
   Room room = 1;
 
   // Move information available for the acting Pokemon.
+  //
+  // If force_switch is true, MoveStatus should be empty: if we have to switch, after all, there
+  // is no way we can make a move.
   repeated MoveStatus move = 2;
 
   // Whether or not we are "trapped" by a move like Outrage, able only to
@@ -85,6 +75,17 @@ message ActionRequest {
   //
   // Not yet used.
   bool trapped = 3;
+
+  // Whether or not we must switch.
+  //
+  // force_switch is true in two situations:
+  // - At the end of a turn, when our Pokemon faints, and we must bring a new one out.
+  // - During the middle of a turn, after our Pokemon uses a move such as U-Turn or Parting Shot
+  // that allows us to send out a replacement Pokemon.
+  bool forceSwitch = 4;
+
+  // Information about our available Pokemon.
+  SideInfo sideInfo = 5;
 }
 
 message ActionResponse {

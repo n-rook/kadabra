@@ -2,7 +2,7 @@
 import * as logger from 'winston';
 import * as Promise from 'bluebird';
 
-import { BattleClient } from './ai_client';
+import { IAction, BattleClient } from './ai_client';
 import { get_moves, get_side_info } from './parse_request';
 import { ShowdownConnection } from './showdown';
 import { Result, IBattleOutcome } from './states';
@@ -147,7 +147,7 @@ export class BattleDirector {
     return Promise.try(f)
         .catch((err) => {
           this.outcomeTracker.recordError(err, this.logs);
-          logger.error('Error handling battle message', err, messageClass, message);
+          logger.error('Error handling battle message', messageClass, message, err);
           throw err;
         });
   }
@@ -256,12 +256,9 @@ export class BattleDirector {
     }
 
     if (parsedRequest.forceSwitch && parsedRequest.forceSwitch[0]) {
-      // Kind of a dubious way to detect this case
-      return this.battleClient.selectSwitchAfterFaintAction(
+      return this.battleClient.selectForceSwitchAction(
         this.room, get_side_info(parsedRequest))
-        .then((switchIndex) => {
-          this.sender.send(`/switch ${switchIndex}`);
-        });
+        .then((action) => this.sendAction(action));
     }
 
     if (parsedRequest.wait) {
@@ -269,12 +266,19 @@ export class BattleDirector {
       return Promise.resolve();
     }
 
-    // This probably catches too much
-    return this.battleClient.selectAction(this.room, get_moves(parsedRequest))
-        .then((moveIndex) => {
-          // No shift state right now
-          return this.sender.send(`/move ${moveIndex}`);
-        });
+    return this.battleClient.selectAction(
+      this.room, get_moves(parsedRequest), get_side_info(parsedRequest))
+      .then((action) => this.sendAction(action));
+  }
+
+  private sendAction(action: IAction): Promise<void> {
+    if (action.move !== undefined) {
+      return this.sender.send(`/move ${action.move.index}`);
+    } else if (action.switch !== undefined) {
+      return this.sender.send(`/switch ${action.switch}`);
+    } else {
+      throw Error(`Illegal action ${action}`);
+    }
   }
 }
 

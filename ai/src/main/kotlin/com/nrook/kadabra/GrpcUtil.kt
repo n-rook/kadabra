@@ -1,6 +1,9 @@
 package com.nrook.kadabra
 
 import io.grpc.stub.StreamObserver
+import mu.KLogging
+
+val logger = KLogging().logger()
 
 /**
  * Wrapper for RPC implementation classes.
@@ -10,8 +13,8 @@ fun <T> handleResponse(implementation: () -> T, observer: StreamObserver<T>) {
   try {
     result = implementation()
   } catch (e: Exception) {
+    logger.error("Error handling RPC", e)
     observer.onError(e)
-    observer.onCompleted()
     return
   }
 

@@ -22,7 +22,7 @@ class AiTest {
 
   @Test
   fun pickStartOfTurnAction() {
-    val result = ai.pickStartOfTurnAction(ActionRequest.newBuilder()
+    val result = ai.pickAction(ActionRequest.newBuilder()
         .addMove(MoveStatus.newBuilder()
             .setId("flareblitz")
             .setPp(5)
@@ -40,7 +40,7 @@ class AiTest {
 
   @Test
   fun dontPickDisabledStuff() {
-    val result = ai.pickStartOfTurnAction(ActionRequest.newBuilder()
+    val result = ai.pickAction(ActionRequest.newBuilder()
         .addMove(MoveStatus.newBuilder()
             .setId("flareblitz")
             .setPp(5)
@@ -56,7 +56,7 @@ class AiTest {
   }
 
   @Test
-  fun pickSwitchAfterFaintAction() {
+  fun ifForceSwitchThenSwitchRatherThanMoving() {
     val mon1 = PokemonSideInfo.newBuilder()
         .setSpecies("Blissey")
         .setHp(800)
@@ -72,12 +72,14 @@ class AiTest {
         .setItem("choiceband")
         .build()
 
-    val response = ai.pickSwitchAfterFaintAction(SwitchAfterFaintRequest.newBuilder()
+    val response = ai.pickAction(ActionRequest.newBuilder()
         .setSideInfo(SideInfo.newBuilder()
             .addTeam(mon1)
             .addTeam(mon2))
+        .setForceSwitch(true)
         .build())
 
+    Truth.assertThat(response.actionCase).isEqualTo(ActionResponse.ActionCase.SWITCH)
     // Pick Blissey, not Electrode
     Truth.assertThat(response.switch.index).isEqualTo(1)
   }

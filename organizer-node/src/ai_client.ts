@@ -25,8 +25,31 @@ export class IMoveAction {
 
 // Represents a single action. This is a union class: exactly one of move and switch should be set.
 export class IAction {
-  readonly move: Number;
-  readonly switch: Number;
+  readonly move?: IMoveAction;
+  readonly switch?: Number;
+}
+
+function actionResponseToIAction(response: {}): IAction {
+  if (response['move']) {
+    const index = response['move']['index']
+    if (typeof(index) !== 'number') {
+      throw Error(`Could not parse move action ${response}`);
+    }
+    return {
+      move: {
+        index,
+        megaEvolve: false
+      }
+    };
+  } else if (response['switch']) {
+    const index = response['switch']['index']
+    if (typeof(index) !== 'number') {
+      throw Error(`Could not parse switch action ${response}`);
+    }
+    return {switch: index}
+  }
+
+  throw Error(`Could not parse action ${response}`);
 }
 
 export class BattleClient {
@@ -36,6 +59,26 @@ export class BattleClient {
     this.stub = new aiDescriptor.kadabra.BattleService(`localhost:${port}`, grpc.credentials.createInsecure());
   }
 
+  private _selectAction(room: string, activeMoves: IMoveInfo[],
+      sideInfo: ISideInfo, forceSwitch: boolean): Promise<IAction> {
+    // Try promisifyAll?
+    const request = {
+      room: {name: room},
+      move: activeMoves,
+      sideInfo: convertSideInfoToProto(sideInfo),
+      forceSwitch
+    };
+    logger.info('HELLO HELLO HELLO');
+    logger.info(util.inspect(request, {showHidden: true, depth: null}));
+
+    return Promise.fromCallback((callback) => {
+      this.stub.selectAction(request, callback);
+    }).then((response) => {
+      logger.info(util.inspect(response, {showHidden: false, depth: null}));
+      return actionResponseToIAction(response);
+    });
+  }
+
   /**
    * Returns the index of the lead to use.
    */
@@ -43,37 +86,16 @@ export class BattleClient {
     return Promise.fromCallback((callback) => {
       this.stub.chooseLead({}, callback);
     }).then((response) => {
-      logger.info(util.inspect(response, {showHidden: false, depth: null}));
       return response.leadIndex.toString();
     });
   }
 
-  selectAction(room: string, activeMoves: IMoveInfo[]): Promise<IMoveAction> {
-    // Try promisifyAll?
-    const request = {room: {name: room}};
-
-    // The format is currently the same.
-    request['move'] = activeMoves;
-
-    return Promise.fromCallback((callback) => {
-      this.stub.selectAction(request, callback);
-    }).then((response) => {
-      logger.info(util.inspect(response, {showHidden: false, depth: null}));
-      return response.move.index;
-    });
+  selectAction(room: string, activeMoves: IMoveInfo[], sideInfo: ISideInfo): Promise<IAction> {
+    return this._selectAction(room, activeMoves, sideInfo, false);
   }
 
-  selectSwitchAfterFaintAction(room: string, sideInfo: ISideInfo): Promise<number> {
-    const request = {
-      room: {name: room},
-      sideInfo: convertSideInfoToProto(sideInfo)
-    };
-
-    return Promise.fromCallback((callback) => {
-      this.stub.selectSwitchAfterFaint(request, callback);
-    }).then((response) => {
-      return response.switch.index;
-    });
+  selectForceSwitchAction(room: string, sideInfo: ISideInfo): Promise<IAction> {
+    return this._selectAction(room, [], sideInfo, true);
   }
 }
 
