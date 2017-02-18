@@ -8,7 +8,7 @@ import * as grpc from 'grpc';
 import * as logger from 'winston';
 
 import { connect } from './showdown';
-import { BattleClient } from './ai_client';
+import { BattleClient } from './battle_client';
 import { Result } from './states';
 import { ShowdownDirector } from './showdown_director';
 import { TeamClient } from './teamclient';

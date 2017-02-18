@@ -4,7 +4,7 @@ const expect = Chai.expect;
 
 import * as sinon from 'sinon';
 
-import {BattleClient} from './ai_client';
+import {BattleClient} from './battle_client';
 import {BattleDirector} from './battle_director';
 import {ShowdownConnection} from './showdown';
 
@@ -45,7 +45,7 @@ const REAL_INIT_LINES = [
 ];
 
 describe('BattleDirector', function() {
-  
+
   let battleClient: any;
   let showdownConnection: any;
 

@@ -2,7 +2,7 @@
 import * as logger from 'winston';
 import * as Promise from 'bluebird';
 
-import { IAction, BattleClient } from './ai_client';
+import { IAction, BattleClient } from './battle_client';
 import { get_moves, get_side_info } from './parse_request';
 import { ShowdownConnection } from './showdown';
 import { Result, IBattleOutcome } from './states';

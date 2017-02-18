@@ -11,7 +11,7 @@ import { Result, IBattleOutcome } from './states';
 import { ShowdownConnection, ShowdownMessage } from './showdown';
 import { Team } from './team';
 import { TeamClient } from './teamclient';
-import { BattleClient } from './ai_client';
+import { BattleClient } from './battle_client';
 import { BattleDirector } from './battle_director';
 
 const CENTRAL_SERVER_HOSTNAME = 'play.pokemonshowdown.com';
