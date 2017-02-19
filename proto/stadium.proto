@@ -6,6 +6,8 @@ option java_package = "com.nrook.kadabra.proto";
 
 package kadabra;
 
+import "common.proto";
+
 service StadiumService {
   rpc SelfPlay(SelfPlayRequest) returns (SelfPlayResponse) {}
 }
@@ -32,6 +34,6 @@ message SelfPlayResponse {
 
   Player winner = 1;
   string error = 2;
-  repeated string playerOneLogs = 3;
-  repeated string playerTwoLogs = 4;
+  repeated LogLine playerOneLogs = 5;
+  repeated LogLine playerTwoLogs = 6;
 }

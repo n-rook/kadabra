@@ -10,6 +10,7 @@ import * as Promise from 'bluebird';
 import * as logger from 'winston';
 
 import { IMoveInfo, ISideInfo } from './states';
+import { ServerLog, SentMessage } from './log';
 import { aiFile } from './proto_constants';
 
 const aiDescriptor = grpc.load(aiFile);
@@ -62,13 +63,14 @@ export class BattleClient {
   }
 
   private _selectAction(room: string, activeMoves: IMoveInfo[],
-      sideInfo: ISideInfo, forceSwitch: boolean): Promise<IAction> {
+      sideInfo: ISideInfo, logs: ReadonlyArray<ServerLog|SentMessage>, forceSwitch: boolean): Promise<IAction> {
 
     const request = {
       room: {name: room},
       move: activeMoves,
       sideInfo: convertSideInfoToProto(sideInfo),
-      forceSwitch
+      forceSwitch,
+      log: logs.map((m) => m.toLogLine())
     };
 
     return this.stub.selectActionAsync(request)
@@ -83,12 +85,14 @@ export class BattleClient {
       .then((response) => response.leadIndex.toString());
   }
 
-  selectAction(room: string, activeMoves: IMoveInfo[], sideInfo: ISideInfo): Promise<IAction> {
-    return this._selectAction(room, activeMoves, sideInfo, false);
+  selectAction(room: string, activeMoves: IMoveInfo[], sideInfo: ISideInfo,
+      logs: ReadonlyArray<ServerLog|SentMessage>): Promise<IAction> {
+    return this._selectAction(room, activeMoves, sideInfo, logs, false);
   }
 
-  selectForceSwitchAction(room: string, sideInfo: ISideInfo): Promise<IAction> {
-    return this._selectAction(room, [], sideInfo, true);
+  selectForceSwitchAction(room: string, sideInfo: ISideInfo,
+      logs: ReadonlyArray<ServerLog|SentMessage>): Promise<IAction> {
+    return this._selectAction(room, [], sideInfo, logs, true);
   }
 }
 

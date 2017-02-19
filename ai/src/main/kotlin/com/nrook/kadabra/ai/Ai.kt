@@ -1,10 +1,12 @@
 package com.nrook.kadabra.ai
 
 import com.nrook.kadabra.proto.*
+import mu.KLogging
 import java.util.Random
 
 
 private val random: Random = Random()
+private val logger = KLogging().logger()
 
 /**
  * Makes decisions. Will probably be an interface someday.

@@ -2,6 +2,8 @@
  * Contains general-purpose data interfaces.
  */
 
+import {ServerLog, SentMessage} from './log';
+
 export enum Result {
   WIN,
   LOSS,
@@ -11,7 +13,7 @@ export enum Result {
 
 export class IBattleOutcome {
   public readonly result: Result;
-  public readonly logs: string[];
+  public readonly logs: Array<ServerLog|SentMessage>;
 }
 
 export class IMoveInfo {

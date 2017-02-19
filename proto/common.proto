@@ -1,0 +1,31 @@
+
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "com.nrook.kadabra.proto";
+
+package kadabra;
+
+// A single line of logs.
+message LogLine {
+  oneof line {
+    string sent = 1;
+    ReceivedMessage received = 2;
+  }
+}
+
+// A received, lightly parsed message from the server.
+message ReceivedMessage {
+  // The type of message.
+  //
+  // For instance, given the log line
+  // |switch|p2a: Rotom|Rotom-Wash|303/303
+  // The class is 'switch'.
+  string class = 1;
+
+  // The remaining parts of the message
+  //
+  // For instance, given the log line
+  // |choice||switch 5
+  // The content is ['', 'switch 5']
+  repeated string content = 2;
+}

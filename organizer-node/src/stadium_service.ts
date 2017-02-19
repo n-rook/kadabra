@@ -75,8 +75,8 @@ class StadiumServer {
           // send logs even in error cases.
           const [playerOneOutcome, playerTwoOutcome] = results;
           const returnValue = {
-            playerOneLogs: playerOneOutcome.logs,
-            playerTwoLogs: playerTwoOutcome.logs
+            playerOneLogs: playerOneOutcome.logs.map((i) => i.toLogLine()),
+            playerTwoLogs: playerTwoOutcome.logs.map((i) => i.toLogLine())
           };
           switch (playerTwoOutcome.result) {
             case Result.WIN:

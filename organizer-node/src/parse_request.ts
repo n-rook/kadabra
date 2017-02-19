@@ -30,6 +30,11 @@ export function get_moves(parsedRequest: {}): IMoveInfo[] {
       return {id: data.id};
     }
 
+    if (data.id === 'struggle') {
+      // We get less data after Struggle, too.
+      return {id: data.id};
+    }
+
     if (
       !data.hasOwnProperty('pp') ||
       !data.hasOwnProperty('maxpp') ||

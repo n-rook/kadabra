@@ -6,6 +6,7 @@ import { IAction, BattleClient } from './battle_client';
 import { get_moves, get_side_info } from './parse_request';
 import { ShowdownConnection } from './showdown';
 import { Result, IBattleOutcome } from './states';
+import { ServerLog, SentMessage } from './log';
 
 /**
  * A helper class that sends messages to a specific room.
@@ -44,7 +45,7 @@ class OutcomeTracker {
   /**
    * Contains all log lines received for this battle.
    */
-  public readonly logs: string[];
+  public readonly logs: Array<ServerLog|SentMessage> = [];
 
   private state: string = 'NOT_DECIDED';
   private resolve: (IBattleOutcome) => void;
@@ -60,7 +61,7 @@ class OutcomeTracker {
   /**
    * Record that we have won.
    */
-  win(logs: string[]) {
+  win(logs: Array<ServerLog|SentMessage>) {
     if (this.state !== 'NOT_DECIDED') {
       throw Error(`Cannot have won: state already recorded as ${this.state}`);
     }
@@ -74,7 +75,7 @@ class OutcomeTracker {
   /**
    * Record that we have lost.
    */
-  lose(logs: string[]) {
+  lose(logs: Array<ServerLog|SentMessage>) {
     if (this.state !== 'NOT_DECIDED') {
       throw Error(`Cannot have lost: state already recorded as ${this.state}`);
     }
@@ -88,7 +89,7 @@ class OutcomeTracker {
   /**
    * Record an error.
    */
-  recordError(err: Error, logs: string[]) {
+  recordError(err: Error, logs: Array<ServerLog|SentMessage>) {
     logger.error(err as any);
     err['logs'] = logs.slice();
     this.reject(err);
@@ -101,8 +102,10 @@ class OutcomeTracker {
  */
 export class BattleDirector {
 
-  // An array of each log line received.
-  readonly logs: string[] = [];
+  /**
+   * An array of all log lines received thus far.
+   */
+  readonly logs: Array<ServerLog|SentMessage> = [];
 
   private readonly room: string;
   private readonly ourUsername: string;
@@ -163,7 +166,7 @@ export class BattleDirector {
    * Like handleMessage, but may return either undefined or a promise.
    */
   private _handleMessage(messageClass: string, message: string[]): Promise<void>|void {
-    this.logs.push(`|${messageClass}|${message.join('|')}`);
+    this.logs.push(new ServerLog(messageClass, message));
 
     switch (messageClass) {
       case 'player': {
@@ -251,13 +254,13 @@ export class BattleDirector {
       return this.battleClient.chooseLead()
           .then((leadIndex) => {
             this.shiftStateTo(IBattleState.START_OF_TURN);
-            return this.sender.send(`/team ${leadIndex}`);
+            return this.send(`/team ${leadIndex}`);
           });
     }
 
     if (parsedRequest.forceSwitch && parsedRequest.forceSwitch[0]) {
       return this.battleClient.selectForceSwitchAction(
-        this.room, get_side_info(parsedRequest))
+        this.room, get_side_info(parsedRequest), this.logs)
         .then((action) => this.sendAction(action));
     }
 
@@ -267,18 +270,23 @@ export class BattleDirector {
     }
 
     return this.battleClient.selectAction(
-      this.room, get_moves(parsedRequest), get_side_info(parsedRequest))
+      this.room, get_moves(parsedRequest), get_side_info(parsedRequest), this.logs)
       .then((action) => this.sendAction(action));
   }
 
   private sendAction(action: IAction): Promise<void> {
     if (action.move !== undefined) {
-      return this.sender.send(`/move ${action.move.index}`);
+      return this.send(`/move ${action.move.index}`);
     } else if (action.switch !== undefined) {
-      return this.sender.send(`/switch ${action.switch}`);
+      return this.send(`/switch ${action.switch}`);
     } else {
       throw Error(`Illegal action ${action}`);
     }
+  }
+
+  private send(message: string): Promise<void> {
+    this.logs.push(new SentMessage(message));
+    return this.sender.send(message);
   }
 }
 
