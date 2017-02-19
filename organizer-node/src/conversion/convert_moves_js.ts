@@ -3,36 +3,32 @@
  * moves.js to a JSON file.
  */
 
-function toSimpleObject(moves_js_path: string) {
-  const movesDex = require(moves_js_path);
-
+function toSimpleObject(movesDex) {
   const moveIds = Object.keys(movesDex);
   const returnObject = {};
   moveIds.forEach((moveId) => {
     returnObject[moveId] = convertSingleMove(movesDex[moveId]);
   });
-  return JSON.stringify(moveIds);
+  return returnObject;
 }
 
-export function printJson(moves_js_path) {
-  const simpleObject = require(moves_js_path);
-  console.log(JSON.stringify(simpleObject));
+export function toJson(moves_js_path) {
+  const simpleObject = toSimpleObject(require(moves_js_path));
+  return JSON.stringify(simpleObject, undefined, 2);
 }
 
 function convertSingleMove(move) {
-  const jsonTypeObject = JSON.parse(JSON.stringify(move));
+  const jsonTypeObject = JSON.parse(JSON.stringify(move, moveReplacer));
   return jsonTypeObject;
-
-
-    // if (move['basePowerCallback']) {
-    //   jsonTypeObject['specialBasePower'] = true;
-    // }
-    // if (move['onHit']) {
-    //   jsonTypeObject['specialOnHit'] = true;
-    // }
-    // if (move['onTryHit']) {
-    //   jsonTypeObject[]
-    // }
 }
 
-printJson('../../../../pokemonshowdown/data/moves');
+function moveReplacer(key, value) {
+  // Keep keys like 'onhit' in the file, so at least we know there is something
+  // funky going on.
+  if (typeof(value) === 'function') {
+    return true;
+  }
+  return value;
+}
+
+console.log(toJson('../../../showdown/data/moves'));
