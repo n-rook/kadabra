@@ -21,10 +21,19 @@ private fun buildAbbreviationMap() : Map<String, Stat> {
 }
 private val abbreviationMap = buildAbbreviationMap()
 
-fun StatFromAbbreviation(abbreviation: String): Stat {
-  return abbreviationMap[abbreviation]
-      ?: throw IllegalArgumentException("Unrecognized abbreviation $abbreviation")
+fun StatFromAbbreviation(abbreviation: String, caseSensitive: Boolean = true): Stat {
+  if (caseSensitive) {
+    return abbreviationMap[abbreviation]
+        ?: throw IllegalArgumentException("Unrecognized abbreviation $abbreviation")
+  } else {
+    return uppercaseAbbreviationMap[abbreviation.toUpperCase()]
+        ?: throw IllegalArgumentException("Unrecognized abbreviation $abbreviation")
+
+  }
 }
+
+private val uppercaseAbbreviationMap: Map<String, Stat> =
+    abbreviationMap.mapKeys { it.key.toUpperCase() }
 
 fun SetStatOnEvSpread(evSpreadBuilder: EvSpread.Builder, s : Stat, value: Int) {
   when (s) {

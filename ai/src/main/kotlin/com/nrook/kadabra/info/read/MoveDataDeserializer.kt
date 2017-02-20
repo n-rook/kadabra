@@ -22,7 +22,7 @@ fun registerDeserializers(gsonBuilder: GsonBuilder): GsonBuilder {
   return gsonBuilder
       .registerTypeAdapter(MOVE_MAP_TYPE, MoveMapDeserializer())
       .registerTypeAdapter(Move::class.java, MoveDeserializer())
-      .registerTypeAdapter(PokemonType::class.java, TypeDeserializer());
+      .registerTypeAdapter(PokemonType::class.java, TypeDeserializer())
 }
 
 private class MoveMapDeserializer: JsonDeserializer<Map<MoveId, Move>> {
@@ -49,7 +49,8 @@ private class MoveDeserializer: JsonDeserializer<Move> {
   }
 }
 
-private class TypeDeserializer: JsonDeserializer<PokemonType> {
+// TODO: Is making this public actually a good idea?
+class TypeDeserializer: JsonDeserializer<PokemonType> {
   override fun deserialize(
       json: JsonElement, expectedType: Type, context: JsonDeserializationContext): PokemonType {
     val type = json.asString

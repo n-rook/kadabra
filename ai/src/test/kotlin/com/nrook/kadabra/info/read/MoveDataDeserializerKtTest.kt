@@ -13,12 +13,11 @@ import java.io.InputStreamReader
 
 class MoveDataDeserializerKtTest {
 
-  lateinit var gson: Gson;
+  lateinit var gson: Gson
   lateinit var dataset: Map<MoveId, Move>
 
   @Before
   fun setUp() {
-
     this.gson = registerDeserializers(GsonBuilder())
         .create()
     val resource = Resources.getResource("gen7moves.json")
