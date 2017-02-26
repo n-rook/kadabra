@@ -1,4 +1,4 @@
-package com.nrook.kadabra.teambuilder
+package com.nrook.kadabra.common
 
 import com.google.common.collect.ImmutableSortedMap
 import java.util.*

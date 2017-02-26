@@ -1,5 +1,6 @@
 package com.nrook.kadabra.teambuilder
 
+import com.nrook.kadabra.common.RandomBasket
 import com.nrook.kadabra.info.PokemonDefinition
 import com.nrook.kadabra.proto.PokemonSpec
 import com.nrook.kadabra.usage.PokemonUsageData

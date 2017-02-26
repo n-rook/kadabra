@@ -1,9 +1,7 @@
 package com.nrook.kadabra.mechanics
 
-import com.nrook.kadabra.info.AbilityId
-import com.nrook.kadabra.info.Gender
-import com.nrook.kadabra.info.Species
-import com.nrook.kadabra.info.Stat
+import com.nrook.kadabra.info.*
+import com.nrook.kadabra.mechanics.formulas.computeStat
 
 /**
  * Represents a specific Pokemon on a team.
@@ -19,7 +17,8 @@ data class PokemonSpec(
     val nature: Nature,
     val evSpread: EvSpread,
     val ivSpread: IvSpread = MAX_IVS,
-    val level: Level = Level(100)
+    val level: Level = Level(100),
+    val moves: List<Move>
 ) {
   init {
     if (!species.ability.asSet().contains(ability)) {
@@ -28,6 +27,28 @@ data class PokemonSpec(
     if (!species.gender.possibilities.contains(gender)) {
       throw IllegalArgumentException("Gender $gender not available to ${species.name}")
     }
+    if (moves.isEmpty()) {
+      throw IllegalArgumentException("Pokemon must have moves.")
+    }
+    if (moves.size > 4) {
+      throw IllegalArgumentException(
+          "Pokemon must only have 4 moves, but this one has more: $moves")
+    }
+  }
+
+
+  /**
+   * Returns the value of a given stat.
+   */
+  fun getStat(stat: Stat): Int {
+    return computeStat(
+        stat,
+        baseStat = species.baseStats[stat]!!,
+        iv = ivSpread.values[stat]!!,
+        ev = evSpread.values[stat]!!,
+        nature = nature,
+        level = level
+    )
   }
 }
 
@@ -43,6 +64,13 @@ data class EvSpread(val values: Map<Stat, Int>) {
       throw IllegalArgumentException("EVs $values too high; they sum to ${values.values.sum()}")
     }
   }
+}
+
+/**
+ * Generate an EV spread from incomplete data. Primarily for tests.
+ */
+fun makeEvs(values: Map<Stat, Int>): EvSpread {
+  return EvSpread(Stat.values().associate{ it to (values[it]?:0) })
 }
 
 data class IvSpread(val values: Map<Stat, Int>) {

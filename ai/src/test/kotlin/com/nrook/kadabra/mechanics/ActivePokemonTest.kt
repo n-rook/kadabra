@@ -2,6 +2,7 @@ package com.nrook.kadabra.mechanics
 
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.*
+import com.nrook.kadabra.info.testdata.EARTHQUAKE
 import org.junit.Test
 
 class ActivePokemonTest {
@@ -47,7 +48,7 @@ class ActivePokemonTest {
         AbilityId("Blaze"),
         Gender.FEMALE,
         Nature.TIMID,
-        evs, ivs, Level(100))
+        evs, ivs, Level(100), listOf(EARTHQUAKE))
 
     val activeCharizard: ActivePokemon = ActivePokemon(CHARIZARD, thisCharizard, 1, Condition.OK)
 
