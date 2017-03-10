@@ -1,6 +1,10 @@
 package com.nrook.kadabra.info.testdata
 
 import com.nrook.kadabra.info.*
+import com.nrook.kadabra.mechanics.MAX_IVS
+import com.nrook.kadabra.mechanics.Nature
+import com.nrook.kadabra.mechanics.PokemonSpec
+import com.nrook.kadabra.mechanics.makeEvs
 
 val CHARIZARD: Species = Species(
     PokemonId("charizard"),
@@ -60,3 +64,35 @@ val TACKLE: Move = Move(
     PokemonType.NORMAL,
     true
 )
+
+val FLAMETHROWER: Move = Move(
+    MoveId("flamethrower"),
+    90,
+    PokemonType.FIRE,
+    false  // burn
+)
+
+val AERIAL_ACE: Move = Move(
+    MoveId("aerialace"),
+    60,
+    PokemonType.FLYING,
+    false  // perfect accuracy
+)
+
+val ADAMANT_252_ATK_252_SPD_4_HP_CHARIZARD = PokemonSpec(
+    CHARIZARD,
+    AbilityId("Blaze"),
+    Gender.MALE,
+    Nature.ADAMANT,
+    makeEvs(mapOf(Stat.ATTACK to 252, Stat.SPEED to 252, Stat.HP to 4)),
+    MAX_IVS,
+    moves = listOf(EARTHQUAKE))
+
+val BOLD_252_HP_252_DEF_4_SPD_BLASTOISE = PokemonSpec(
+    BLASTOISE,
+    AbilityId("Torrent"),
+    Gender.FEMALE,
+    Nature.BOLD,
+    makeEvs(mapOf(Stat.HP to 252, Stat.DEFENSE to 252, Stat.HP to 4)),
+    MAX_IVS,
+    moves = listOf(SURF))
