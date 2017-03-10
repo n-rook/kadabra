@@ -7,6 +7,7 @@ import com.nrook.kadabra.mechanics.Level
 
 // Source: http://www.smogon.com/bw/articles/bw_complete_damage_formula
 
+private val MODIFIER_50 = 0x800
 private val MODIFIER_75 = 0xC00
 private val MODIFIER_120 = 0x1333
 private val MODIFIER_150 = 0x1800 // 4096 * 3 / 2
@@ -209,6 +210,13 @@ enum class Modifier(
    * The attack was of a type possessed by its user.
    */
   STAB(ModifierPhase.STAB, MODIFIER_150),
+
+  /**
+   * The attack was a special move, and Light Screen was up.
+   *
+   * This modifier's base value is different in doubles.
+   */
+  LIGHT_SCREEN(ModifierPhase.FINAL_MODIFIER, MODIFIER_50),
 
   /**
    * The attack was super-effective, but the defender had the ability Solid Rock or Filter.

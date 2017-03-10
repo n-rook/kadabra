@@ -97,15 +97,17 @@ class DamageFormulaKtTest {
   }
 
   @Test
-  fun computeDamageTest() {
-    // Charizard using Earthquake against Blastoise, at L100
-    val damage = computeDamage(Level(100), 204, 236, 100, false)
-    assertThat(damage).isEqualTo(62..74)
-  }
-
-  @Test
-  fun critTest() {
-    val damage = computeDamage(Level(100), 204, 236, 100, true)
-    assertThat(damage).isEqualTo(94..111)
+  fun computeDamageExpertBeltLightScreenSurf() {
+    // Blastoise uses Surf against Charizard, with an Expert Belt, through Light Screen
+    val damage = computeDamageDistribution(
+        Level(100),
+        offensiveStat = BOLD_252_HP_252_DEF_4_SPD_BLASTOISE.getStat(Stat.SPECIAL_ATTACK),
+        defensiveStat = ADAMANT_252_ATK_252_SPD_4_HP_CHARIZARD.getStat(Stat.SPECIAL_DEFENSE),
+        movePower = SURF.basePower,
+        effectiveness = TypeDamage.DOUBLED,
+        modifiers = setOf(Modifier.STAB, Modifier.SE_EXPERT_BELT, Modifier.LIGHT_SCREEN))
+    assertThat(damage)
+        .containsExactly(
+            116, 119, 119, 120, 122, 124, 126, 126, 127, 130, 131, 131, 133, 134, 137, 138)
   }
 }
