@@ -3,7 +3,8 @@ package com.nrook.kadabra.mechanics.arena
 import com.nrook.kadabra.common.resolveRange
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.Condition
-import com.nrook.kadabra.mechanics.formulas.computeDamage
+import com.nrook.kadabra.mechanics.formulas.computeDamageRange
+import com.nrook.kadabra.mechanics.formulas.computeTypeEffectiveness
 import mu.KLogging
 import java.util.*
 
@@ -177,12 +178,18 @@ data class Battle(
       return this
     }
 
-    val moveDamage = computeDamage(
+    val effectiveness = computeTypeEffectiveness(
+        moveBeingExecuted.move.type,
+        otherSide.active.species.types)
+
+    val moveDamage = computeDamageRange(
         movingSide.active.originalSpec.level,
-        movingSide.active.getStat(Stat.ATTACK),
-        otherSide.active.getStat(Stat.DEFENSE),
-        moveBeingExecuted.move.basePower,
-        false)
+        offensiveStat = movingSide.active.getStat(Stat.ATTACK),
+        defensiveStat = otherSide.active.getStat(Stat.DEFENSE),
+        movePower = moveBeingExecuted.move.basePower,
+        effectiveness = effectiveness,
+        modifiers = setOf())
+
     val actualDamage = resolveRange(random, moveDamage)
 
     val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(actualDamage)

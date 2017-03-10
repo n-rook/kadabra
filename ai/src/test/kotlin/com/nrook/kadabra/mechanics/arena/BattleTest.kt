@@ -24,7 +24,7 @@ class BattleTest {
         makeEvs(mapOf(Stat.ATTACK to 252, Stat.SPEED to 252, Stat.HP to 4)),
         MAX_IVS,
         Level(100),
-        listOf(EARTHQUAKE)
+        listOf(FLAMETHROWER, EARTHQUAKE)
     )
     val activeCharizard = newActivePokemonFromSpec(charizardSpec)
 
@@ -36,7 +36,7 @@ class BattleTest {
         makeEvs(mapOf(Stat.SPECIAL_ATTACK to 252, Stat.SPEED to 252, Stat.HP to 4)),
         MAX_IVS,
         Level(100),
-        listOf(SURF, TACKLE)
+        listOf(SURF, TACKLE, EARTHQUAKE)
     )
     val activeBlastoise = newActivePokemonFromSpec(blastoiseSpec)
 
@@ -78,5 +78,32 @@ class BattleTest {
       simulation = simulation.simulate(MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
     }
     assertThat(simulation.winner()).isEqualTo(Player.BLACK)
+  }
+
+  @Test
+  fun simulateNotVeryEffectiveMove() {
+    val turn2 = charizardVsBlastoise.simulate(MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
+
+    assertThat(turn2.turn).isEqualTo(2)
+    assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
+    assertThat(turn2.blackChoice).isNull()
+    assertThat(turn2.whiteChoice).isNull()
+
+    // FT deals between 45 and 54 damage to Blastoise, since it's not very effective
+    assertThat(turn2.whiteSide.active.hp).isAtLeast(300 - 54)
+    assertThat(turn2.whiteSide.active.hp).isAtMost(300 - 45)
+  }
+
+  @Test
+  fun simulateImmuneMove() {
+    val turn2 = charizardVsBlastoise.simulate(MoveChoice(EARTHQUAKE), MoveChoice(EARTHQUAKE))
+
+    assertThat(turn2.turn).isEqualTo(2)
+    assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
+    assertThat(turn2.blackChoice).isNull()
+    assertThat(turn2.whiteChoice).isNull()
+
+    // EQ shouldn't have done anything to Charizard.
+    assertThat(turn2.blackSide.active.hp).isEqualTo(298)
   }
 }
