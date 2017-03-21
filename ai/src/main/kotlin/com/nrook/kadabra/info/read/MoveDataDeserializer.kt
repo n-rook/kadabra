@@ -3,6 +3,7 @@ package com.nrook.kadabra.info.read
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import com.nrook.kadabra.info.Move
+import com.nrook.kadabra.info.MoveCategory
 import com.nrook.kadabra.info.MoveId
 import com.nrook.kadabra.info.PokemonType
 import java.lang.reflect.Type
@@ -45,7 +46,17 @@ private class MoveDeserializer: JsonDeserializer<Move> {
         MoveId(root["id"].asString),
         root["basePower"].asInt,
         context.deserialize(root["type"], PokemonType::class.java),
+        getCategoryFromString(root["category"].asString),
         false)
+  }
+}
+
+private fun getCategoryFromString(category: String): MoveCategory {
+  when (category) {
+    "Physical" -> return MoveCategory.PHYSICAL
+    "Special" -> return MoveCategory.SPECIAL
+    "Status" -> return MoveCategory.NOT_APPLICABLE
+    else -> throw IllegalArgumentException("Could not understand category $category")
   }
 }
 

@@ -48,6 +48,7 @@ val EARTHQUAKE: Move = Move(
     MoveId("earthquake"),
     100,
     PokemonType.GROUND,
+    MoveCategory.PHYSICAL,
     true
 )
 
@@ -55,6 +56,7 @@ val SURF: Move = Move(
     MoveId("surf"),
     90,
     PokemonType.WATER,
+    MoveCategory.SPECIAL,
     true
 )
 
@@ -62,6 +64,7 @@ val TACKLE: Move = Move(
     MoveId("tackle"),
     40,
     PokemonType.NORMAL,
+    MoveCategory.PHYSICAL,
     true
 )
 
@@ -69,6 +72,7 @@ val FLAMETHROWER: Move = Move(
     MoveId("flamethrower"),
     90,
     PokemonType.FIRE,
+    MoveCategory.SPECIAL,
     false  // burn
 )
 
@@ -76,6 +80,7 @@ val AERIAL_ACE: Move = Move(
     MoveId("aerialace"),
     60,
     PokemonType.FLYING,
+    MoveCategory.PHYSICAL,
     false  // perfect accuracy
 )
 

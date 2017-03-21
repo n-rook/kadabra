@@ -5,6 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.nrook.kadabra.info.Move
+import com.nrook.kadabra.info.MoveCategory
 import com.nrook.kadabra.info.MoveId
 import com.nrook.kadabra.info.PokemonType
 import org.junit.Before
@@ -32,6 +33,7 @@ class MoveDataDeserializerKtTest {
     assertThat(tbolt.id).isEqualTo(MoveId("thunderbolt"))
     assertThat(tbolt.basePower).isEqualTo(90)
     assertThat(tbolt.type).isEqualTo(PokemonType.ELECTRIC)
+    assertThat(tbolt.category).isEqualTo(MoveCategory.SPECIAL)
     assertThat(tbolt.fullyUnderstood).isFalse()
   }
 }

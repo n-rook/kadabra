@@ -82,7 +82,6 @@ class BattleTest {
 
   @Test
   fun simulateNotVeryEffectiveMove() {
-    // TODO: There's something wrong with this test. Investigate once we implement spatk/spdef.
     val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
 
     assertThat(turn2.turn).isEqualTo(2)

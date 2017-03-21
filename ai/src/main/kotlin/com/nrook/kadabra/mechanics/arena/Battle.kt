@@ -3,6 +3,7 @@ package com.nrook.kadabra.mechanics.arena
 import com.nrook.kadabra.common.resolveRange
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.Condition
+import com.nrook.kadabra.mechanics.formulas.Modifier
 import com.nrook.kadabra.mechanics.formulas.computeDamageRange
 import com.nrook.kadabra.mechanics.formulas.computeTypeEffectiveness
 import mu.KLogging
@@ -200,13 +201,21 @@ internal fun makeMove(battle: Battle, mover: Player): Battle {
       moveBeingExecuted.move.type,
       otherSide.active.species.types)
 
+  val offensiveStat = movingSide.active.getStat(moveBeingExecuted.move.category.offensiveStat())
+  val defensiveStat = otherSide.active.getStat(moveBeingExecuted.move.category.defensiveStat())
+
+  val modifiers: MutableSet<Modifier> = mutableSetOf()
+  if (movingSide.active.species.types.contains(moveBeingExecuted.move.type)) {
+    modifiers.add(Modifier.STAB)
+  }
+
   val moveDamage = computeDamageRange(
       movingSide.active.originalSpec.level,
-      offensiveStat = movingSide.active.getStat(Stat.ATTACK),
-      defensiveStat = otherSide.active.getStat(Stat.DEFENSE),
+      offensiveStat = offensiveStat,
+      defensiveStat = defensiveStat,
       movePower = moveBeingExecuted.move.basePower,
       effectiveness = effectiveness,
-      modifiers = setOf())
+      modifiers = modifiers)
 
   val actualDamage = resolveRange(battle.random, moveDamage)
 
