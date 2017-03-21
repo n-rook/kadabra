@@ -14,6 +14,10 @@ val logger = KLogging().logger()
 
 /**
  * Maintains the current state of a battle.
+ *
+ * Class rules:
+ * Trivial mutations and features are kept in the class.
+ * More complex operations are kept outside the class.
  */
 data class Battle(
     val random: Random,
@@ -86,53 +90,32 @@ data class Battle(
     }
   }
 
-  fun simulate(blackChoice: Choice, whiteChoice: Choice): Battle {
-    var battle = this.withChoices(blackChoice, whiteChoice)
-    do {
-      battle = battle.simulatePhase()
-    } while (battle.choices(Player.BLACK).isEmpty() && battle.choices(Player.WHITE).isEmpty())
-    return battle
-  }
-
-  /**
-   * Simulate a phase of this battle. Returns the next phase.
-   */
-  private fun simulatePhase(): Battle {
-    when (this.phase) {
-      Phase.BEGIN -> {
-        return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, Phase.COMPUTE_TURN_ORDER, faster)
-      }
-      Phase.COMPUTE_TURN_ORDER -> {
-        return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, Phase.FIRST_ATTACK, fasterSide())
-      }
-      Phase.FIRST_ATTACK -> {
-        return makeMove(faster!!).withPhase(Phase.SECOND_ATTACK)
-      }
-      Phase.SECOND_ATTACK -> {
-        return makeMove(faster!!.other()).withPhase(Phase.END)
-      }
-      Phase.END -> {
-        return incrementTurn().withPhase(Phase.BEGIN).withChoices(null, null)
-      }
-    }
-  }
-
-  private fun incrementTurn(): Battle {
+  internal fun incrementTurn(): Battle {
     return Battle(random, turn + 1, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
   }
 
-  private fun withPhase(phase: Phase): Battle {
+  internal fun withSide(player: Player, side: Side): Battle {
+    return if (player == Player.BLACK)
+      Battle(random, turn, side, whiteSide, blackChoice, whiteChoice, phase, faster)
+    else Battle(random, turn, blackSide, side, blackChoice, whiteChoice, phase, faster)
+  }
+
+  internal fun withPhase(phase: Phase): Battle {
     return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
   }
 
-  private fun withChoices(blackChoice: Choice?, whiteChoice: Choice?): Battle {
+  internal fun withChoices(blackChoice: Choice?, whiteChoice: Choice?): Battle {
     return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+  }
+
+  internal fun withFaster(fasterPlayer: Player): Battle {
+    return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, fasterPlayer)
   }
 
   /**
    * Returns which Pokemon deserves to go first.
    */
-  private fun fasterSide(): Player {
+  internal fun fasterSide(): Player {
     val blackSpeed: Int = blackSide.active.getStat(Stat.SPEED)
     val whiteSpeed: Int = whiteSide.active.getStat(Stat.SPEED)
 
@@ -144,64 +127,102 @@ data class Battle(
       return if (random.nextBoolean()) Player.BLACK else Player.WHITE
     }
   }
+}
 
-  /**
-   * Adjudicates a move by one player's Pokemon.
-   *
-   * This function does not update the phase.
-   */
-  private fun makeMove(mover: Player): Battle {
-    val movingSide = side(mover)
-    val otherSide = side(mover.other())
-    val choiceBeingExecuted = choiceOf(mover)
+/**
+ * Simulate the battle until either it ends, or there's another choice to make.
+ */
+fun simulateBattle(battle: Battle, blackChoice: Choice, whiteChoice: Choice): Battle {
+  var battle = battle.withChoices(blackChoice, whiteChoice)
+  do {
+    battle = simulatePhase(battle)
+  } while (battle.choices(Player.BLACK).isEmpty() && battle.choices(Player.WHITE).isEmpty())
+  return battle
+}
 
-    if (side(mover).active.condition == Condition.FAINT) {
-      // No move: the Pokemon is fainted.
-      logger.debug("Skipping move for player $mover; their Pokemon is fainted.")
-      return this
+/**
+ * Simulate a phase of this battle. Returns the next phase.
+ */
+internal fun simulatePhase(battle: Battle): Battle {
+  when (battle.phase) {
+    Phase.BEGIN -> {
+      return battle.withPhase(Phase.COMPUTE_TURN_ORDER)
     }
-
-    if (choiceBeingExecuted == null) {
-      throw IllegalStateException(
-          "State does not make sense; trying to make a move for player $mover, but "
-              + "their choice is null")
+    Phase.COMPUTE_TURN_ORDER -> {
+      return recalculatePriority(battle).withPhase(Phase.FIRST_ATTACK)
     }
-    if (choiceBeingExecuted !is MoveChoice) {
-      logger.debug("Skipping move for player $mover; they chose not to move, but to do a {}",
-          choiceBeingExecuted.javaClass.name)
+    Phase.FIRST_ATTACK -> {
+      return makeMove(battle, battle.faster!!).withPhase(Phase.SECOND_ATTACK)
     }
-
-    val moveBeingExecuted: MoveChoice = choiceBeingExecuted as MoveChoice
-
-    if (moveBeingExecuted.move.basePower == 0) {
-      logger.info("Not simulating move ${moveBeingExecuted.move.id}; we don't understand it")
-      return this
+    Phase.SECOND_ATTACK -> {
+      return makeMove(battle, battle.faster!!.other()).withPhase(Phase.END)
     }
-
-    val effectiveness = computeTypeEffectiveness(
-        moveBeingExecuted.move.type,
-        otherSide.active.species.types)
-
-    val moveDamage = computeDamageRange(
-        movingSide.active.originalSpec.level,
-        offensiveStat = movingSide.active.getStat(Stat.ATTACK),
-        defensiveStat = otherSide.active.getStat(Stat.DEFENSE),
-        movePower = moveBeingExecuted.move.basePower,
-        effectiveness = effectiveness,
-        modifiers = setOf())
-
-    val actualDamage = resolveRange(random, moveDamage)
-
-    val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(actualDamage)
-
-    val newOtherSide = otherSide.updateActivePokemon(newOpposingActivePokemon)
-
-    if (mover == Player.BLACK) {
-      return Battle(random, turn, blackSide, newOtherSide, blackChoice, whiteChoice, phase, faster)
-    } else {
-      return Battle(random, turn, newOtherSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    Phase.END -> {
+      return battle.incrementTurn().withPhase(Phase.BEGIN).withChoices(null, null)
     }
   }
+}
+
+/**
+ * Adjudicates a move by one player's Pokemon.
+ *
+ * This function does not update the phase.
+ */
+internal fun makeMove(battle: Battle, mover: Player): Battle {
+  val movingSide = battle.side(mover)
+  val otherSide = battle.side(mover.other())
+  val choiceBeingExecuted = battle.choiceOf(mover)
+
+  if (battle.side(mover).active.condition == Condition.FAINT) {
+    // No move: the Pokemon is fainted.
+    logger.debug("Skipping move for player $mover; their Pokemon is fainted.")
+    return battle
+  }
+
+  if (choiceBeingExecuted == null) {
+    throw IllegalStateException(
+        "State does not make sense; trying to make a move for player $mover, but "
+            + "their choice is null")
+  }
+  if (choiceBeingExecuted !is MoveChoice) {
+    logger.debug("Skipping move for player $mover; they chose not to move, but to do a {}",
+        choiceBeingExecuted.javaClass.name)
+  }
+
+  val moveBeingExecuted: MoveChoice = choiceBeingExecuted as MoveChoice
+
+  if (moveBeingExecuted.move.basePower == 0) {
+    logger.info("Not simulating move ${moveBeingExecuted.move.id}; we don't understand it")
+    return battle
+  }
+
+  val effectiveness = computeTypeEffectiveness(
+      moveBeingExecuted.move.type,
+      otherSide.active.species.types)
+
+  val moveDamage = computeDamageRange(
+      movingSide.active.originalSpec.level,
+      offensiveStat = movingSide.active.getStat(Stat.ATTACK),
+      defensiveStat = otherSide.active.getStat(Stat.DEFENSE),
+      movePower = moveBeingExecuted.move.basePower,
+      effectiveness = effectiveness,
+      modifiers = setOf())
+
+  val actualDamage = resolveRange(battle.random, moveDamage)
+
+  val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(actualDamage)
+
+  val newOtherSide = otherSide.updateActivePokemon(newOpposingActivePokemon)
+
+  return battle.withSide(mover.other(), newOtherSide)
+}
+
+/**
+ * Recalculates and sets priority (that is, [Battle.faster]) based on the current state of the
+ * battle.
+ */
+internal fun recalculatePriority(battle: Battle): Battle {
+  return battle.withFaster(battle.fasterSide())
 }
 
 // Phases:

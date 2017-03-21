@@ -40,7 +40,6 @@ class BattleTest {
     )
     val activeBlastoise = newActivePokemonFromSpec(blastoiseSpec)
 
-
     val blackSide = Side(activeCharizard)
     val whiteSide = Side(activeBlastoise)
 
@@ -49,14 +48,15 @@ class BattleTest {
 
   @Test
   fun initialChoices() {
-    assertThat(charizardVsBlastoise.choices(Player.BLACK)).containsExactly(MoveChoice(EARTHQUAKE))
+    assertThat(charizardVsBlastoise.choices(Player.BLACK))
+        .containsExactly(MoveChoice(FLAMETHROWER), MoveChoice(EARTHQUAKE))
     assertThat(charizardVsBlastoise.choices(Player.WHITE))
-        .containsExactly(MoveChoice(SURF), MoveChoice(TACKLE))
+        .containsExactly(MoveChoice(SURF), MoveChoice(TACKLE), MoveChoice(EARTHQUAKE))
   }
 
   @Test
   fun simulateFirstTurn() {
-    val turn2 = charizardVsBlastoise.simulate(MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
+    val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -75,14 +75,15 @@ class BattleTest {
     assertThat(turn2.winner()).isNull()
     var simulation = turn2
     while (simulation.winner() == null) {
-      simulation = simulation.simulate(MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
+      simulation = simulateBattle(simulation, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
     }
     assertThat(simulation.winner()).isEqualTo(Player.BLACK)
   }
 
   @Test
   fun simulateNotVeryEffectiveMove() {
-    val turn2 = charizardVsBlastoise.simulate(MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
+    // TODO: There's something wrong with this test. Investigate once we implement spatk/spdef.
+    val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -90,13 +91,14 @@ class BattleTest {
     assertThat(turn2.whiteChoice).isNull()
 
     // FT deals between 45 and 54 damage to Blastoise, since it's not very effective
-    assertThat(turn2.whiteSide.active.hp).isAtLeast(300 - 54)
-    assertThat(turn2.whiteSide.active.hp).isAtMost(300 - 45)
+    val damage = 300 - turn2.whiteSide.active.hp
+    assertThat(damage).isAtLeast(45)
+    assertThat(damage).isAtMost(54)
   }
 
   @Test
   fun simulateImmuneMove() {
-    val turn2 = charizardVsBlastoise.simulate(MoveChoice(EARTHQUAKE), MoveChoice(EARTHQUAKE))
+    val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(EARTHQUAKE), MoveChoice(EARTHQUAKE))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
