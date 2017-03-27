@@ -4,8 +4,10 @@ import com.nrook.kadabra.common.resolveRange
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.formulas.Modifier
+import com.nrook.kadabra.mechanics.formulas.computeDamage
 import com.nrook.kadabra.mechanics.formulas.computeDamageRange
 import com.nrook.kadabra.mechanics.formulas.computeTypeEffectiveness
+import com.nrook.kadabra.mechanics.rng.RandomNumberGenerator
 import mu.KLogging
 import java.util.*
 
@@ -21,7 +23,7 @@ val logger = KLogging().logger()
  * More complex operations are kept outside the class.
  */
 data class Battle(
-    val random: Random,
+    val random: RandomNumberGenerator,
     val turn: Int,
     val blackSide: Side,
     val whiteSide: Side,
@@ -125,7 +127,7 @@ data class Battle(
     } else if (whiteSpeed > blackSpeed) {
       return Player.WHITE
     } else {
-      return if (random.nextBoolean()) Player.BLACK else Player.WHITE
+      return if (random.speedTieWinner()) Player.BLACK else Player.WHITE
     }
   }
 }
@@ -209,17 +211,16 @@ internal fun makeMove(battle: Battle, mover: Player): Battle {
     modifiers.add(Modifier.STAB)
   }
 
-  val moveDamage = computeDamageRange(
+  val moveDamage = computeDamage(
       movingSide.active.originalSpec.level,
       offensiveStat = offensiveStat,
       defensiveStat = defensiveStat,
       movePower = moveBeingExecuted.move.basePower,
       effectiveness = effectiveness,
+      damageRoll = battle.random.moveDamage(),
       modifiers = modifiers)
 
-  val actualDamage = resolveRange(battle.random, moveDamage)
-
-  val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(actualDamage)
+  val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(moveDamage)
 
   val newOtherSide = otherSide.updateActivePokemon(newOpposingActivePokemon)
 

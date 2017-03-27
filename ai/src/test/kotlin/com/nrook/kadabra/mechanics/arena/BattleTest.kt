@@ -6,6 +6,8 @@ import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.info.testdata.*
 import com.nrook.kadabra.mechanics.*
+import com.nrook.kadabra.mechanics.rng.REALISTIC_RANDOM_POLICY
+import com.nrook.kadabra.mechanics.rng.RandomNumberGenerator
 import org.junit.Before
 import org.junit.Test
 import java.util.*
@@ -43,7 +45,8 @@ class BattleTest {
     val blackSide = Side(activeCharizard)
     val whiteSide = Side(activeBlastoise)
 
-    charizardVsBlastoise = Battle(Random(), 1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+    val rng = RandomNumberGenerator(REALISTIC_RANDOM_POLICY, Random())
+    charizardVsBlastoise = Battle(rng, 1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
   }
 
   @Test
