@@ -199,6 +199,11 @@ internal fun makeMove(battle: Battle, mover: Player): Battle {
     return battle
   }
 
+  if (!moveBeingExecuted.move.fullyUnderstood) {
+    logger.info(
+        "Simulating move ${moveBeingExecuted.move.id} even though we don't fully understand it")
+  }
+
   val effectiveness = computeTypeEffectiveness(
       moveBeingExecuted.move.type,
       otherSide.active.species.types)

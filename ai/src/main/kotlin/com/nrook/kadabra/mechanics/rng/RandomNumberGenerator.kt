@@ -6,6 +6,7 @@ import java.util.*
  * A Pokemon-specific, policy-based random number generator.
  */
 class RandomNumberGenerator(val policy: RandomPolicy, val random: Random) {
+
   /**
    * Returns an integer between 85 and 100, inclusive, for use in the Pokemon damage roll.
    */
