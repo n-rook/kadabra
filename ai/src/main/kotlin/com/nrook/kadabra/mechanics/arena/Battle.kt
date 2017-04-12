@@ -23,7 +23,6 @@ val logger = KLogging().logger()
  * More complex operations are kept outside the class.
  */
 data class Battle(
-    val random: RandomNumberGenerator,
     val turn: Int,
     val blackSide: Side,
     val whiteSide: Side,
@@ -94,31 +93,33 @@ data class Battle(
   }
 
   internal fun incrementTurn(): Battle {
-    return Battle(random, turn + 1, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    return Battle(turn + 1, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
   }
 
   internal fun withSide(player: Player, side: Side): Battle {
     return if (player == Player.BLACK)
-      Battle(random, turn, side, whiteSide, blackChoice, whiteChoice, phase, faster)
-    else Battle(random, turn, blackSide, side, blackChoice, whiteChoice, phase, faster)
+      Battle(turn, side, whiteSide, blackChoice, whiteChoice, phase, faster)
+    else Battle(turn, blackSide, side, blackChoice, whiteChoice, phase, faster)
   }
 
   internal fun withPhase(phase: Phase): Battle {
-    return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
   }
 
   internal fun withChoices(blackChoice: Choice?, whiteChoice: Choice?): Battle {
-    return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
   }
 
   internal fun withFaster(fasterPlayer: Player): Battle {
-    return Battle(random, turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, fasterPlayer)
+    return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, fasterPlayer)
   }
 
   /**
    * Returns which Pokemon deserves to go first.
+   *
+   * Returns null if there is a speed tie.
    */
-  internal fun fasterSide(): Player {
+  internal fun fasterSide(): Player? {
     val blackSpeed: Int = blackSide.active.getStat(Stat.SPEED)
     val whiteSpeed: Int = whiteSide.active.getStat(Stat.SPEED)
 
@@ -127,7 +128,7 @@ data class Battle(
     } else if (whiteSpeed > blackSpeed) {
       return Player.WHITE
     } else {
-      return if (random.speedTieWinner()) Player.BLACK else Player.WHITE
+      return null
     }
   }
 }
@@ -135,10 +136,10 @@ data class Battle(
 /**
  * Simulate the battle until either it ends, or there's another choice to make.
  */
-fun simulateBattle(battle: Battle, blackChoice: Choice, whiteChoice: Choice): Battle {
+fun simulateBattle(battle: Battle, context: BattleContext, blackChoice: Choice, whiteChoice: Choice): Battle {
   var battle = battle.withChoices(blackChoice, whiteChoice)
   do {
-    battle = simulatePhase(battle)
+    battle = simulatePhase(battle, context)
   } while (battle.choices(Player.BLACK).isEmpty() && battle.choices(Player.WHITE).isEmpty())
   return battle
 }
@@ -146,19 +147,19 @@ fun simulateBattle(battle: Battle, blackChoice: Choice, whiteChoice: Choice): Ba
 /**
  * Simulate a phase of this battle. Returns the next phase.
  */
-internal fun simulatePhase(battle: Battle): Battle {
+internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
   when (battle.phase) {
     Phase.BEGIN -> {
       return battle.withPhase(Phase.COMPUTE_TURN_ORDER)
     }
     Phase.COMPUTE_TURN_ORDER -> {
-      return recalculatePriority(battle).withPhase(Phase.FIRST_ATTACK)
+      return recalculatePriority(battle, context).withPhase(Phase.FIRST_ATTACK)
     }
     Phase.FIRST_ATTACK -> {
-      return makeMove(battle, battle.faster!!).withPhase(Phase.SECOND_ATTACK)
+      return makeMove(battle, context, battle.faster!!).withPhase(Phase.SECOND_ATTACK)
     }
     Phase.SECOND_ATTACK -> {
-      return makeMove(battle, battle.faster!!.other()).withPhase(Phase.END)
+      return makeMove(battle, context, battle.faster!!.other()).withPhase(Phase.END)
     }
     Phase.END -> {
       return battle.incrementTurn().withPhase(Phase.BEGIN).withChoices(null, null)
@@ -171,7 +172,7 @@ internal fun simulatePhase(battle: Battle): Battle {
  *
  * This function does not update the phase.
  */
-internal fun makeMove(battle: Battle, mover: Player): Battle {
+internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Battle {
   val movingSide = battle.side(mover)
   val otherSide = battle.side(mover.other())
   val choiceBeingExecuted = battle.choiceOf(mover)
@@ -222,7 +223,7 @@ internal fun makeMove(battle: Battle, mover: Player): Battle {
       defensiveStat = defensiveStat,
       movePower = moveBeingExecuted.move.basePower,
       effectiveness = effectiveness,
-      damageRoll = battle.random.moveDamage(),
+      damageRoll = context.random.moveDamage(),
       modifiers = modifiers)
 
   val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(moveDamage)
@@ -236,8 +237,9 @@ internal fun makeMove(battle: Battle, mover: Player): Battle {
  * Recalculates and sets priority (that is, [Battle.faster]) based on the current state of the
  * battle.
  */
-internal fun recalculatePriority(battle: Battle): Battle {
-  return battle.withFaster(battle.fasterSide())
+internal fun recalculatePriority(battle: Battle, context: BattleContext): Battle {
+  return battle.withFaster(battle.fasterSide() ?:
+      (if (context.random.speedTieWinner()) Player.BLACK else Player.WHITE))
 }
 
 // Phases:

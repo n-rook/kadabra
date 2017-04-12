@@ -15,6 +15,7 @@ import java.util.*
 class BattleTest {
 
   lateinit var charizardVsBlastoise: Battle
+  lateinit var context: BattleContext
 
   @Before
   fun setUp() {
@@ -46,7 +47,8 @@ class BattleTest {
     val whiteSide = Side(activeBlastoise)
 
     val rng = RandomNumberGenerator(REALISTIC_RANDOM_POLICY, Random())
-    charizardVsBlastoise = Battle(rng, 1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+    context = BattleContext(rng)
+    charizardVsBlastoise = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
   }
 
   @Test
@@ -59,7 +61,8 @@ class BattleTest {
 
   @Test
   fun simulateFirstTurn() {
-    val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
+    val turn2 =
+        simulateBattle(charizardVsBlastoise, context, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -78,14 +81,15 @@ class BattleTest {
     assertThat(turn2.winner()).isNull()
     var simulation = turn2
     while (simulation.winner() == null) {
-      simulation = simulateBattle(simulation, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
+      simulation = simulateBattle(simulation, context, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
     }
     assertThat(simulation.winner()).isEqualTo(Player.BLACK)
   }
 
   @Test
   fun simulateNotVeryEffectiveMove() {
-    val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
+    val turn2 =
+        simulateBattle(charizardVsBlastoise, context, MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -100,7 +104,8 @@ class BattleTest {
 
   @Test
   fun simulateImmuneMove() {
-    val turn2 = simulateBattle(charizardVsBlastoise, MoveChoice(EARTHQUAKE), MoveChoice(EARTHQUAKE))
+    val turn2 =
+        simulateBattle(charizardVsBlastoise, context, MoveChoice(EARTHQUAKE), MoveChoice(EARTHQUAKE))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
