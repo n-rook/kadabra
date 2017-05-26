@@ -1,27 +1,44 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.nrook.kadabra.info.PokemonId
 import com.nrook.kadabra.mechanics.ActivePokemon
+import com.nrook.kadabra.mechanics.BenchedPokemon
 import com.nrook.kadabra.mechanics.Condition
+import java.util.*
 
 /**
  * One side of a battle.
  */
 data class Side(
-    val active: ActivePokemon
+    val active: ActivePokemon,
+    /**
+     * A map from each benched Pokemon's original ID to their current state.
+     *
+     * Why not just a set? It's more convenient to update a map than it is to update a set.
+     *
+     * As of right now, fainted Pokemon are actually removed from the Side, not just benched.
+     */
+    val bench: Map<PokemonId, BenchedPokemon>
 ) {
 
   /**
    * Returns a new Side with a new active Pokemon.
    */
-  fun updateActivePokemon(active: ActivePokemon): Side {
-    return Side(active)
+  fun updateActivePokemon(newActive: ActivePokemon): Side {
+    return Side(newActive, bench)
+  }
+
+  fun removeFromBench(id: PokemonId): Side {
+    val newBench = HashMap(bench)
+    newBench.remove(id)!!  // Throw an exception if the ID isn't in the map
+    return Side(active, newBench)
   }
 
   /**
    * Returns whether all Pokemon, both active and benched, have fainted.
    */
   fun allFainted(): Boolean {
-    return active.condition == Condition.FAINT
+    return active.condition == Condition.FAINT && bench.isEmpty()
   }
 }
 

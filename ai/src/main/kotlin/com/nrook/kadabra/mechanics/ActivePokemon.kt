@@ -47,6 +47,15 @@ data class ActivePokemon(
     val newCondition = if (newHp == 0) Condition.FAINT else condition
     return ActivePokemon(species, originalSpec, newHp, newCondition)
   }
+
+  /**
+   * Convert this Pokemon into a benched Pokemon.
+   *
+   * This does shave off effects which only last while a Pokemon is out.
+   */
+  fun toBenched(): BenchedPokemon {
+    return BenchedPokemon(species, originalSpec, hp, condition)
+  }
 }
 
 fun newActivePokemonFromSpec(spec: PokemonSpec): ActivePokemon {
@@ -56,6 +65,7 @@ fun newActivePokemonFromSpec(spec: PokemonSpec): ActivePokemon {
 enum class Condition {
   OK,
   POISON,
+  BAD_POISON,
   BURN,
   PARALYSIS,
   FREEZE,

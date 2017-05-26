@@ -67,7 +67,21 @@ data class Battle(
       Phase.SECOND_ATTACK -> {
         return listOf()
       }
+      Phase.PRIORITY_BEFORE_END -> {
+        return listOf()
+      }
       Phase.END -> {
+        val choosingSide = side(player)
+        if (choosingSide.active.condition == Condition.FAINT) {
+          return choosingSide.bench.keys.toList().map(::SwitchChoice)
+        } else {
+          return emptyList()
+        }
+      }
+      Phase.FIRST_SWITCH_AFTER_FAINT -> {
+        return listOf()
+      }
+      Phase.SECOND_SWITCH_AFTER_FAINT -> {
         return listOf()
       }
     }
@@ -110,6 +124,10 @@ data class Battle(
     return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
   }
 
+  internal fun clearChoices(): Battle {
+    return Battle(turn, blackSide, whiteSide, null, null, phase, faster)
+  }
+
   internal fun withFaster(fasterPlayer: Player): Battle {
     return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, fasterPlayer)
   }
@@ -135,13 +153,36 @@ data class Battle(
 
 /**
  * Simulate the battle until either it ends, or there's another choice to make.
+ *
+ * @param blackChoice The choice made by Black. If Black doesn't have to make a choice right now,
+ *  null.
+ * @param whiteChoice The choice made by White. If White doesn't have to make a choice right now,
+ *  null.
  */
-fun simulateBattle(battle: Battle, context: BattleContext, blackChoice: Choice, whiteChoice: Choice): Battle {
+fun simulateBattle(battle: Battle, context: BattleContext, blackChoice: Choice?, whiteChoice: Choice?): Battle {
+  validateChoice(battle, blackChoice, Player.BLACK)
+  validateChoice(battle, whiteChoice, Player.WHITE)
+
   var battle = battle.withChoices(blackChoice, whiteChoice)
   do {
     battle = simulatePhase(battle, context)
   } while (battle.choices(Player.BLACK).isEmpty() && battle.choices(Player.WHITE).isEmpty())
   return battle
+}
+
+/**
+ * Throw an exception if the given player can't make the given choice right now.
+ */
+internal fun validateChoice(battle: Battle, choice: Choice?, player: Player) {
+  val validChoices = battle.choices(player)
+  if (choice == null && validChoices.isNotEmpty()) {
+    throw IllegalArgumentException("${player} cannot make no choice right now; the following " +
+        "choices are possible: $validChoices")
+  }
+  if (choice != null && !validChoices.contains(choice)) {
+    throw IllegalArgumentException("${player} cannot make choice ${choice} right now; the only " +
+        "choices possible are $validChoices")
+  }
 }
 
 /**
@@ -159,10 +200,33 @@ internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
       return makeMove(battle, context, battle.faster!!).withPhase(Phase.SECOND_ATTACK)
     }
     Phase.SECOND_ATTACK -> {
-      return makeMove(battle, context, battle.faster!!.other()).withPhase(Phase.END)
+      return makeMove(battle, context, battle.faster!!.other()).withPhase(Phase.PRIORITY_BEFORE_END)
+    }
+    Phase.PRIORITY_BEFORE_END -> {
+      return recalculatePriority(battle, context).withPhase(Phase.END)
+          .clearChoices()
     }
     Phase.END -> {
-      return battle.incrementTurn().withPhase(Phase.BEGIN).withChoices(null, null)
+      return battle.withPhase(Phase.FIRST_SWITCH_AFTER_FAINT)
+    }
+    Phase.FIRST_SWITCH_AFTER_FAINT -> {
+      val switcher = battle.faster!!
+      if (battle.choiceOf(switcher) == null) {
+        return battle.withPhase(Phase.SECOND_SWITCH_AFTER_FAINT)
+      }
+
+      return switchAfterFaint(battle, switcher, context)
+          .withPhase(Phase.SECOND_SWITCH_AFTER_FAINT)
+    }
+    Phase.SECOND_SWITCH_AFTER_FAINT -> {
+      val switcher = battle.faster!!.other()
+      if (battle.choiceOf(switcher) == null) {
+        return battle.withPhase(Phase.BEGIN).incrementTurn()
+      }
+
+      return switchAfterFaint(battle, switcher, context)
+          .withPhase(Phase.BEGIN)
+          .incrementTurn()
     }
   }
 }
@@ -194,6 +258,7 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
   }
 
   val moveBeingExecuted: MoveChoice = choiceBeingExecuted as MoveChoice
+  context.logger.useMove(mover, moveBeingExecuted.move, movingSide.active)
 
   if (moveBeingExecuted.move.basePower == 0) {
     logger.info("Not simulating move ${moveBeingExecuted.move.id}; we don't understand it")
@@ -225,6 +290,7 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
       effectiveness = effectiveness,
       damageRoll = context.random.moveDamage(),
       modifiers = modifiers)
+  context.logger.attack(mover, movingSide.active, otherSide.active, moveDamage)
 
   val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(moveDamage)
 
@@ -242,6 +308,22 @@ internal fun recalculatePriority(battle: Battle, context: BattleContext): Battle
       (if (context.random.speedTieWinner()) Player.BLACK else Player.WHITE))
 }
 
+internal fun switchAfterFaint(battle: Battle, switcher: Player, context: BattleContext): Battle {
+  val switchingSide = battle.side(switcher)
+  if (switchingSide.active.condition != Condition.FAINT) {
+    throw IllegalArgumentException("Pokemon ${switchingSide.active} is not fainted")
+  }
+
+  val choice = battle.choiceOf(switcher) as SwitchChoice
+  val switchTarget = switchingSide.bench[choice.target]!!
+  context.logger.switchAfterFaint(switcher, switchingSide.active, switchTarget)
+
+  val newActivePokemon = switchTarget.toActive()
+  val updatedSwitchingSide = switchingSide.updateActivePokemon(newActivePokemon)
+      .removeFromBench(choice.target)
+  return battle.withSide(switcher, updatedSwitchingSide)
+}
+
 // Phases:
 // SWITCH PHASE, where Pursuit and a switch may happen
 // MEGA EVOLUTION PHASE
@@ -255,9 +337,7 @@ internal fun recalculatePriority(battle: Battle, context: BattleContext): Battle
  */
 enum class Phase {
   /**
-   * This phase is a marker, so we don't have to change the handling if we add more phases.
-   * Nothing actually happens in BEGIN phase, but when trainers are picking moves at the beginning
-   * of their turn, that should be during BEGIN phase.
+   * During this phase, trainers decide which moves to use.
    */
   BEGIN,
 
@@ -279,10 +359,29 @@ enum class Phase {
   SECOND_ATTACK,
 
   /**
+   * Before end-of-turn effects, priority is calculated. Again.
+   */
+  PRIORITY_BEFORE_END,
+
+  /**
    * During this phase, end-of-turn effects occur. For instance, the effects of
    * Wish happen.
+   *
+   * At the end of this phase, trainers get to decide what to do with fainted Pokemon.
    */
-  END
+  END,
+
+  /**
+   * The faster Pokemon gets the opportunity to switch out if fainted.
+   */
+  FIRST_SWITCH_AFTER_FAINT,
+
+  /**
+   * The slower Pokemon gets the opportunity to switch out if fainted.
+   */
+  SECOND_SWITCH_AFTER_FAINT
+
+  // TODO: Consider adding a true 'end of turn' phase which clears choices.
 }
 
 /**

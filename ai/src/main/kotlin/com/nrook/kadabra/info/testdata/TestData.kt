@@ -44,6 +44,27 @@ val BLASTOISE: Species = Species(
     otherForms = setOf(),
     form = null)
 
+val MAGCARGO: Species = Species(
+    PokemonId("magcargo"),
+    "Magcargo",
+    219,
+    listOf(PokemonType.FIRE, PokemonType.ROCK),
+    GenderPossibilities.MALE_OR_FEMALE,
+    mapOf(
+        Stat.HP to 60,
+        Stat.ATTACK to 50,
+        Stat.DEFENSE to 120,
+        Stat.SPECIAL_ATTACK to 90,
+        Stat.SPECIAL_DEFENSE to 80,
+        Stat.SPEED to 30
+    ),
+    AbilitySet(AbilityId("Magma Armor"), AbilityId("Flame Body"), AbilityId("Weak Armor")),
+    heightmm = 800,
+    weightg = 55000,
+    otherForms = setOf(),
+    form = null
+)
+
 val EARTHQUAKE: Move = Move(
     MoveId("earthquake"),
     100,

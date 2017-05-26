@@ -9,4 +9,4 @@ import com.nrook.kadabra.mechanics.rng.RandomNumberGenerator
  * passed around within battle simulation tasks: that is, Battle calls BattleContext. For instance,
  * the RNG is in BattleContext, because during simulation it's often useful to get an RNG result.
  */
-class BattleContext(val random: RandomNumberGenerator)
+class BattleContext(val random: RandomNumberGenerator, val logger: BattleLogger)

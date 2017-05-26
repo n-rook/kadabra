@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.AbilityId
 import com.nrook.kadabra.info.Gender
@@ -14,12 +15,15 @@ import java.util.*
 
 class BattleTest {
 
+  lateinit var charizardSpec: PokemonSpec
+  lateinit var blastoiseSpec: PokemonSpec
+  lateinit var magcargoSpec: PokemonSpec
   lateinit var charizardVsBlastoise: Battle
   lateinit var context: BattleContext
 
   @Before
   fun setUp() {
-    val charizardSpec = PokemonSpec(
+    charizardSpec = PokemonSpec(
         CHARIZARD,
         AbilityId("Blaze"),
         Gender.FEMALE,
@@ -31,7 +35,7 @@ class BattleTest {
     )
     val activeCharizard = newActivePokemonFromSpec(charizardSpec)
 
-    val blastoiseSpec = PokemonSpec(
+    blastoiseSpec = PokemonSpec(
         BLASTOISE,
         AbilityId("Torrent"),
         Gender.FEMALE,
@@ -43,11 +47,22 @@ class BattleTest {
     )
     val activeBlastoise = newActivePokemonFromSpec(blastoiseSpec)
 
-    val blackSide = Side(activeCharizard)
-    val whiteSide = Side(activeBlastoise)
+    magcargoSpec = PokemonSpec(
+        MAGCARGO,
+        AbilityId("Flame Body"),
+        Gender.MALE,
+        Nature.HARDY,
+        makeEvs(ImmutableMap.of()),
+        MAX_IVS,
+        Level(100),
+        listOf(FLAMETHROWER)
+    )
+
+    val blackSide = Side(activeCharizard, ImmutableMap.of())
+    val whiteSide = Side(activeBlastoise, ImmutableMap.of())
 
     val rng = RandomNumberGenerator(REALISTIC_RANDOM_POLICY, Random())
-    context = BattleContext(rng)
+    context = BattleContext(rng, debugLogger())
     charizardVsBlastoise = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
   }
 
@@ -115,4 +130,41 @@ class BattleTest {
     // EQ shouldn't have done anything to Charizard.
     assertThat(turn2.blackSide.active.hp).isEqualTo(298)
   }
+
+  @Test
+  fun simulateFaintAndSwitch() {
+    // Magcargo vs Blastoise.
+    val blackSide = Side(newActivePokemonFromSpec(magcargoSpec),
+        ImmutableMap.of(charizardSpec.species.id, newBenchedPokemonFromSpec(charizardSpec)))
+    val whiteSide = Side(newActivePokemonFromSpec(blastoiseSpec), ImmutableMap.of())
+    val beginning = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+
+    // Wipe Magcargo out in one move with a 4x effective Surf.
+    val faintedMagcargoBattle =
+        simulateBattle(beginning, context, MoveChoice(FLAMETHROWER), MoveChoice(SURF))
+
+    val magcargo = faintedMagcargoBattle.blackSide.active
+    assertThat(magcargo.species).isEqualTo(MAGCARGO)
+    assertThat(magcargo.hp).isEqualTo(0)
+    assertThat(magcargo.condition).isEqualTo(Condition.FAINT)
+    assertThat(faintedMagcargoBattle.whiteSide.active.condition).isEqualTo(Condition.OK)
+
+    assertThat(faintedMagcargoBattle.choices(Player.BLACK))
+        .containsExactly(SwitchChoice(CHARIZARD.id))
+    assertThat(faintedMagcargoBattle.choices(Player.WHITE))
+        .isEmpty()
+
+    assertThat(faintedMagcargoBattle.phase).isEqualTo(Phase.END)
+
+    // Switch to Charizard. The game should continue to the beginning of the next turn, where
+    // Black has an empty bench.
+    val turn2 = simulateBattle(faintedMagcargoBattle, context, SwitchChoice(CHARIZARD.id), null)
+    assertThat(turn2.turn).isEqualTo(2)
+    assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
+    assertThat(turn2.blackSide.active.species).isEqualTo(CHARIZARD)
+    assertThat(turn2.blackSide.bench).hasSize(0)
+  }
+
+  // When more abilities are implemented, we should test that priority successfully controls
+  // who switches in after fainting first.
 }
