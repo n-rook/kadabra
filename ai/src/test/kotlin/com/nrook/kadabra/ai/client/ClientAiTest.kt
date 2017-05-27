@@ -1,26 +1,24 @@
-package com.nrook.kadabra.ai
+package com.nrook.kadabra.ai.client
 
 import com.google.common.truth.Truth
 import com.nrook.kadabra.proto.*
-import org.junit.Before
-import org.junit.Test
 
-class AiTest {
-  lateinit var ai: Ai;
+class ClientAiTest {
+  lateinit var ai: ClientAi;
 
-  @Before
+  @org.junit.Before
   fun setUp() {
-    ai = Ai()
+    ai = ClientAi()
   }
 
-  @Test
+  @org.junit.Test
   fun pickLead() {
     val result = ai.pickLead()
     Truth.assertThat(result.leadIndex).isAtLeast(1)
     Truth.assertThat(result.leadIndex).isAtMost(6)
   }
 
-  @Test
+  @org.junit.Test
   fun pickStartOfTurnAction() {
     val result = ai.pickAction(ActionRequest.newBuilder()
         .addMove(MoveStatus.newBuilder()
@@ -38,7 +36,7 @@ class AiTest {
     Truth.assertThat(result.move.index).isAtMost(2)
   }
 
-  @Test
+  @org.junit.Test
   fun dontPickDisabledStuff() {
     val result = ai.pickAction(ActionRequest.newBuilder()
         .addMove(MoveStatus.newBuilder()
@@ -55,7 +53,7 @@ class AiTest {
     Truth.assertThat(result.move.index).isEqualTo(2)
   }
 
-  @Test
+  @org.junit.Test
   fun ifForceSwitchThenSwitchRatherThanMoving() {
     val mon1 = PokemonSideInfo.newBuilder()
         .setSpecies("Blissey")
