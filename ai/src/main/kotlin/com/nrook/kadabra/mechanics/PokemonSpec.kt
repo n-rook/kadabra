@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics
 
+import com.google.common.collect.ImmutableMap
 import com.nrook.kadabra.info.*
 import com.nrook.kadabra.mechanics.formulas.computeStat
 
@@ -72,6 +73,11 @@ data class EvSpread(val values: Map<Stat, Int>) {
 fun makeEvs(values: Map<Stat, Int>): EvSpread {
   return EvSpread(Stat.values().associate{ it to (values[it]?:0) })
 }
+
+/**
+ * A convenient test object that gives a Pokemon no EVs whatsoever.
+ */
+val NO_EVS = makeEvs(ImmutableMap.of())
 
 data class IvSpread(val values: Map<Stat, Int>) {
   init {
