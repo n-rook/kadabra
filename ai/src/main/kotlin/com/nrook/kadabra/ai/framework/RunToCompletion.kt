@@ -1,10 +1,7 @@
 package com.nrook.kadabra.ai.framework
 
 import com.nrook.kadabra.ai.perfect.RandomAi
-import com.nrook.kadabra.mechanics.arena.Battle
-import com.nrook.kadabra.mechanics.arena.BattleContext
-import com.nrook.kadabra.mechanics.arena.Player
-import com.nrook.kadabra.mechanics.arena.simulateBattle
+import com.nrook.kadabra.mechanics.arena.*
 
 /**
  * Run a battle to completion, and return the winner.
@@ -18,8 +15,16 @@ fun runToCompletion(
     battleStatus = simulateBattle(
         battleStatus,
         context,
-        blackAi.decide(battleStatus, Player.BLACK),
-        whiteAi.decide(battleStatus, Player.WHITE))
+        makeChoice(battleStatus, Player.BLACK, blackAi),
+        makeChoice(battleStatus, Player.WHITE, whiteAi))
   }
   return battleStatus.winner()!!
+}
+
+private fun makeChoice(battle: Battle, player: Player, ai: RandomAi): Choice? {
+  val validChoices = battle.choices(player)
+  if (validChoices.isEmpty()) {
+    return null
+  }
+  return ai.decide(battle, player)
 }

@@ -1,15 +1,16 @@
 package com.nrook.kadabra.mechanics.arena
 
-import com.nrook.kadabra.common.resolveRange
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.Maps
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.Condition
+import com.nrook.kadabra.mechanics.PokemonSpec
 import com.nrook.kadabra.mechanics.formulas.Modifier
 import com.nrook.kadabra.mechanics.formulas.computeDamage
-import com.nrook.kadabra.mechanics.formulas.computeDamageRange
 import com.nrook.kadabra.mechanics.formulas.computeTypeEffectiveness
-import com.nrook.kadabra.mechanics.rng.RandomNumberGenerator
+import com.nrook.kadabra.mechanics.newActivePokemonFromSpec
+import com.nrook.kadabra.mechanics.newBenchedPokemonFromSpec
 import mu.KLogging
-import java.util.*
 
 val logger = KLogging().logger()
 
@@ -149,6 +150,36 @@ data class Battle(
       return null
     }
   }
+}
+
+/**
+ * Initializes a battle, and simulates until the first choice.
+ */
+fun startBattle(blackTeam: List<PokemonSpec>, blackLead: Int,
+                whiteTeam: List<PokemonSpec>, whiteLead: Int,
+                context: BattleContext): Battle {
+  // Context will eventually be necessary when we actually simulate until the first choice.
+
+  return Battle(
+      1,
+      teamSpecToSide(blackTeam, blackLead),
+      teamSpecToSide(whiteTeam, whiteLead),
+      null,
+      null,
+      Phase.BEGIN,
+      null)
+}
+
+/**
+ * Converts a list of PokemonSpec objects to a Side.
+ *
+ * This does not adjudicate ETB effects for the lead Pokemon.
+ */
+private fun teamSpecToSide(team: List<PokemonSpec>, leadIndex: Int): Side {
+  val lead = newActivePokemonFromSpec(team[leadIndex])
+  val rest = team.slice(0..leadIndex - 1) + team.slice(leadIndex + 1..team.size - 1)
+  val bench = Maps.uniqueIndex(rest.map { newBenchedPokemonFromSpec(it) }, { it!!.species.id })
+  return Side(lead, bench)
 }
 
 /**

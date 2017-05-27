@@ -1,123 +1,78 @@
 package com.nrook.kadabra.info
 
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.Maps
+import java.util.*
+
 /**
- * Represents a single type of Pokemon.
- *
- * Note that different forms of a Pokemon are treated as different species.
- * For instance, Mega Pokemon and alternate formes are different species.
+ * The move ID of the unique move, Hidden Power.
  */
-data class Species(
-    /**
-     * The Pokemon's ID.
-     */
-    val id: PokemonId,
+val HIDDEN_POWER: MoveId = MoveId("hiddenpower")
+
+/**
+ * A class which holds data about Pokemon mechanics.
+ */
+class Pokedex private constructor(
+    private val speciesById: ImmutableMap<PokemonId, Species>,
+    private val speciesByName: ImmutableMap<String, Species>,
+    private val moveById: ImmutableMap<MoveId, Move>,
+    private val abilityByUsageCode: ImmutableMap<String, AbilityId>) {
+
+  companion object {
 
     /**
-     * The Pokemon's actual name. "Venasaur-Mega", not "venasaurmega".
+     * Construct a Pokedex from known data.
      */
-    val name: String,
+    fun create(species: List<Species>, moves: List<Move>): Pokedex {
+      val speciesById = Maps.uniqueIndex(species, {it!!.id})
+      val speciesByName = Maps.uniqueIndex(species, {it!!.name})
+      val movesById = Maps.uniqueIndex(moves, {it!!.id})
+      val abilities = species.flatMap { it.ability.asSet() }
+          .toSet()
+      val abilitiesByUsageCode = Maps.uniqueIndex(abilities, {abilityIdToUsageCode(it!!)})
 
-    /**
-     * The Pokemon's number in the traditional national Dex. Not important.
-     *
-     * This is the same for all forms of a Pokemon.
-     */
-    val number: Int,
-
-    /**
-     * The types this Pokemon has. There are either one or two of these.
-     *
-     * A Pokemon's types have a canonical ordering, which is reflected here, but that ordering
-     * doesn't make any impact on game mechanics.
-     */
-    val types: List<PokemonType>,
-
-    /**
-     * The sexes of this Pokemon population.
-     */
-    val gender: GenderPossibilities,
-
-    /**
-     * This Pokemon's base stats. The map must contain all six stats.
-     */
-    val baseStats: Map<Stat, Int>,
-
-    /**
-     * The abilities available to this Pokemon.
-     */
-    val ability: AbilitySet,
-
-    /**
-     * The Pokemon's height, in millimeters.
-     */
-    val heightmm: Int,
-
-    /**
-     * The Pokemon's weight, in grams.
-     */
-    val weightg: Int,
-
-    /**
-     * If this is a base species Pokemon, this lists other forms of this Pokemon. If this is
-     * not a base species Pokemon, otherForms is empty.
-     *
-     * For instance, for Charizard, this contains Charizard-Mega-X and Charizard-Mega-Y, but for
-     * Charizard-Mega-X, this is empty.
-     */
-    val otherForms: Set<PokemonId>,
-
-    /**
-     * If this is an alternate form of some Pokemon, this is a short string which describes that
-     * form. For instance, for Charizard-Mega-X, this is "Mega-X".
-     */
-    val form: String?
-) {
-  init {
-    if (baseStats.size != 6) {
-      throw IllegalArgumentException("Base stats ${baseStats.keys} are missing some stats")
+      return Pokedex(speciesById, speciesByName, movesById, abilitiesByUsageCode)
     }
   }
-}
 
-/**
- * The ID which identifies a Pokemon.
- *
- * This is lowercase and contains no special characters. "venasaurmega", not "Venasaur-Mega".
- */
-data class PokemonId(val str: String)
+  fun getSpeciesById(id: PokemonId): Species {
+    return speciesById[id]!!
+  }
 
-/**
- * A Pokemon ability, such as "Intimidate".
- */
-data class AbilityId(val str: String)
+  fun getSpeciesByName(name: String): Species {
+    return speciesByName[name]!!
+  }
 
-data class AbilitySet(
-    val first: AbilityId,
-    val second: AbilityId?,
-    val hidden: AbilityId?
-) {
-  fun asSet(): Set<AbilityId> {
-    return setOf(first, second, hidden).filterNotNull().toSet()
+  fun getMoveById(id: MoveId): Move {
+    return moveById[id]!!
+  }
+
+  fun getMoveByUsageCode(usageCode: String): Move {
+    val moveId = moveUsageCodeToId(usageCode)
+    val move = moveById[moveId]
+    return move ?: throw NoSuchElementException(
+        "We cannot find a move with the ID ${moveId.str} (computed from $usageCode)")
+  }
+
+  /**
+   * Returns an ability by its "usage code", the string to which it is referred to in usage data.
+   *
+   * Unlike PokemonId and MoveId, AbilityId are capitalized and spaced. For instance, Dugtrio's
+   * signature ability is "Arena Trap", not "arenatrap". But in usage data, it's "arenatrap".
+   */
+  fun getAbilityByUsageCode(code: String): AbilityId {
+    return abilityByUsageCode[code]!!
   }
 }
 
-/**
- * The sexes which a Pokemon might be.
- */
-enum class GenderPossibilities(val possibilities: Set<Gender>) {
-  MALE_OR_FEMALE(setOf(Gender.MALE, Gender.FEMALE)),
-  ALWAYS_MALE(setOf(Gender.MALE)),
-  ALWAYS_FEMALE(setOf(Gender.FEMALE)),
-  GENDERLESS(setOf(Gender.GENDERLESS))
+private fun moveUsageCodeToId(usageCode: String): MoveId {
+  if (usageCode.startsWith("hiddenpower")) {
+    return HIDDEN_POWER
+  }
+  return MoveId(usageCode)
 }
 
-/**
- * The biological sex of a Pokemon.
- *
- * This is consistently called Gender by the Pokemon community, but it's really sex, not gender.
- */
-enum class Gender {
-  FEMALE,
-  MALE,
-  GENDERLESS
+private fun abilityIdToUsageCode(id: AbilityId): String {
+  return id.str.toLowerCase()
+      .replace(Regex("[^a-z0-9]"), "")
 }

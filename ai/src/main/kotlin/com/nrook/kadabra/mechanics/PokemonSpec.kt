@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.nrook.kadabra.info.*
 import com.nrook.kadabra.mechanics.formulas.computeStat
@@ -21,9 +22,46 @@ data class PokemonSpec(
     val level: Level = Level(100),
     val moves: List<Move>
 ) {
+
+  companion object {
+
+    /**
+     * Creates a PokemonSpec from a PokemonDefinition.
+     *
+     * TODO: This is ugly. Maybe this should be in some sort of central dataset class?
+     */
+    fun createFromPokemonDefinition(
+        definition: PokemonDefinition,
+        pokedex: Pokedex): PokemonSpec {
+      val species = pokedex.getSpeciesByName(definition.species)
+
+      // The problem here is that usage data is incompatible with pokedex data.
+      // In the pokedex, Dugtrio has Arena Trap. In usage data, it has arenatrap.
+      // Similarly, in usage data, Pokemon are listed by name, not by id.
+      // This is too much work for a static factory method. It should be done somewhere else.
+
+//      val species = pokedex[PokemonId(definition.species)]!!
+      val gender = species.gender.possibilities.first()
+      val nature: Nature = Nature.valueOf(definition.nature.name)
+      val moves: List<Move> = ImmutableList.copyOf(
+          definition.moves.map({pokedex.getMoveByUsageCode(it)}))
+
+      return PokemonSpec(
+          pokedex.getSpeciesByName(definition.species),
+          pokedex.getAbilityByUsageCode(definition.ability),
+          gender,
+          nature,
+          makeEvs(definition.evs),
+          IvSpread(definition.ivs),
+          Level(100),
+          moves)
+    }
+  }
+
   init {
     if (!species.ability.asSet().contains(ability)) {
-      throw IllegalArgumentException("Ability $ability not available to ${species.name}")
+      throw IllegalArgumentException(
+          "Ability $ability not available to ${species.name}. Its abilities are ${species.ability}")
     }
     if (!species.gender.possibilities.contains(gender)) {
       throw IllegalArgumentException("Gender $gender not available to ${species.name}")
@@ -36,7 +74,6 @@ data class PokemonSpec(
           "Pokemon must only have 4 moves, but this one has more: $moves")
     }
   }
-
 
   /**
    * Returns the value of a given stat.

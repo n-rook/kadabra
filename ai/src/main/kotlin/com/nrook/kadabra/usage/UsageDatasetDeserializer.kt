@@ -101,7 +101,9 @@ private class MovesUsageDataMapDeserializer: JsonDeserializer<Map<String, MoveUs
     val root = json.asJsonObject
     return root.entrySet()
         .map { entry -> MoveUsageData(entry.key, entry.value.asDouble)}
-        .associateBy { it -> it.move }
+        // If a Pokemon has fewer than four moves, these can creep into the usage data.
+        .filter { it.move.isNotEmpty() }
+        .associateBy { it.move }
   }
 }
 
