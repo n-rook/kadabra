@@ -40,7 +40,8 @@ class Pokedex private constructor(
   }
 
   fun getSpeciesByName(name: String): Species {
-    return speciesByName[name]!!
+    val species = speciesByName[name]
+    return species ?: throw NoSuchElementException("We cannot find a Pokemon named $name.")
   }
 
   fun getMoveById(id: MoveId): Move {
