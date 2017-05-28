@@ -9,7 +9,7 @@ import java.util.*
 /**
  * An AI which makes decisions purely at random.
  */
-class RandomAi(private val random: Random) {
+class RandomAi(private val random: Random): Ai {
 
   /**
    * Decide which choice to make.
@@ -17,7 +17,7 @@ class RandomAi(private val random: Random) {
    * @param battle The battle in which to make a choice.
    * @param player The player as whom to make the choice.
    */
-  fun decide(battle: Battle, player: Player): Choice {
+  override fun decide(battle: Battle, player: Player): Choice {
     val choices = battle.choices(player)
     if (choices.isEmpty()) {
       throw IllegalArgumentException("Choice list was empty for $player")
@@ -36,7 +36,7 @@ class RandomAi(private val random: Random) {
    * @param player Which player we are.
    * @return The index of the team member with which we will lead off.
    */
-  fun chooseLead(black: List<PokemonSpec>, white: List<PokemonSpec>, player: Player):
+  override fun chooseLead(black: List<PokemonSpec>, white: List<PokemonSpec>, player: Player):
       Int {
     val us = when(player) {
       Player.BLACK -> black

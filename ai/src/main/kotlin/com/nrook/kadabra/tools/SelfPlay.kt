@@ -1,11 +1,10 @@
 package com.nrook.kadabra.tools
 
 import com.nrook.kadabra.ai.framework.runToCompletion
+import com.nrook.kadabra.ai.perfect.Ai
 import com.nrook.kadabra.ai.perfect.RandomAi
-import com.nrook.kadabra.info.*
-import com.nrook.kadabra.info.read.getGen7Movedex
+import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.read.getGen7Pokedex
-import com.nrook.kadabra.info.read.getGen7Species
 import com.nrook.kadabra.mechanics.PokemonSpec
 import com.nrook.kadabra.mechanics.arena.BattleContext
 import com.nrook.kadabra.mechanics.arena.Player
@@ -24,7 +23,7 @@ private val logger = mu.KLogging().logger()
 /**
  * Play a full game of Pokemon using two AIs and random OU teams.
  */
-fun selfPlay(blackAi: RandomAi, whiteAi: RandomAi, context: BattleContext) {
+fun selfPlay(blackAi: Ai, whiteAi: Ai, context: BattleContext) {
   val dataset = getOuUsageDataset()
   val pokedex = getGen7Pokedex()
 
