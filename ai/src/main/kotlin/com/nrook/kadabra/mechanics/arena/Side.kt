@@ -35,6 +35,21 @@ data class Side(
   }
 
   /**
+   * Replace the active Pokemon with a benched Pokemon, and vice versa.
+   *
+   * @param switchedInId The ID of the Pokemon switched in (on the bench).
+   * @param switchedIn The switched-in Pokemon.
+   * @param switchedOut The benched Pokemon.
+   */
+  fun switch(switchedInId: PokemonId, switchedIn: ActivePokemon,
+             switchedOut: BenchedPokemon): Side {
+    val newBench = HashMap(bench)
+    newBench.remove(switchedInId)!!
+    newBench.put(switchedOut.species.id, switchedOut)
+    return Side(switchedIn, newBench)
+  }
+
+  /**
    * Returns whether all Pokemon, both active and benched, have fainted.
    */
   fun allFainted(): Boolean {

@@ -8,6 +8,7 @@ import com.nrook.kadabra.mechanics.BenchedPokemon
  * A BattleLogger which does nothing and logs no messages whatsoever.
  */
 class NoOpLogger: BattleLogger {
+
   override fun useMove(player: Player, move: Move, pokemon: ActivePokemon) {}
 
   override fun attack(
@@ -15,6 +16,11 @@ class NoOpLogger: BattleLogger {
       attackingPokemon: ActivePokemon,
       defendingPokemon: ActivePokemon,
       damage: Int) {}
+
+  override fun switch(
+      switchingPlayer: Player,
+      switchedOut: ActivePokemon,
+      switchedIn: BenchedPokemon) {}
 
   override fun switchAfterFaint(
       switchingPlayer: Player,

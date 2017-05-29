@@ -1,6 +1,5 @@
 package com.nrook.kadabra.mechanics.arena
 
-import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Maps
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.Condition
@@ -57,15 +56,15 @@ data class Battle(
   fun choices(player: Player): List<Choice> {
     when (this.phase) {
       Phase.BEGIN -> {
-        return side(player).active.moves.map(::MoveChoice)
+        return beginningOfTurnCommands(player)
       }
       Phase.COMPUTE_TURN_ORDER -> {
         return listOf()
       }
-      Phase.FIRST_ATTACK -> {
+      Phase.FIRST_ACTION -> {
         return listOf()
       }
-      Phase.SECOND_ATTACK -> {
+      Phase.SECOND_ACTION -> {
         return listOf()
       }
       Phase.PRIORITY_BEFORE_END -> {
@@ -86,6 +85,13 @@ data class Battle(
         return listOf()
       }
     }
+  }
+
+  private fun beginningOfTurnCommands(player: Player): List<Choice> {
+    val side = side(player)
+    val moves = side.active.moves.map(::MoveChoice)
+    val switches = side.bench.keys.map { SwitchChoice(it) }
+    return moves + switches
   }
 
   /**
@@ -134,7 +140,7 @@ data class Battle(
   }
 
   /**
-   * Returns which Pokemon deserves to go first.
+   * Returns which Pokemon is faster. Does not include priority.
    *
    * Returns null if there is a speed tie.
    */
@@ -207,11 +213,11 @@ fun simulateBattle(battle: Battle, context: BattleContext, blackChoice: Choice?,
 internal fun validateChoice(battle: Battle, choice: Choice?, player: Player) {
   val validChoices = battle.choices(player)
   if (choice == null && validChoices.isNotEmpty()) {
-    throw IllegalArgumentException("${player} cannot make no choice right now; the following " +
+    throw IllegalArgumentException("$player cannot make no choice right now; the following " +
         "choices are possible: $validChoices")
   }
   if (choice != null && !validChoices.contains(choice)) {
-    throw IllegalArgumentException("${player} cannot make choice ${choice} right now; the only " +
+    throw IllegalArgumentException("$player cannot make choice $choice right now; the only " +
         "choices possible are $validChoices")
   }
 }
@@ -225,16 +231,17 @@ internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
       return battle.withPhase(Phase.COMPUTE_TURN_ORDER)
     }
     Phase.COMPUTE_TURN_ORDER -> {
-      return recalculatePriority(battle, context).withPhase(Phase.FIRST_ATTACK)
+      return recalculatePriority(battle, context).withPhase(Phase.FIRST_ACTION)
     }
-    Phase.FIRST_ATTACK -> {
-      return makeMove(battle, context, battle.faster!!).withPhase(Phase.SECOND_ATTACK)
+    Phase.FIRST_ACTION -> {
+      return takeAction(battle, context, battle.faster!!).withPhase(Phase.SECOND_ACTION)
     }
-    Phase.SECOND_ATTACK -> {
-      return makeMove(battle, context, battle.faster!!.other()).withPhase(Phase.PRIORITY_BEFORE_END)
+    Phase.SECOND_ACTION -> {
+      return takeAction(battle, context, battle.faster!!.other())
+          .withPhase(Phase.PRIORITY_BEFORE_END)
     }
     Phase.PRIORITY_BEFORE_END -> {
-      return recalculatePriority(battle, context).withPhase(Phase.END)
+      return recalculatePriorityForEndOfTurnSwitch(battle, context).withPhase(Phase.END)
           .clearChoices()
     }
     Phase.END -> {
@@ -259,6 +266,20 @@ internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
           .withPhase(Phase.BEGIN)
           .incrementTurn()
     }
+  }
+}
+
+/**
+ * Adjudicates an action taken by one player.
+ *
+ * This function does not update the phase.
+ */
+internal fun takeAction(battle: Battle, context: BattleContext, mover: Player): Battle {
+  val choice = battle.choiceOf(mover)
+  return when (choice) {
+    is MoveChoice -> makeMove(battle, context, mover)
+    is SwitchChoice -> makeSwitch(battle, context, mover)
+    else -> throw IllegalArgumentException("Unknown choice type $choice")
   }
 }
 
@@ -292,12 +313,12 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
   context.logger.useMove(mover, moveBeingExecuted.move, movingSide.active)
 
   if (moveBeingExecuted.move.basePower == 0) {
-    logger.info("Not simulating move ${moveBeingExecuted.move.id}; we don't understand it")
+    logger.debug("Not simulating move ${moveBeingExecuted.move.id}; we don't understand it")
     return battle
   }
 
   if (!moveBeingExecuted.move.fullyUnderstood) {
-    logger.info(
+    logger.debug(
         "Simulating move ${moveBeingExecuted.move.id} even though we don't fully understand it")
   }
 
@@ -331,12 +352,86 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
 }
 
 /**
+ * Adjudicates a switch ordered by a player at the beginning of a turn.
+ */
+internal fun makeSwitch(battle: Battle, context: BattleContext, mover: Player): Battle {
+  val switch = battle.choiceOf(mover) as SwitchChoice
+  val switchingSide = battle.side(mover)
+  val switchedIn = switchingSide.bench[switch.target]
+      ?: throw IllegalArgumentException(
+          "Invalid switch target ${switch.target}; the bench is ${switchingSide.bench}")
+
+  context.logger.switch(mover, switchingSide.active, switchedIn)
+
+  val newActivePokemon = switchedIn.toActive()
+  val newBenchedPokemon = switchingSide.active.toBenched()
+  val updatedSwitchingSide = switchingSide.updateActivePokemon(newActivePokemon)
+      .switch(switch.target, newActivePokemon, newBenchedPokemon)
+  return battle.withSide(mover, updatedSwitchingSide)
+}
+
+/**
  * Recalculates and sets priority (that is, [Battle.faster]) based on the current state of the
  * battle.
  */
 internal fun recalculatePriority(battle: Battle, context: BattleContext): Battle {
-  return battle.withFaster(battle.fasterSide() ?:
-      (if (context.random.speedTieWinner()) Player.BLACK else Player.WHITE))
+  val faster = calculateFasterAction(battle) ?:
+      ((if (context.random.speedTieWinner()) Player.BLACK else Player.WHITE))
+  return battle.withFaster(faster)
+}
+
+/**
+ * Recalculates and sets [Battle.faster] based on which Pokemon is faster.
+ *
+ * Unlike [recalculatePriority], this function ignores the moves selected by players, since they
+ * aren't relevant.
+ */
+internal fun recalculatePriorityForEndOfTurnSwitch(battle: Battle, context: BattleContext): Battle {
+  val faster = battle.fasterSide() ?:
+      ((if (context.random.speedTieWinner()) Player.BLACK else Player.WHITE))
+  return battle.withFaster(faster)
+}
+
+/**
+ * Computes which Pokemon should go first.
+ *
+ * @param battle A battle in the [Phase.COMPUTE_TURN_ORDER] phase, in which both players have
+ *     selected an action. This method isn't suitable for calculating end-of-turn switch-after-faint
+ *     priority.
+ * @return the Pokemon who should go first. Null if both are tied.
+ */
+internal fun calculateFasterAction(battle: Battle): Player? {
+  if (battle.phase != Phase.COMPUTE_TURN_ORDER) {
+    throw IllegalArgumentException(
+        "CalculateFasterAction does not work during the phase ${battle.phase}")
+  }
+
+  // First, see which action has higher priority.
+  val blackPriority = calculatePriority(battle, Player.BLACK)
+  val whitePriority = calculatePriority(battle, Player.WHITE)
+  if (blackPriority > whitePriority) {
+    return Player.BLACK
+  } else if (whitePriority > blackPriority) {
+    return Player.WHITE
+  }
+
+  // Both actions have the same priority, which means it comes down to speed.
+  return battle.fasterSide()
+}
+
+/**
+ * Calculates the priority of a given action.
+ *
+ * Priority is a numeric value associated with an action. Actions with higher priorities always go
+ * before actions with lower priorities. This is how an attack like Quick Attack goes first.
+ * Switching has very high priority, such that it almost always goes before moves.
+ */
+internal fun calculatePriority(battle: Battle, player: Player): Int {
+  val choice = battle.choiceOf(player)!!
+  if (choice is SwitchChoice) {
+    return 6
+  }
+  return 0
 }
 
 internal fun switchAfterFaint(battle: Battle, switcher: Player, context: BattleContext): Battle {
@@ -378,16 +473,16 @@ enum class Phase {
   COMPUTE_TURN_ORDER,
 
   /**
-   * During this phase, the attack of the faster Pokemon is adjudicated.
+   * During this phase, the action of the faster Pokemon is adjudicated.
    */
-  FIRST_ATTACK,
+  FIRST_ACTION,
 
   /**
-   * During this phase, the attack of the slower Pokemon is adjudicated. If
+   * During this phase, the action of the slower Pokemon is adjudicated. If
    * this Pokemon is fainted or otherwise out of action, this might not
    * happen.
    */
-  SECOND_ATTACK,
+  SECOND_ACTION,
 
   /**
    * Before end-of-turn effects, priority is calculated. Again.

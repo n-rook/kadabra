@@ -21,9 +21,13 @@ interface BattleLogger {
              defendingPokemon: ActivePokemon, damage: Int)
 
   /**
+   * Log that a Pokemon was switched out for a different Pokemon.
+   */
+  fun switch(switchingPlayer: Player, switchedOut: ActivePokemon, switchedIn: BenchedPokemon)
+
+  /**
    * Log that at the end of the turn, after a Pokemon fainted, a new Pokemon was brought out.
    */
   fun switchAfterFaint(
       switchingPlayer: Player, faintedPokemon: ActivePokemon, newPokemon: BenchedPokemon)
-
 }

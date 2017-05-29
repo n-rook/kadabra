@@ -24,6 +24,14 @@ class TextLogger(val writer: Writer): BattleLogger {
         format(defendingPokemon))
   }
 
+  override fun switch(
+      switchingPlayer: Player,
+      switchedOut: ActivePokemon,
+      switchedIn: BenchedPokemon) {
+    writer.write("${format(switchingPlayer)} ${format(switchedOut)} was switched out " +
+        "for ${format(switchedIn)}")
+  }
+
   override fun switchAfterFaint(switchingPlayer: Player, faintedPokemon: ActivePokemon, newPokemon: BenchedPokemon) {
     writer.write("${format(switchingPlayer)} After ${format(faintedPokemon)} fainted, " +
         "${format(newPokemon)} was brought out")

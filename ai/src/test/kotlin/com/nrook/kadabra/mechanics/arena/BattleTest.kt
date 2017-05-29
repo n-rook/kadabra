@@ -1,50 +1,49 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
-import com.nrook.kadabra.info.AbilityId
-import com.nrook.kadabra.info.Gender
-import com.nrook.kadabra.info.Stat
+import com.nrook.kadabra.info.*
+import com.nrook.kadabra.info.read.getGen7Pokedex
 import com.nrook.kadabra.info.testdata.*
 import com.nrook.kadabra.mechanics.*
 import com.nrook.kadabra.mechanics.rng.REALISTIC_RANDOM_POLICY
 import com.nrook.kadabra.mechanics.rng.RandomNumberGenerator
+import com.nrook.kadabra.mechanics.testing.TestSpecBuilder
 import org.junit.Before
 import org.junit.Test
 import java.util.*
 
 class BattleTest {
 
+  lateinit var pokedex: Pokedex
   lateinit var charizardSpec: PokemonSpec
   lateinit var blastoiseSpec: PokemonSpec
   lateinit var magcargoSpec: PokemonSpec
   lateinit var charizardVsBlastoise: Battle
+
+  lateinit var flamethrower: Move
+  lateinit var earthquake: Move
+  lateinit var surf: Move
+  lateinit var tackle: Move
   lateinit var context: BattleContext
 
   @Before
   fun setUp() {
-    charizardSpec = PokemonSpec(
-        CHARIZARD,
-        AbilityId("Blaze"),
-        Gender.FEMALE,
-        Nature.ADAMANT,
-        makeEvs(mapOf(Stat.ATTACK to 252, Stat.SPEED to 252, Stat.HP to 4)),
-        MAX_IVS,
-        Level(100),
-        listOf(FLAMETHROWER, EARTHQUAKE)
-    )
+    pokedex = getGen7Pokedex()
+    charizardSpec = TestSpecBuilder.create(pokedex, "Charizard")
+        .withNature(Nature.ADAMANT)
+        .withEvSpread(Stat.ATTACK, Stat.SPEED, Stat.HP)
+        .withMoves("flamethrower", "earthquake")
+        .build()
+
     val activeCharizard = newActivePokemonFromSpec(charizardSpec)
 
-    blastoiseSpec = PokemonSpec(
-        BLASTOISE,
-        AbilityId("Torrent"),
-        Gender.FEMALE,
-        Nature.MODEST,
-        makeEvs(mapOf(Stat.SPECIAL_ATTACK to 252, Stat.SPEED to 252, Stat.HP to 4)),
-        MAX_IVS,
-        Level(100),
-        listOf(SURF, TACKLE, EARTHQUAKE)
-    )
+    blastoiseSpec = TestSpecBuilder.create(pokedex, "Blastoise")
+        .withNature(Nature.MODEST)
+        .withEvSpread(Stat.SPECIAL_ATTACK, Stat.SPEED, Stat.HP)
+        .withMoves("surf", "tackle", "earthquake")
+        .build()
     val activeBlastoise = newActivePokemonFromSpec(blastoiseSpec)
 
     magcargoSpec = PokemonSpec(
@@ -64,20 +63,25 @@ class BattleTest {
     val rng = RandomNumberGenerator(REALISTIC_RANDOM_POLICY, Random())
     context = BattleContext(rng, debugLogger())
     charizardVsBlastoise = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+
+    flamethrower = pokedex.getMoveById(MoveId("flamethrower"))
+    earthquake = pokedex.getMoveById(MoveId("earthquake"))
+    surf = pokedex.getMoveById(MoveId("surf"))
+    tackle = pokedex.getMoveById(MoveId("tackle"))
   }
 
   @Test
   fun initialChoices() {
     assertThat(charizardVsBlastoise.choices(Player.BLACK))
-        .containsExactly(MoveChoice(FLAMETHROWER), MoveChoice(EARTHQUAKE))
+        .containsExactly(MoveChoice(flamethrower), MoveChoice(earthquake))
     assertThat(charizardVsBlastoise.choices(Player.WHITE))
-        .containsExactly(MoveChoice(SURF), MoveChoice(TACKLE), MoveChoice(EARTHQUAKE))
+        .containsExactly(MoveChoice(surf), MoveChoice(tackle), MoveChoice(earthquake))
   }
 
   @Test
   fun simulateFirstTurn() {
     val turn2 =
-        simulateBattle(charizardVsBlastoise, context, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
+        simulateBattle(charizardVsBlastoise, context, MoveChoice(earthquake), MoveChoice(tackle))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -96,7 +100,7 @@ class BattleTest {
     assertThat(turn2.winner()).isNull()
     var simulation = turn2
     while (simulation.winner() == null) {
-      simulation = simulateBattle(simulation, context, MoveChoice(EARTHQUAKE), MoveChoice(TACKLE))
+      simulation = simulateBattle(simulation, context, MoveChoice(earthquake), MoveChoice(tackle))
     }
     assertThat(simulation.winner()).isEqualTo(Player.BLACK)
   }
@@ -104,7 +108,7 @@ class BattleTest {
   @Test
   fun simulateNotVeryEffectiveMove() {
     val turn2 =
-        simulateBattle(charizardVsBlastoise, context, MoveChoice(FLAMETHROWER), MoveChoice(TACKLE))
+        simulateBattle(charizardVsBlastoise, context, MoveChoice(flamethrower), MoveChoice(tackle))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -120,7 +124,7 @@ class BattleTest {
   @Test
   fun simulateImmuneMove() {
     val turn2 =
-        simulateBattle(charizardVsBlastoise, context, MoveChoice(EARTHQUAKE), MoveChoice(EARTHQUAKE))
+        simulateBattle(charizardVsBlastoise, context, MoveChoice(earthquake), MoveChoice(earthquake))
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
@@ -129,6 +133,32 @@ class BattleTest {
 
     // EQ shouldn't have done anything to Charizard.
     assertThat(turn2.blackSide.active.hp).isEqualTo(298)
+  }
+
+  @Test
+  fun simulateSwitch() {
+    val battle = startBattle(
+        ImmutableList.of(charizardSpec), 0,
+        ImmutableList.of(magcargoSpec, blastoiseSpec), 0,
+        context)
+    val turn2 = simulateBattle(
+        battle,
+        context,
+        MoveChoice(flamethrower),
+        SwitchChoice(blastoiseSpec.species.id))
+
+    val newCharizard = turn2.blackSide.active
+    assertThat(newCharizard.hp).isEqualTo(newCharizard.getStat(Stat.HP))
+
+    val switchedOutMagcargo = turn2.whiteSide.bench[magcargoSpec.species.id]!!
+    assertThat(switchedOutMagcargo.species.id).isEqualTo(PokemonId("magcargo"))
+    assertThat(switchedOutMagcargo.hp).isEqualTo(switchedOutMagcargo.maxHp)
+
+    val switchedInBlastoise = turn2.whiteSide.active
+    assertThat(switchedInBlastoise.species.id).isEqualTo(PokemonId("blastoise"))
+    // Blastoise got hit by Flamethrower
+    assertThat(switchedInBlastoise.hp).isAtLeast(300 - 54)
+    assertThat(switchedInBlastoise.hp).isAtMost(300 - 45)
   }
 
   @Test
@@ -141,7 +171,7 @@ class BattleTest {
 
     // Wipe Magcargo out in one move with a 4x effective Surf.
     val faintedMagcargoBattle =
-        simulateBattle(beginning, context, MoveChoice(FLAMETHROWER), MoveChoice(SURF))
+        simulateBattle(beginning, context, MoveChoice(flamethrower), MoveChoice(surf))
 
     val magcargo = faintedMagcargoBattle.blackSide.active
     assertThat(magcargo.species).isEqualTo(MAGCARGO)
@@ -158,10 +188,14 @@ class BattleTest {
 
     // Switch to Charizard. The game should continue to the beginning of the next turn, where
     // Black has an empty bench.
-    val turn2 = simulateBattle(faintedMagcargoBattle, context, SwitchChoice(CHARIZARD.id), null)
+    val turn2 = simulateBattle(
+        faintedMagcargoBattle,
+        context,
+        SwitchChoice(charizardSpec.species.id),
+        null)
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
-    assertThat(turn2.blackSide.active.species).isEqualTo(CHARIZARD)
+    assertThat(turn2.blackSide.active.species).isEqualTo(charizardSpec.species)
     assertThat(turn2.blackSide.bench).hasSize(0)
   }
 

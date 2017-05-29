@@ -11,6 +11,13 @@ data class BenchedPokemon(
 ) {
 
   /**
+   * The benched Pokemon's maximum HP.
+   * TODO: Replace use of originalSpec in all cases
+   */
+  val maxHp: Int
+    get() = originalSpec.getStat(Stat.HP)
+
+  /**
    * Return this Pokemon as an active Pokemon.
    *
    * Converts the data only; this call does not active enter-the-battle effects.
