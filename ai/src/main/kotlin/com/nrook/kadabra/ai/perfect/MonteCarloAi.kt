@@ -13,6 +13,19 @@ val SIMULATION_CONTEXT = BattleContext(
     NoOpLogger())
 
 /**
+ * A placeholder choice used as in this AI to represent situations where there is no choice to make.
+ */
+private class DoNothing: Choice
+private val DO_NOTHING = DoNothing()
+private fun unwrapDoNothing(c: Choice): Choice? {
+  return if(c is DoNothing) null else c
+}
+
+private fun emptyToDoNothing(choices: List<Choice>): List<Choice> {
+  return if (choices.isEmpty()) ImmutableList.of(DO_NOTHING) else choices
+}
+
+/**
  * A naive Monte Carlo AI.
  *
  * @param playouts The maximum number of playouts to run per decision.
@@ -21,7 +34,9 @@ class MonteCarloAi(private val playouts: Int): MixedStrategyAi {
   override fun decide(battle: Battle, player: Player): MixedStrategy<Choice> {
     // TODO: There's a severe problem here: this can't easily handle the case where only one player
     // has an actual choice to make.
+
     val expectedOutcomes = computeExpectedOutcomesMatrix(battle, playouts)
+    logOutcomes(expectedOutcomes, player)
     return findStrategyFromExpectedOutcomes(expectedOutcomes, player)
   }
 
@@ -46,8 +61,8 @@ class MonteCarloAi(private val playouts: Int): MixedStrategyAi {
 fun computeExpectedOutcomesMatrix(battle: Battle, playouts: Int): Table<Choice, Choice, Double> {
   val randomAi = RandomAi(Random())
 
-  val rows = battle.choices(Player.BLACK)
-  val columns = battle.choices(Player.WHITE)
+  val rows = emptyToDoNothing(battle.choices(Player.BLACK))
+  val columns = emptyToDoNothing(battle.choices(Player.WHITE))
 
   val perCellPlayouts = playouts / (rows.size * columns.size)
   val table: ArrayTable<Choice, Choice, Double> = ArrayTable.create(rows, columns)
@@ -70,11 +85,23 @@ private fun runNSimulations(
 
 private fun runOneSimulationWithGivenChoices(
     battle: Battle, blackChoice: Choice, whiteChoice: Choice, ai: Ai): Player {
-  val nextBattle = simulateBattle(battle, SIMULATION_CONTEXT, blackChoice, whiteChoice)
+  val nextBattle = simulateBattle(
+      battle, SIMULATION_CONTEXT, unwrapDoNothing(blackChoice), unwrapDoNothing(whiteChoice))
   if (nextBattle.winner() != null) {
     return nextBattle.winner()!!
   }
   return runToCompletion(nextBattle, ai, ai, SIMULATION_CONTEXT)
+}
+
+private fun logOutcomes(outcomes: Table<Choice, Choice, Double>, player: Player) {
+  logger.info("-----")
+  val ourOutcomes = regularizePerPlayerOutcomes(player, outcomes)
+  for (ourChoice in ourOutcomes.rowKeySet()) {
+    logger.info("{}: ", ourChoice.toString())
+    for (theirChoice in ourOutcomes.columnKeySet()) {
+      logger.info(" - %15s  %f".format(theirChoice, ourOutcomes.get(ourChoice, theirChoice)))
+    }
+  }
 }
 
 /**
@@ -84,10 +111,7 @@ fun findStrategyFromExpectedOutcomes(outcomes: Table<Choice, Choice, Double>, pl
     MixedStrategy<Choice> {
 
   // Construct a table of outcomes where our choices are rows, and theirs are columns.
-  val ourOutcomes = when (player) {
-    Player.BLACK -> outcomes
-    Player.WHITE -> Tables.transpose(outcomes)
-  }
+  val ourOutcomes = regularizePerPlayerOutcomes(player, outcomes)
 
   // TODO: This is basically placeholder logic.
   // Unfortunately, it appears to be nontrivial to go from a table of expected outcomes to an
@@ -111,4 +135,17 @@ fun findStrategyFromExpectedOutcomes(outcomes: Table<Choice, Choice, Double>, pl
   }
 
   return MixedStrategy.createEvenStrategy(bestChoices)
+}
+
+/**
+ * Put our moves in as rows, and make good outcomes for us close to 1.0.
+ *
+ * This does nothing as Black, but as White, transposes the matrix and flips each value.
+ */
+private fun regularizePerPlayerOutcomes(player: Player, outcomes: Table<Choice, Choice, Double>): Table<Choice, Choice, Double> {
+  val ourOutcomes = when (player) {
+    Player.BLACK -> outcomes
+    Player.WHITE -> Tables.transformValues(Tables.transpose(outcomes), {1.0 - it!!})
+  }
+  return ourOutcomes
 }

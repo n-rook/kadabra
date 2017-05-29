@@ -2,6 +2,8 @@ package com.nrook.kadabra.tools
 
 import com.nrook.kadabra.ai.framework.runToCompletion
 import com.nrook.kadabra.ai.perfect.Ai
+import com.nrook.kadabra.ai.perfect.MixedStrategyAiWrapper
+import com.nrook.kadabra.ai.perfect.MonteCarloAi
 import com.nrook.kadabra.ai.perfect.RandomAi
 import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.read.getGen7Pokedex
@@ -48,8 +50,11 @@ private fun pickTeam(
 fun main(args: Array<String>) {
   val random = Random()
 
+  // Hopefully, White wins every round like this.
+//  val blackAi = MixedStrategyAiWrapper(MonteCarloAi(1000), random)
   val blackAi = RandomAi(random)
-  val whiteAi = RandomAi(random)
+//  val whiteAi = RandomAi(random)
+  val whiteAi = MixedStrategyAiWrapper(MonteCarloAi(1000), random)
 
   val context = BattleContext(RandomNumberGenerator(REALISTIC_RANDOM_POLICY, random), debugLogger())
 
