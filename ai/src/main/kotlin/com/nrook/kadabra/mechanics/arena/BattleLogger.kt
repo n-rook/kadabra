@@ -10,6 +10,11 @@ import com.nrook.kadabra.mechanics.BenchedPokemon
 interface BattleLogger {
 
   /**
+   * Log an overview of the status of the battle at the beginning of a turn.
+   */
+  fun startOfTurnOverview(battle: Battle)
+
+  /**
    * Log that a move was used.
    */
   fun useMove(player: Player, move: Move, pokemon: ActivePokemon)

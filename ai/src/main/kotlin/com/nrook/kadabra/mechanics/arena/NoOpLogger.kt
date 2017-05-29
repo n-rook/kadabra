@@ -9,6 +9,8 @@ import com.nrook.kadabra.mechanics.BenchedPokemon
  */
 class NoOpLogger: BattleLogger {
 
+  override fun startOfTurnOverview(battle: Battle) {}
+
   override fun useMove(player: Player, move: Move, pokemon: ActivePokemon) {}
 
   override fun attack(

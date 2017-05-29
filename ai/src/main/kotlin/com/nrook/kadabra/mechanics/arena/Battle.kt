@@ -164,9 +164,7 @@ data class Battle(
 fun startBattle(blackTeam: List<PokemonSpec>, blackLead: Int,
                 whiteTeam: List<PokemonSpec>, whiteLead: Int,
                 context: BattleContext): Battle {
-  // Context will eventually be necessary when we actually simulate until the first choice.
-
-  return Battle(
+  val battle = Battle(
       1,
       teamSpecToSide(blackTeam, blackLead),
       teamSpecToSide(whiteTeam, whiteLead),
@@ -174,6 +172,8 @@ fun startBattle(blackTeam: List<PokemonSpec>, blackLead: Int,
       null,
       Phase.BEGIN,
       null)
+  context.logger.startOfTurnOverview(battle)
+  return battle
 }
 
 /**
@@ -262,9 +262,11 @@ internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
         return battle.withPhase(Phase.BEGIN).incrementTurn()
       }
 
-      return switchAfterFaint(battle, switcher, context)
+      val nextTurn = switchAfterFaint(battle, switcher, context)
           .withPhase(Phase.BEGIN)
           .incrementTurn()
+      context.logger.startOfTurnOverview(battle)
+      return nextTurn
     }
   }
 }

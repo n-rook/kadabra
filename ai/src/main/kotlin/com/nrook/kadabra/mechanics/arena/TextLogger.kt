@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.info.Move
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.ActivePokemon
@@ -11,6 +12,16 @@ import java.io.Writer
  * A battle logger that logs to some text stream.
  */
 class TextLogger(val writer: Writer): BattleLogger {
+
+  override fun startOfTurnOverview(battle: Battle) {
+    writer.write("\nTurn ${battle.turn}")
+    fun writePerPlayerSummary(player: Player) {
+      val side = battle.side(player)
+      writer.write("${format(player)} (${side.bench.size + 1}) ${side.active.species.name}")
+    }
+    ImmutableList.of(Player.BLACK, Player.WHITE).forEach(::writePerPlayerSummary)
+  }
+
   override fun useMove(player: Player, move: Move, pokemon: ActivePokemon) {
     writer.write("${format(player)} ${format(pokemon)} used ${move.id.str}.")
   }

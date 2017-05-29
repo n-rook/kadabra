@@ -12,7 +12,11 @@ interface Choice
 /**
  * A choice of move.
  */
-data class MoveChoice(val move: Move): Choice
+data class MoveChoice(val move: Move): Choice {
+  override fun toString(): String {
+    return "[${move.id.str}]"
+  }
+}
 
 /**
  * A choice to switch to another Pokemon.
@@ -23,4 +27,8 @@ data class MoveChoice(val move: Move): Choice
  * @param target The original ID of the Pokemon to be switched in. For instance, if switching into
  *  Mega Garchomp, this is generally going to be "garchomp".
  */
-data class SwitchChoice(val target: PokemonId): Choice
+data class SwitchChoice(val target: PokemonId): Choice {
+  override fun toString(): String {
+    return "[-> ${target.str}]"
+  }
+}
