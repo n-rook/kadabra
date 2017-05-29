@@ -5,10 +5,10 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.*
 import com.nrook.kadabra.info.read.getGen7Pokedex
-import com.nrook.kadabra.info.testdata.*
 import com.nrook.kadabra.mechanics.*
-import com.nrook.kadabra.mechanics.rng.REALISTIC_RANDOM_POLICY
+import com.nrook.kadabra.mechanics.rng.MoveDamagePolicy
 import com.nrook.kadabra.mechanics.rng.RandomNumberGenerator
+import com.nrook.kadabra.mechanics.rng.RandomPolicy
 import com.nrook.kadabra.mechanics.testing.TestSpecBuilder
 import org.junit.Before
 import org.junit.Test
@@ -46,21 +46,14 @@ class BattleTest {
         .build()
     val activeBlastoise = newActivePokemonFromSpec(blastoiseSpec)
 
-    magcargoSpec = PokemonSpec(
-        MAGCARGO,
-        AbilityId("Flame Body"),
-        Gender.MALE,
-        Nature.HARDY,
-        makeEvs(ImmutableMap.of()),
-        MAX_IVS,
-        Level(100),
-        listOf(FLAMETHROWER)
-    )
+    magcargoSpec = TestSpecBuilder.create(pokedex, "Magcargo")
+        .withMoves("flamethrower")
+        .build()
 
     val blackSide = Side(activeCharizard, ImmutableMap.of())
     val whiteSide = Side(activeBlastoise, ImmutableMap.of())
 
-    val rng = RandomNumberGenerator(REALISTIC_RANDOM_POLICY, Random())
+    val rng = RandomNumberGenerator(RandomPolicy(MoveDamagePolicy.ONE), Random())
     context = BattleContext(rng, debugLogger())
     charizardVsBlastoise = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
 
@@ -89,12 +82,10 @@ class BattleTest {
     assertThat(turn2.whiteChoice).isNull()
 
     // EQ deals between 90 and 106 damage to Blastoise, who has 300 HP
-    assertThat(turn2.whiteSide.active.hp).isAtLeast(300 - 106)
-    assertThat(turn2.whiteSide.active.hp).isAtMost(300 - 90)
+    assertThat(turn2.whiteSide.active.hp).isEqualTo(300 - 97)
 
     // Tackle does only 28 to 33  damage to Charizard
-    assertThat(turn2.blackSide.active.hp).isAtLeast(298 - 33)
-    assertThat(turn2.blackSide.active.hp).isAtMost(298 - 28)
+    assertThat(turn2.blackSide.active.hp).isEqualTo(298 - 30)
 
     // With these moves, Charizard will win.
     assertThat(turn2.winner()).isNull()
@@ -117,8 +108,7 @@ class BattleTest {
 
     // FT deals between 45 and 54 damage to Blastoise, since it's not very effective
     val damage = 300 - turn2.whiteSide.active.hp
-    assertThat(damage).isAtLeast(45)
-    assertThat(damage).isAtMost(54)
+    assertThat(damage).isEqualTo(49)
   }
 
   @Test
@@ -157,8 +147,7 @@ class BattleTest {
     val switchedInBlastoise = turn2.whiteSide.active
     assertThat(switchedInBlastoise.species.id).isEqualTo(PokemonId("blastoise"))
     // Blastoise got hit by Flamethrower
-    assertThat(switchedInBlastoise.hp).isAtLeast(300 - 54)
-    assertThat(switchedInBlastoise.hp).isAtMost(300 - 45)
+    assertThat(switchedInBlastoise.hp).isEqualTo(300 - 49)
   }
 
   @Test
@@ -174,13 +163,13 @@ class BattleTest {
         simulateBattle(beginning, context, MoveChoice(flamethrower), MoveChoice(surf))
 
     val magcargo = faintedMagcargoBattle.blackSide.active
-    assertThat(magcargo.species).isEqualTo(MAGCARGO)
+    assertThat(magcargo.species).isEqualTo(pokedex.getSpeciesByName("Magcargo"))
     assertThat(magcargo.hp).isEqualTo(0)
     assertThat(magcargo.condition).isEqualTo(Condition.FAINT)
     assertThat(faintedMagcargoBattle.whiteSide.active.condition).isEqualTo(Condition.OK)
 
     assertThat(faintedMagcargoBattle.choices(Player.BLACK))
-        .containsExactly(SwitchChoice(CHARIZARD.id))
+        .containsExactly(SwitchChoice(PokemonId("charizard")))
     assertThat(faintedMagcargoBattle.choices(Player.WHITE))
         .isEmpty()
 

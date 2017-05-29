@@ -113,28 +113,7 @@ fun findStrategyFromExpectedOutcomes(outcomes: Table<Choice, Choice, Double>, pl
   // Construct a table of outcomes where our choices are rows, and theirs are columns.
   val ourOutcomes = regularizePerPlayerOutcomes(player, outcomes)
 
-  // TODO: This is basically placeholder logic.
-  // Unfortunately, it appears to be nontrivial to go from a table of expected outcomes to an
-  // optimal mixed strategy. This logic, which just finds the best strategy assuming the opponent
-  // is a moron who plays a mixed strategy where they play every choice evenly, is highly suspect,
-  // so we must revisit it soon.
-
-  var bestOutcome = 0.0
-  val bestChoices = mutableListOf<Choice>()
-  for (choice in ourOutcomes.rowKeySet()) {
-    val averageOutcome = ourOutcomes.row(choice)
-        .values
-        .average()
-    if (averageOutcome > bestOutcome) {
-      bestOutcome = averageOutcome
-      bestChoices.clear()
-      bestChoices.add(choice)
-    } else if (averageOutcome == bestOutcome) {
-      bestChoices.add(choice)
-    }
-  }
-
-  return MixedStrategy.createEvenStrategy(bestChoices)
+  return findBestStrategy(ourOutcomes)
 }
 
 /**

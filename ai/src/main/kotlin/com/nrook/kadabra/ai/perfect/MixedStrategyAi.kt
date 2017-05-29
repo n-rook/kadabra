@@ -69,6 +69,13 @@ data class MixedStrategy<T>(val choices: ImmutableMap<T, Double>) {
       val weight = 1.0 / choices.size
       return MixedStrategy(Maps.toMap(choices, {weight}))
     }
+
+    /**
+     * Returns a pure strategy where we always pick one choice.
+     */
+    fun <T> createPureStrategy(choice: T): MixedStrategy<T> {
+      return MixedStrategy(ImmutableMap.of(choice, 1.0))
+    }
   }
 
   /**
