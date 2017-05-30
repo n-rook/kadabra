@@ -4,7 +4,10 @@ import com.google.common.collect.ArrayTable
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Table
+import mu.KLogging
 import java.util.*
+
+private val logger = KLogging().logger()
 
 // All credit for this section goes to Thomas Ferguson's book, Game Theory.
 // https://www.math.ucla.edu/~tom/Game_Theory/mat.pdf
@@ -21,8 +24,13 @@ fun <R, C> findBestStrategy(outcomes: Table<R, C, Double>): MixedStrategy<R> {
 }
 
 fun <R, C> findBestStrategies(outcomes: ArrayTable<R, C, Double>): StrategyPair<R, C> {
-  val firstTableau = Tableau.create(outcomes)
-  return solveTableau(firstTableau)
+  try {
+    val firstTableau = Tableau.create(makeTablePositive(outcomes))
+    return solveTableau(firstTableau)
+  } catch (e: Exception) {
+    logger.error("Failed to compute optimal strategy.\n$outcomes\n", e)
+    throw e
+  }
 }
 
 /**
@@ -42,6 +50,22 @@ data class RowLabel<R, C>(val label: R): RowOrColumnLabel<R, C>
  */
 data class ColumnLabel<R, C>(val label: C): RowOrColumnLabel<R, C>
 
+internal fun <R, C> makeTablePositive(game: ArrayTable<R, C, Double>): ArrayTable<R, C, Double> {
+  // The algorithm only works if the game's value is positive: that is, if on average,
+  // something good happens for both players. So, we ensure this by adding a number to each cell
+  // to ensure each value is positive.
+  val tableWithConstantAdded = ArrayTable.create(game)
+
+  val minimumOutcome = game.values().min()!!
+  val addend = -minimumOutcome + 1.0
+
+  for (i in 0 until tableWithConstantAdded.rowKeyList().size) {
+    for (j in 0 until tableWithConstantAdded.columnKeyList().size) {
+      tableWithConstantAdded.set(i, j, game.at(i, j) + addend)
+    }
+  }
+  return tableWithConstantAdded
+}
 
 internal class Tableau<R, C> private constructor(
     val arrayTable: ArrayTable<Int, Int, Double>,

@@ -136,4 +136,15 @@ class GameSolvingTest {
     assertThat(strategy.getChance("#2")).isWithin(0.01).of(0.75)
     assertThat(strategy.getChance("#3")).isWithin(0.01).of(0.0)
   }
+
+  @Test
+  fun doesNotCrashWhenGivenHopelessGame() {
+    val outcomes = makeTable(
+        listOf("play on", "resign"),
+        listOf("win", "throw"),
+        listOf(0.0, 1.0),
+        listOf(0.0, 0.0))
+    val strategy = findBestStrategy(outcomes)
+    assertThat(strategy.choices.values.sum()).isWithin(0.01).of(1.0)
+  }
 }

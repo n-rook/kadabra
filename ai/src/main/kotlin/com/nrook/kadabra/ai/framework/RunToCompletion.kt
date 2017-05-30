@@ -10,15 +10,23 @@ import com.nrook.kadabra.mechanics.arena.*
  */
 fun runToCompletion(
     battle: Battle, blackAi: Ai, whiteAi: Ai, context: BattleContext): Player {
+  return runToTurnLimit(battle, blackAi, whiteAi, Int.MAX_VALUE, context)!!
+}
+
+/**
+ * Run a battle, either to completion or until the turn limit runs out.
+ */
+fun runToTurnLimit(
+    battle: Battle, blackAi: Ai, whiteAi: Ai, limit: Int, context: BattleContext): Player? {
   var battleStatus = battle
-  while (battleStatus.winner() == null) {
+  while (battleStatus.winner() == null && battleStatus.turn < limit) {
     battleStatus = simulateBattle(
         battleStatus,
         context,
         makeChoice(battleStatus, Player.BLACK, blackAi),
         makeChoice(battleStatus, Player.WHITE, whiteAi))
   }
-  return battleStatus.winner()!!
+  return battleStatus.winner()
 }
 
 private fun makeChoice(battle: Battle, player: Player, ai: Ai): Choice? {
