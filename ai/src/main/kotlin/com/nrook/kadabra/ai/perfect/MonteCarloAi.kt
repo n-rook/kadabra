@@ -37,7 +37,9 @@ class MonteCarloAi(private val playouts: Int): MixedStrategyAi {
 
     val expectedOutcomes = computeExpectedOutcomesMatrix(battle, playouts)
     logOutcomes(expectedOutcomes, player)
-    return findStrategyFromExpectedOutcomes(expectedOutcomes, player)
+    val strategy = findStrategyFromExpectedOutcomes(expectedOutcomes, player)
+    logStrategy(strategy)
+    return strategy
   }
 
   override fun chooseLead(black: List<PokemonSpec>, white: List<PokemonSpec>, player: Player):
@@ -95,6 +97,7 @@ private fun runOneSimulationWithGivenChoices(
 
 private fun logOutcomes(outcomes: Table<Choice, Choice, Double>, player: Player) {
   logger.info("-----")
+  logger.info("Here's the view of the game from $player.")
   val ourOutcomes = regularizePerPlayerOutcomes(player, outcomes)
   for (ourChoice in ourOutcomes.rowKeySet()) {
     logger.info("{}: ", ourChoice.toString())
@@ -102,6 +105,16 @@ private fun logOutcomes(outcomes: Table<Choice, Choice, Double>, player: Player)
       logger.info(" - %15s  %f".format(theirChoice, ourOutcomes.get(ourChoice, theirChoice)))
     }
   }
+}
+
+private fun logStrategy(strategy: MixedStrategy<Choice>) {
+  logger.info("Final strategy:")
+  val message = strategy.choices.entries
+      .filter { it.value > 0.0 }
+      .sortedBy { -it.value }
+      .map { "[%s] (%.3f%%)".format(it.key, it.value * 100) }
+      .joinToString(", ")
+  logger.info(message)
 }
 
 /**

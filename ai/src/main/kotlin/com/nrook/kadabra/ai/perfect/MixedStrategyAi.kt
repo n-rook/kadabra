@@ -52,9 +52,13 @@ interface MixedStrategyAi {
  */
 data class MixedStrategy<T>(val choices: ImmutableMap<T, Double>) {
   init {
+    if (choices.isEmpty()) {
+      throw IllegalArgumentException("Choices may not be empty.")
+    }
+
     val sum = choices.values.sum()
     if (sum < 0.9 || sum > 1.1) {
-      logger.warn("Mixed strategy sums to total outside expected bounds: %f", sum)
+      logger.warn("Mixed strategy sums to total outside expected bounds: {}", sum)
     }
   }
 
@@ -76,6 +80,10 @@ data class MixedStrategy<T>(val choices: ImmutableMap<T, Double>) {
     fun <T> createPureStrategy(choice: T): MixedStrategy<T> {
       return MixedStrategy(ImmutableMap.of(choice, 1.0))
     }
+  }
+
+  fun getChance(choice: T): Double {
+    return choices[choice] ?: 0.0
   }
 
   /**
