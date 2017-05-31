@@ -45,8 +45,14 @@ class RandomBasket<out T>
       var totalSoFar: Double = 0.0
       for (e in elementsWhichPassBar) {
         val weight = weightFunction(e)
-        totalSoFar += weight
-        weightMap.put(totalSoFar, e)
+
+        val newTotal = totalSoFar + weight
+        if (newTotal != totalSoFar) {
+          // Otherwise, an item with low or no weight could wipe out a more likely item.
+
+          totalSoFar = newTotal
+          weightMap.put(newTotal, e)
+        }
       }
 
       return RandomBasket(random, ImmutableSortedMap.copyOf(weightMap))

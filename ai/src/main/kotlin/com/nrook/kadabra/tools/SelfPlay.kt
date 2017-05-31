@@ -77,6 +77,9 @@ private fun pickTeam(
   return definitions.map { PokemonSpec.createFromPokemonDefinition(it, pokedex) }
 }
 
+// Results notes:
+// I put up a 1000-rep AI against a 10000-rep AI, and it won 31 out of 100 games.
+
 fun main(args: Array<String>) {
   val random = Random()
 
