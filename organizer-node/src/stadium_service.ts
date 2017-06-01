@@ -17,6 +17,7 @@ import { stadiumFile } from './proto_constants';
 const stadiumDescriptor = grpc.load(stadiumFile);
 
 const PORT = 8081;
+const FORMAT = 'gen7ou';
 
 export function startServer(
     showdownWebSocketUrl: String,
@@ -63,7 +64,7 @@ class StadiumServer {
               .then((directorTwo) => [directorOne, directorTwo]);
         })
         .then(([directorOne, directorTwo]) => {
-          const challengeOne = directorOne.challenge('gen7pokebankou', 'abraca002');
+          const challengeOne = directorOne.challenge(FORMAT, 'abraca002');
           // TODO: Fix ShowdownDirector so a delay is not necessary
           const acceptEventually = Promise.delay(3000).then(() => {
               return directorTwo.considerAcceptingChallenge();

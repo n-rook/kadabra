@@ -4,6 +4,7 @@ import com.google.common.collect.ComparisonChain
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.proto.EvSpread
 import com.nrook.kadabra.proto.Nature
+import java.util.*
 
 /**
  * A batch of Pokemon usage data for a given metagame.
@@ -15,7 +16,18 @@ data class UsageDataset(
      * Pokemon usage data. Keys are species.
      */
     val data: Map<String, PokemonUsageData>
-)
+) {
+  fun banPokemon(bans: Iterable<String>): UsageDataset {
+    val newData = HashMap<String, PokemonUsageData>(data)
+    for (ban in bans) {
+      val removed = newData.remove(ban)
+      if (removed == null) {
+        throw IllegalArgumentException("Data for Pokemon $ban not found")
+      }
+    }
+    return UsageDataset(info, newData)
+  }
+}
 
 data class UsageDatasetMetadata(
     // ELO (or is it Glicko or something?) cutoff

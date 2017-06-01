@@ -1,5 +1,6 @@
 package com.nrook.kadabra
 
+import com.google.common.collect.ImmutableList
 import com.google.common.io.Resources
 import com.google.gson.GsonBuilder
 import com.nrook.kadabra.ai.client.ClientAi
@@ -38,16 +39,17 @@ class AiServer(val server: Server) {
 private fun getUsageData(): UsageDataset {
   val gson = registerDeserializers(GsonBuilder())
       .create()
-  val resource = Resources.getResource("gen7pokebankou-1695.json")
+  val resource = Resources.getResource("gen7ou-1695-2017-03.json")
 
   return gson.fromJson(InputStreamReader(resource.openStream()), UsageDataset::class.java)
+      .banPokemon(ImmutableList.of("Pheromosa", "Metagross-Mega", "Scolipede"))
 }
 
 fun createAndStartAiServer(port: Int): AiServer {
   val teamSelector = UsageDatasetTeamPicker.create(Random(), getUsageData(), 0.005)
 
   val server = ServerBuilder.forPort(port)
-      .addService(TeamService(mapOf("gen7pokebankou" to teamSelector)))
+      .addService(TeamService(mapOf("gen7ou" to teamSelector)))
       .addService(BattleService(ClientAi()))
       .build()
   println("starting server on port " + port)
