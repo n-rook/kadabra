@@ -36,4 +36,7 @@ message SelfPlayResponse {
   string error = 2;
   repeated LogLine playerOneLogs = 5;
   repeated LogLine playerTwoLogs = 6;
+  // TODO: implement me
+  string player1Username = 7;
+  string player2Username = 8;
 }

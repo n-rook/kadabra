@@ -76,7 +76,7 @@ private class AbilityUsageDataListDeserializer: JsonDeserializer<List<AbilityUsa
 }
 
 private class ItemUsageDataMapDeserializer: JsonDeserializer<Map<String, ItemUsageData>> {
-  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext):
+  override fun deserialize(json: JsonElement, expectedType: Type, context: JsonDeserializationContext):
       Map<String, ItemUsageData> {
     val root = json.asJsonObject
     return root.entrySet()
@@ -86,7 +86,7 @@ private class ItemUsageDataMapDeserializer: JsonDeserializer<Map<String, ItemUsa
 }
 
 private class SpreadUsageDataListDeserializer: JsonDeserializer<List<SpreadUsageData>> {
-  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext):
+  override fun deserialize(json: JsonElement, expectedType: Type, context: JsonDeserializationContext):
       List<SpreadUsageData> {
     val root = json.asJsonObject
     return root.entrySet()
@@ -96,7 +96,7 @@ private class SpreadUsageDataListDeserializer: JsonDeserializer<List<SpreadUsage
 }
 
 private class MovesUsageDataMapDeserializer: JsonDeserializer<Map<String, MoveUsageData>> {
-  override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext):
+  override fun deserialize(json: JsonElement, expectedType: Type, context: JsonDeserializationContext):
       Map<String, MoveUsageData> {
     val root = json.asJsonObject
     return root.entrySet()
