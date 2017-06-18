@@ -1,6 +1,8 @@
 package com.nrook.kadabra.inference
 
 import com.google.common.truth.Truth.assertThat
+import com.nrook.kadabra.info.Gender
+import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.arena.Player
 import com.nrook.kadabra.proto.ReceivedMessage
 import org.junit.Test
@@ -87,5 +89,36 @@ class IndividualLineParsersKtTest {
   @Test
   fun parseStartEvent() {
     parseEvent(StartEvent::class.java, "start")
+  }
+
+  @Test
+  fun parseSwitchEventWithComplexDetails() {
+    val event = parseEvent(
+        SwitchEvent::class.java, "switch", "p2a: SkarioMario",
+        "Skarmory, L95, M, shiny", "100/100")
+    assertThat(event.player).isEqualTo(Player.WHITE)
+    assertThat(event.identifier).isEqualTo(Nickname("SkarioMario"))
+    assertThat(event.details.species).isEqualTo("Skarmory")
+    assertThat(event.details.gender).isEqualTo(Gender.MALE)
+    assertThat(event.details.level).isEqualTo(Level(95))
+  }
+
+  @Test
+  fun parseSwitchEventWithFullHp() {
+    val event = parseEvent(
+        SwitchEvent::class.java, "switch",
+        "p1a: Togekiss", "Togekiss, M", "374/374")
+    assertThat(event.condition.maxHp).isEqualTo(374)
+    assertThat(event.condition.hp).isEqualTo(374)
+    assertThat(event.condition.status).isEqualTo(Status.OK)
+  }
+
+  @Test
+  fun parseSwitchEventWithStatus() {
+    val event = parseEvent(SwitchEvent::class.java, "switch",
+        "p2a: SkarioMario", "Skarmory, L95, M, shiny", "95/100 par")
+    assertThat(event.condition.hp).isEqualTo(95)
+    assertThat(event.condition.maxHp).isEqualTo(100)
+    assertThat(event.condition.status).isEqualTo(Status.PARALYZED)
   }
 }

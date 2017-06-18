@@ -1,3 +1,14 @@
+--- Notes:
+Here's what it looks like if an opponent sends out an Alakazam named Hello Kitty:
+|choice||team 1, team 2, team 3, team 4, team 5, team 6
+|
+|start
+|switch|p1a: Hello Kitty|Alakazam, F|100/100
+|switch|p2a: Alakazam|Alakazam, F|251/251
+|turn|1
+
+
+
 "C:\Program Files\Java\jdk1.8.0_121\bin\java" -Dfile.encoding=windows-1252 -jar C:\Users\nrook\Code\kadabra\ai\target\kadabra-promoter-jar-with-dependencies.jar
 Jun 03, 2017 2:08:12 PM io.grpc.internal.ManagedChannelImpl <init>
 INFO: [ManagedChannelImpl@2c9f9fb0] Created with target localhost:8081

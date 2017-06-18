@@ -1,9 +1,14 @@
 package com.nrook.kadabra.inference
 
+import com.nrook.kadabra.info.Gender
+import com.nrook.kadabra.info.PokemonId
+import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.arena.Player
 
 /**
  * An event which occurred in a battle.
+ *
+ * @link https://github.com/Zarel/Pokemon-Showdown/blob/master/PROTOCOL.md
  */
 interface BattleEvent
 
@@ -104,6 +109,64 @@ class StartEvent private constructor(): BattleEvent {
 }
 
 /**
+ * This event triggers when a Pokemon switches by choice. This includes both regular switches and
+ * less conventional switches, triggered by moves like U-Turn, but does not include forced
+ * switches like Roar.
+ */
+data class SwitchEvent(
+    val player: Player,
+    val identifier: Nickname,
+    val details: PokemonDetails,
+    val condition: VisibleCondition
+): BattleEvent
+
+/**
+ * Visible details about a Pokemon.
+ *
+ * These are most prominently displayed in a [SwitchEvent].
+ *
+ * @param species The Pokemon's species name, like "Venasaur-Mega".
+ * @param shiny Whether the Pokemon is shiny.
+ * @param gender The Pokemon's gender.
+ * @param level The Pokemon's level.
+ */
+data class PokemonDetails(
+    val species: String,
+    val shiny: Boolean,
+    val gender: Gender,
+    val level: Level
+)
+
+/**
+ * A Pokemon's visible condition.
+ */
+data class VisibleCondition(
+    val hp: Int,
+    val maxHp: Int,
+    val status: Status
+)
+
+/**
+ * A constant for representing a fainted Pokemon.
+ *
+ * In the spec, the max HP of fainted Pokemon is generally unknown, so it is just set to 1 here.
+ */
+val CONDITION_FAINTED = VisibleCondition(0, 1, Status.FAINTED)
+
+/**
+ * A Pokemon's visible status effect.
+ */
+enum class Status {
+  OK,
+  POISON,
+  TOXIC,
+  BURN,
+  FROZEN,
+  PARALYZED,
+  FAINTED
+}
+
+/**
  * An event representing a choice made by us.
  *
  * When a player makes a choice, Showdown returns a "choice event" describing the choice that was
@@ -112,3 +175,16 @@ class StartEvent private constructor(): BattleEvent {
 data class ChoiceEvent(
     val choice: String
 ): BattleEvent
+
+/**
+ * A Pokemon's nickname.
+ *
+ * Note that these identifiers do not change in battle, under any circumstances! For instance, if an
+ * Alakazam is named Alakazam, then mega evolves into Alakazam-Mega, it'll still be named
+ * Alakazam, not Alakazam-Mega.
+ *
+ * I'm not sure how Zoroark works here.
+ */
+data class Nickname(
+    val nickname: String
+)
