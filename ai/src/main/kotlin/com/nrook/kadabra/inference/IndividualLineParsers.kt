@@ -105,6 +105,14 @@ private fun parseSwitchEvent(line: ReceivedMessage): BattleEvent {
   return SwitchEvent(pokemonString.player, pokemonString.nickname, details, condition)
 }
 
+@EventParser("drag")
+private fun parseDragEvent(line: ReceivedMessage): BattleEvent {
+  val pokemonString = parsePokemonString(line.contentList[0])
+  val details = parseDetails(line.contentList[1])
+  val condition = parseConditionString(line.contentList[2])
+  return DragEvent(pokemonString.player, pokemonString.nickname, details, condition)
+}
+
 private val POKEMON_STRING_REGEX = Regex("(p[12])([a-z]): (.*)")
 /**
  * Parses the identifier string used to identify a Pokemon.
@@ -212,6 +220,7 @@ private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = Immutable
     ::parseTeamPreviewEvent,
     ::parseStartEvent,
     ::parseSwitchEvent,
+    ::parseDragEvent,
     ::parseChoiceEvent
 )
 

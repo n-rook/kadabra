@@ -121,4 +121,16 @@ class IndividualLineParsersKtTest {
     assertThat(event.condition.maxHp).isEqualTo(100)
     assertThat(event.condition.status).isEqualTo(Status.PARALYZED)
   }
+
+  @Test
+  fun parseDragEvent() {
+    val event = parseEvent(
+        DragEvent::class.java, "drag",
+        "p1a: Togekiss", "Togekiss, M", "374/374")
+    assertThat(event.player).isEqualTo(Player.BLACK)
+    assertThat(event.identifier).isEqualTo(Nickname("Togekiss"))
+    assertThat(event.details.species).isEqualTo("Togekiss")
+    assertThat(event.details.gender).isEqualTo(Gender.MALE)
+    assertThat(event.details.level).isEqualTo(Level(100))
+  }
 }

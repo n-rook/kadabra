@@ -1,7 +1,6 @@
 package com.nrook.kadabra.inference
 
 import com.nrook.kadabra.info.Gender
-import com.nrook.kadabra.info.PokemonId
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.arena.Player
 
@@ -96,7 +95,6 @@ class SeedEvent private constructor(): BattleEvent {
   }
 }
 
-
 /**
  * An event representing the start of battle.
  *
@@ -109,16 +107,36 @@ class StartEvent private constructor(): BattleEvent {
 }
 
 /**
+ * This event triggers when a Pokemon switches out. It includes both [SwitchEvent] and [DragEvent].
+ */
+interface SwitchOrDragEvent: BattleEvent {
+  val player: Player
+  val identifier: Nickname
+  val details: PokemonDetails
+  val condition: VisibleCondition
+}
+
+/**
  * This event triggers when a Pokemon switches by choice. This includes both regular switches and
  * less conventional switches, triggered by moves like U-Turn, but does not include forced
  * switches like Roar.
  */
 data class SwitchEvent(
-    val player: Player,
-    val identifier: Nickname,
-    val details: PokemonDetails,
-    val condition: VisibleCondition
-): BattleEvent
+    override val player: Player,
+    override val identifier: Nickname,
+    override val details: PokemonDetails,
+    override val condition: VisibleCondition
+): SwitchOrDragEvent
+
+/**
+ * This event triggers when a Pokemon is forced to switch, such as by the move Whirlwind.
+ */
+data class DragEvent(
+    override val player: Player,
+    override val identifier: Nickname,
+    override val details: PokemonDetails,
+    override val condition: VisibleCondition
+): SwitchOrDragEvent
 
 /**
  * Visible details about a Pokemon.
