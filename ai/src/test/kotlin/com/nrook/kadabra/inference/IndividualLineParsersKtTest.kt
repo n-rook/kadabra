@@ -133,4 +133,43 @@ class IndividualLineParsersKtTest {
     assertThat(event.details.gender).isEqualTo(Gender.MALE)
     assertThat(event.details.level).isEqualTo(Level(100))
   }
+
+  @Test
+  fun parseMove() {
+    val event = parseEvent(
+        MoveEvent::class.java, "move", "p2a: Skarmory", "Whirlwind", "p1a: Garchomp")
+    assertThat(event.source).isEqualTo(PokemonIdentifier(Player.WHITE, Nickname("Skarmory")))
+    assertThat(event.move.str).isEqualTo("Whirlwind")
+    assertThat(event.target).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Garchomp")))
+    assertThat(event.miss).isFalse()
+    assertThat(event.from).isNull()
+    assertThat(event.unparsedTags).isEmpty()
+  }
+
+  @Test
+  fun parseLockedInMove() {
+    val event = parseEvent(
+        MoveEvent::class.java, "move", "p1a: Garchomp", "Outrage", "p2a: Skarmory",
+        "[from]lockedmove")
+    assertThat(event.from!!.from).isEqualTo("lockedmove")
+    assertThat(event.from!!.source).isNull()
+  }
+
+  @Test
+  fun parseMissedMove() {
+    val event = parseEvent(
+        MoveEvent::class.java, "move", "p1a: Gengar", "Focus Blast", "p2a: Skarmory", "[miss]")
+    assertThat(event.miss).isTrue()
+  }
+
+  @Test
+  fun parseOtherTags() {
+    // This is a guess at what a move with a bunch of weird alternate tags would look like
+    val event = parseEvent(
+        MoveEvent::class.java, "move", "p1a: Gengar", "Shadow Ball", "p2a: Skarmory",
+        "[anim] Focus Blast", "[silent]")
+    assertThat(event.unparsedTags).containsExactly("[anim] Focus Blast", "[silent]").inOrder()
+  }
+
+
 }

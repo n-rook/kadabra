@@ -1,6 +1,8 @@
 package com.nrook.kadabra.inference
 
+import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.info.Gender
+import com.nrook.kadabra.info.MoveId
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.arena.Player
 
@@ -137,6 +139,55 @@ data class DragEvent(
     override val details: PokemonDetails,
     override val condition: VisibleCondition
 ): SwitchOrDragEvent
+
+/**
+ * This event triggers when a Pokemon users a move.
+ *
+ * Each move has a source (the Pokemon moving) and a target (the Pokemon being affected).
+ * This is true even when a move doesn't really have a meaningful target: For instance, Sunny Day
+ * "targets" the Pokemon using the move.
+ *
+ * Known from tags:
+ * [from]lockedmove if the Pokemon's move is locked.
+ * [from]Nature Power if the Pokemon's move was used because Nature Power was used. Here,
+ * the Pokemon is shown using Nature Power first, and then immediately using their second move
+ * with this as the reason.
+ *
+ * @property source The Pokemon making the move.
+ * @property move The ID of the move being made.
+ * @property target The Pokemon being affected by the move.
+ * @property miss Whether the move missed.
+ * @property from An optional string that explains why a move would made, if the move was forced.
+ *  For instance, this is "lockedmove" if the Pokemon is locked into a move like Outrage.
+ * @property unparsedTags Other tags we don't specifically parse yet.
+ */
+data class MoveEvent(
+    val source: PokemonIdentifier,
+    val move: MoveId,
+    val target: PokemonIdentifier,
+    val miss: Boolean,
+    val from: FromTag?,
+    val unparsedTags: ImmutableList<String>
+): BattleEvent
+
+/**
+ * The source of an effect.
+ *
+ * @property from A string describing the effect.
+ * @property of The Pokemon to which the effect belongs.
+ */
+data class FromTag(val from: String, val source: PokemonIdentifier?)
+
+/**
+ * An object which identifies a Pokemon. Does not change throughout a battle.
+ *
+ * This is the object representation of strings like "p2a: Charizard".
+ * TODO: Use consistently
+ */
+data class PokemonIdentifier(
+    val player: Player,
+    val name: Nickname
+)
 
 /**
  * Visible details about a Pokemon.

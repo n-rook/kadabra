@@ -3,8 +3,8 @@ package com.nrook.kadabra.inference
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.nrook.kadabra.info.Gender
+import com.nrook.kadabra.info.MoveId
 import com.nrook.kadabra.mechanics.Level
-import com.nrook.kadabra.mechanics.arena.Player
 import com.nrook.kadabra.proto.ReceivedMessage
 import kotlin.jvm.internal.CallableReference
 import kotlin.reflect.full.findAnnotation
@@ -102,7 +102,7 @@ private fun parseSwitchEvent(line: ReceivedMessage): BattleEvent {
   val pokemonString = parsePokemonString(line.contentList[0])
   val details = parseDetails(line.contentList[1])
   val condition = parseConditionString(line.contentList[2])
-  return SwitchEvent(pokemonString.player, pokemonString.nickname, details, condition)
+  return SwitchEvent(pokemonString.player, pokemonString.name, details, condition)
 }
 
 @EventParser("drag")
@@ -110,16 +110,31 @@ private fun parseDragEvent(line: ReceivedMessage): BattleEvent {
   val pokemonString = parsePokemonString(line.contentList[0])
   val details = parseDetails(line.contentList[1])
   val condition = parseConditionString(line.contentList[2])
-  return DragEvent(pokemonString.player, pokemonString.nickname, details, condition)
+  return DragEvent(pokemonString.player, pokemonString.name, details, condition)
+}
+
+@EventParser("move")
+private fun parseMoveEvent(line: ReceivedMessage): BattleEvent {
+  val sourceString = parsePokemonString(line.contentList[0])
+  val moveId = MoveId(line.contentList[1])
+  val targetString = parsePokemonString(line.contentList[2])
+
+  val tags = ArrayList(line.contentList.subList(3, line.contentList.size))
+  val missed = tags.remove("[miss]")
+
+  val fromTagResult = popFromTag(tags)
+  return MoveEvent(
+      sourceString, moveId, targetString, missed, fromTagResult.fromTag, ImmutableList.copyOf(tags))
 }
 
 private val POKEMON_STRING_REGEX = Regex("(p[12])([a-z]): (.*)")
+
 /**
  * Parses the identifier string used to identify a Pokemon.
  *
  * These strings typically look like "p1a: PokemonNickname".
  */
-private fun parsePokemonString(pokemon: String): PokemonString {
+private fun parsePokemonString(pokemon: String): PokemonIdentifier {
   val result = POKEMON_STRING_REGEX.matchEntire(pokemon)
       ?: throw IllegalArgumentException("Could not parse Pokemon string: \"$pokemon\"")
 
@@ -129,13 +144,8 @@ private fun parsePokemonString(pokemon: String): PokemonString {
         "We can't handle doubles yet, " +
             "but the location for this Pokemon was ${result.groupValues[2]}")
   }
-  return PokemonString(player, Nickname(result.groupValues[3]))
+  return PokemonIdentifier(player, Nickname(result.groupValues[3]))
 }
-
-/**
- * All the data in a POKEMON string, like "p1a: Frisbee".
- */
-data class PokemonString(val player: Player, val nickname: Nickname)
 
 private var LEVEL_REGEX = Regex("L([0-9]+)")
 private var GENDER_REGEX = Regex("[MF]")
@@ -208,6 +218,28 @@ private fun parseStatusString(status: String): Status {
   }
 }
 
+private data class PopFromTagResult(val fromTag: FromTag?, val remainder: List<String>)
+private fun popFromTag(tags: List<String>): PopFromTagResult {
+  val indexOfFrom = tags.indexOfFirst { it.startsWith("[from]") }
+  if (indexOfFrom == -1) {
+    return PopFromTagResult(null, tags)
+  }
+
+  val returnList = ArrayList(tags)
+  val fromString = returnList.removeAt(indexOfFrom)
+  val parsedFromString = fromString.removePrefix("[from]").trim()
+
+  val ofSource: PokemonIdentifier?
+  if (returnList.size > indexOfFrom && returnList[indexOfFrom].startsWith("[of] ")) {
+    val ofString = returnList.removeAt(indexOfFrom).removePrefix("[of] ")
+    ofSource = parsePokemonString(ofString)
+  } else {
+    ofSource = null
+  }
+  return PopFromTagResult(
+      FromTag(parsedFromString, ofSource), returnList)
+}
+
 private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = ImmutableList.of(
     ::parsePlayerEvent,
     ::parseGameTypeEvent,
@@ -221,6 +253,7 @@ private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = Immutable
     ::parseStartEvent,
     ::parseSwitchEvent,
     ::parseDragEvent,
+    ::parseMoveEvent,
     ::parseChoiceEvent
 )
 
