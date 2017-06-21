@@ -171,5 +171,5 @@ class IndividualLineParsersKtTest {
     assertThat(event.unparsedTags).containsExactly("[anim] Focus Blast", "[silent]").inOrder()
   }
 
-
+  // TODO: parseDetailsChange and parseFormeChange
 }

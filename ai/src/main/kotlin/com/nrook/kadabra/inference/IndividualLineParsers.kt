@@ -127,6 +127,25 @@ private fun parseMoveEvent(line: ReceivedMessage): BattleEvent {
       sourceString, moveId, targetString, missed, fromTagResult.fromTag, ImmutableList.copyOf(tags))
 }
 
+@EventParser("detailschange")
+private fun parseDetailsChangeEvent(line: ReceivedMessage): BattleEvent {
+  return parseDetailsChangeOrFormeChange(line)
+}
+
+@EventParser("-formechange")
+private fun parseFormeChangeEvent(line: ReceivedMessage): BattleEvent {
+  return parseDetailsChangeOrFormeChange(line)
+}
+
+private fun parseDetailsChangeOrFormeChange(line: ReceivedMessage): BattleEvent {
+  val permanent = line.class_ == "detailschange"
+  return DetailsChangeEvent(
+      permanent,
+      parsePokemonString(line.contentList[0]),
+      parseDetails(line.contentList[1]),
+      parseConditionString(line.contentList[2]))
+}
+
 private val POKEMON_STRING_REGEX = Regex("(p[12])([a-z]): (.*)")
 
 /**
@@ -240,6 +259,9 @@ private fun popFromTag(tags: List<String>): PopFromTagResult {
       FromTag(parsedFromString, ofSource), returnList)
 }
 
+// The following events are intentionally not parsed:
+// "swap": Only happens in doubles
+//
 private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = ImmutableList.of(
     ::parsePlayerEvent,
     ::parseGameTypeEvent,
@@ -254,6 +276,8 @@ private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = Immutable
     ::parseSwitchEvent,
     ::parseDragEvent,
     ::parseMoveEvent,
+    ::parseDetailsChangeEvent,
+    ::parseFormeChangeEvent,
     ::parseChoiceEvent
 )
 

@@ -171,6 +171,24 @@ data class MoveEvent(
 ): BattleEvent
 
 /**
+ * This event triggers when a Pokemon changes its form.
+ *
+ * This includes both detailschange and -formechange events.
+ *
+ * @property permanent Whether or not the change is permanent. True for detailschange events, and
+ *  false for -formechange events.
+ * @property pokemon The Pokemon which changed its form.
+ * @property newDetails The Pokemon's new form.
+ * @property condition The Pokemon's new condition.
+ */
+data class DetailsChangeEvent(
+    val permanent: Boolean,
+    val pokemon: PokemonIdentifier,
+    val newDetails: PokemonDetails,
+    val condition: VisibleCondition
+): BattleEvent
+
+/**
  * The source of an effect.
  *
  * @property from A string describing the effect.
