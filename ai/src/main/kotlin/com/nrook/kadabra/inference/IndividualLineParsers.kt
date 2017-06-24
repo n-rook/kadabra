@@ -126,7 +126,7 @@ private fun parseDragEvent(line: ReceivedMessage): BattleEvent {
 @EventParser("move")
 private fun parseMoveEvent(line: ReceivedMessage): BattleEvent {
   val sourceString = parsePokemonString(line.contentList[0])
-  val moveId = MoveId(line.contentList[1])
+  val moveName = line.contentList[1]
   val targetString = parsePokemonString(line.contentList[2])
 
   val tags = ArrayList(line.contentList.subList(3, line.contentList.size))
@@ -134,7 +134,7 @@ private fun parseMoveEvent(line: ReceivedMessage): BattleEvent {
 
   val fromTagResult = popFromTag(tags)
   return MoveEvent(
-      sourceString, moveId, targetString, missed, fromTagResult.fromTag, ImmutableList.copyOf(tags))
+      sourceString, moveName, targetString, missed, fromTagResult.fromTag, ImmutableList.copyOf(tags))
 }
 
 @EventParser("detailschange")

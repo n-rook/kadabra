@@ -10,6 +10,13 @@ data class Move(
     val id: MoveId,
 
     /**
+     * The name of a move.
+     *
+     * For instance, Power Gem has an [id] of "powergem", but a name of "Power Gem".
+     */
+    val name: String,
+
+    /**
      * The move's base power.
      *
      * Moves which aren't attacks, like Swords Dance, have basePower of 0.
@@ -35,6 +42,8 @@ data class Move(
 
 /**
  * The ID of a move.
+ *
+ * This is an all-lowercase string, like "powergem".
  */
 data class MoveId(val str: String)
 

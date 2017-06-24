@@ -154,7 +154,7 @@ data class DragEvent(
  * with this as the reason.
  *
  * @property source The Pokemon making the move.
- * @property move The ID of the move being made.
+ * @property move The name of the move being used. Not the ID.
  * @property target The Pokemon being affected by the move.
  * @property miss Whether the move missed.
  * @property from An optional string that explains why a move would made, if the move was forced.
@@ -163,7 +163,7 @@ data class DragEvent(
  */
 data class MoveEvent(
     val source: PokemonIdentifier,
-    val move: MoveId,
+    val move: String,
     val target: PokemonIdentifier,
     val miss: Boolean,
     val from: FromTag?,

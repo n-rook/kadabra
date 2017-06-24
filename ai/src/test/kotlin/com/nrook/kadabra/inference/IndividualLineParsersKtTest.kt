@@ -139,7 +139,7 @@ class IndividualLineParsersKtTest {
     val event = parseEvent(
         MoveEvent::class.java, "move", "p2a: Skarmory", "Whirlwind", "p1a: Garchomp")
     assertThat(event.source).isEqualTo(PokemonIdentifier(Player.WHITE, Nickname("Skarmory")))
-    assertThat(event.move.str).isEqualTo("Whirlwind")
+    assertThat(event.move).isEqualTo("Whirlwind")
     assertThat(event.target).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Garchomp")))
     assertThat(event.miss).isFalse()
     assertThat(event.from).isNull()
