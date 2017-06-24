@@ -10,13 +10,17 @@ import mu.KLogging
 val logger = KLogging().logger()
 
 fun parseLogLines(logLines: List<LogLine>): List<BattleEvent> {
-  val us = identifyWhichPlayerIsUs(logLines)
-
+//  val us = identifyWhichPlayerIsUs(logLines)
 
   val events: ImmutableList.Builder<BattleEvent> = ImmutableList.builder()
   for (line in logLines) {
     if (line.lineCase == LogLine.LineCase.RECEIVED) {
       val received = line.received
+
+      if (!isLineKnown(received)) {
+        // When we parse most messages, we'll add a warning here.
+        continue
+      }
 
       var parsedLine: BattleEvent?
       try {

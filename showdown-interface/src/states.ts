@@ -33,5 +33,7 @@ export class IPokemonSideInfo {
   // Sometimes null, if max HP is unknown (especially if we fainted)
   maxHp: number;
   fainted: boolean;
+  // Whether or not this is the active Pokemon.
+  active: boolean;
   item: string;
 }

@@ -69,6 +69,7 @@ export function get_side_info(parsedRequest: {}): ISideInfo {
 
       const riders: string[] = condition.slice(1);
       const fainted = riders.includes('fnt');
+      const active = !!data.active;
       // We should investigate how this appears if there is no item.
       const item = data.item;
 
@@ -77,6 +78,7 @@ export function get_side_info(parsedRequest: {}): ISideInfo {
         hp: currentHp,
         maxHp,
         fainted,
+        active,
         item
       };
     }

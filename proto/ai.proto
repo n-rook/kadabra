@@ -59,6 +59,9 @@ message PokemonSideInfo {
 
   bool fainted = 4;
 
+  // Whether or not this Pokemon is active.
+  bool active = 6;
+
   string item = 5;
 }
 

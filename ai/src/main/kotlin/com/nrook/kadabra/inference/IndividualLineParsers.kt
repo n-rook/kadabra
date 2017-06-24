@@ -378,3 +378,10 @@ fun parseLine(line: ReceivedMessage): BattleEvent {
     return parser(line)
   }
 }
+
+/**
+ * Returns whether or not [parseLine] is capable of parsing this line.
+ */
+fun isLineKnown(line: ReceivedMessage): Boolean {
+  return LINE_PARSERS.containsKey(line.class_)
+}

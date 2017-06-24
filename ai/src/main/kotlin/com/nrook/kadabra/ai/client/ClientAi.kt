@@ -1,5 +1,6 @@
 package com.nrook.kadabra.ai.client
 
+import com.nrook.kadabra.inference.parseLogLines
 import com.nrook.kadabra.proto.ActionRequest
 import com.nrook.kadabra.proto.ActionResponse
 import com.nrook.kadabra.proto.LeadChoice
@@ -21,6 +22,13 @@ class ClientAi {
   }
 
   fun pickAction(request: ActionRequest): ActionResponse {
+    try {
+      val lines = parseLogLines(request.logList)
+      logger.info("Parsed ${lines.size} lines")
+    } catch (e: Exception) {
+      logger.error("Failed to parse logs", e)
+    }
+
     if (request.forceSwitch) {
       val team = request.sideInfo.teamList
 
