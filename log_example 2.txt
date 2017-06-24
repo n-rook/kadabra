@@ -1,0 +1,115 @@
+(from js debugger console logs)
+
+>> |/trn nrook,0,840f6d54d74b25aff30721512916bbcdfc9f01382e0f3ddfbf28542339550b8629aded9aa06b3dcebec3c8e0d916e6fbdf2dcc633513dc8958ca7c1e42c3e1eb61ca2c861182033af614f3d151a36c917759a0439644ddc90ae828aaa955f234059c04fb607167040ed2387b06053eb72bf03a25b9f23aeaa61bc58194492631,nrook,2,1497807717,localhost;44e1851b9a5f537356cb46907eeb07a413dcd7df3312cea178f90fe9fe50068f12e4b18858f0f49af96e4336cb1007bd200c399c197d556dc2d6a02e6a1d30f29e9123e6e11e0d4254b8766fe0f3a13c2d3504c9e10c3e1bd50862d63b613c30c89442443cc6b53c547233a021cefecc25030849921cac6db2cb7100c34fcacd630fcf745b5ba172acc557de4961e8c39e89b7c1233cdc4ec0c4a64d63457f93571321b453b14be1dd15fe2ab81a53367eb5e9ea276ff92bec9fa96b39c03f43e6cd267434df685f7cf37cd202df5909a2d09aa2071de8eb3e286cdd9932bb7e20b3810e4714a4c50805a12d8cfd6f8d021b319adae0d1b2cd4119cc602a8919fe58865bce9b3a9fcac3db9d80a74868b89938d9a91df89edd8022403e5c03bb1f680732aaa05db8eff82dc77221e06569f41438012e2f14cbfe3f3f2292efdf23ffd6918ad5b7868e8a6459707538ba85f29b3a88003de510d311d79a8d944335326f903fede8d0835b47daefca10e1d7783a371a31b579f0a682fa33c2695a099efe7e659176500ce7fb233c05b860688e5bfb4aa0a396ee9ef51214fa01042e096deedfde7f881e800256f562018bd0e1f42be9f566a35cd67f984ed74dead191c15f9161f7618903ba496639d0f592104f7c41c1183133e1d07ae45d96348580f898ef5ecde5bbd0b83e63c3db367a1fd2710809258967ff71d1163c5d1a
+client.js?04ceb465:695 << |updateuser|nrook|1|102
+client.js?04ceb465:695 << |j| nrook
+client.js?04ceb465:695 << |j| abc24124
+client.js?04ceb465:695 << |updatechallenges|{"challengesFrom":{"abc24124":"gen7ou"},"challengeTo":null}
+client.js:1939 [Deprecation] Using the Notification API on insecure origins is deprecated and will be removed in M60, around August 2017. You should consider switching your application to a secure origin, such as HTTPS. See https://goo.gl/rStTGz for more details.
+notify @ client.js:1939
+client.js:1915 [Deprecation] Using the Notification API on insecure origins is deprecated and will be removed in M60, around August 2017. You should consider switching your application to a secure origin, such as HTTPS. See https://goo.gl/rStTGz for more details.
+requestNotifications @ client.js:1915
+client.js:755 >> |/utm |charizard||||Timid|43,,,252,,199||,28,,,,|||
+client.js:755 >> |/accept abc24124
+client.js:695 << |popup|Your team was rejected for the following reasons:||||- Charizard has no moves.
+client.js:755 >> |/utm |alakazam|alakazite||psychic,focusblast,shadowball,substitute|Timid|,,,252,4,252||,0,,,,|||]SkarioMario|skarmory|leftovers|1|roost,spikes,bravebird,whirlwind|Impish|252,,252,,,4|M||S|95|]|garchomp|choiceband|H|earthquake,outrage,stoneedge,poisonjab|Jolly|,252,,,4,252|||||]|marowakalola|thickclub|1|bonemerang,flareblitz,ironhead,|Adamant|248,252,,,8,|||||]|nihilego|leftovers||powergem,sludgebomb,toxicspikes,rest|Modest|252,,,252,4,||,0,,,,|||]|togekiss|leftovers|1|airslash,nastyplot,roost,thunderwave|Calm|252,,,4,252,||,0,,,,|||
+client.js:755 >> |/accept abc24124
+client.js:695 << >battle-gen7ou-48
+|init|battle
+|title|nrook vs. abc24124
+|j|nrook
+client.js:695 << >battle-gen7ou-48
+
+|j|abc24124
+client.js:695 << |updatesearch|{"searching":[],"games":{"battle-gen7ou-48":"[Gen 7] OU Battle"}}
+client.js:695 << >battle-gen7ou-48
+|title|nrook vs. abc24124
+client.js:695 << |b|battle-gen7ou-48| nrook| abc24124
+client.js:695 << |updatechallenges|{"challengesFrom":{},"challengeTo":null}
+client.js:695 << >battle-gen7ou-48
+
+|player|p1|nrook|102
+|teamsize|p1|6
+client.js:695 << >battle-gen7ou-48
+|request|{"teamPreview":true,"maxTeamSize":6,"side":{"name":"nrook","id":"p1","pokemon":[{"ident":"p1: Alakazam","details":"Alakazam, M","condition":"251/251","active":true,"stats":{"atk":94,"def":126,"spa":369,"spd":227,"spe":372},"moves":["psychic","focusblast","shadowball","substitute"],"baseAbility":"synchronize","item":"alakazite","pokeball":"pokeball"},{"ident":"p1: SkarioMario","details":"Skarmory, L95, M, shiny","condition":"317/317","active":false,"stats":{"atk":186,"def":396,"spa":99,"spd":167,"spe":168},"moves":["roost","spikes","bravebird","whirlwind"],"baseAbility":"sturdy","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Garchomp","details":"Garchomp, F","condition":"357/357","active":false,"stats":{"atk":359,"def":226,"spa":176,"spd":207,"spe":333},"moves":["earthquake","outrage","stoneedge","poisonjab"],"baseAbility":"roughskin","item":"choiceband","pokeball":"pokeball"},{"ident":"p1: Marowak","details":"Marowak-Alola, M","condition":"323/323","active":false,"stats":{"atk":284,"def":256,"spa":122,"spd":198,"spe":126},"moves":["bonemerang","flareblitz","ironhead"],"baseAbility":"lightningrod","item":"thickclub","pokeball":"pokeball"},{"ident":"p1: Nihilego","details":"Nihilego","condition":"422/422","active":false,"stats":{"atk":99,"def":130,"spa":388,"spd":299,"spe":242},"moves":["powergem","sludgebomb","toxicspikes","rest"],"baseAbility":"beastboost","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Togekiss","details":"Togekiss, M","condition":"374/374","active":false,"stats":{"atk":94,"def":226,"spa":277,"spd":361,"spe":196},"moves":["airslash","nastyplot","roost","thunderwave"],"baseAbility":"serenegrace","item":"leftovers","pokeball":"pokeball"}]},"rqid":2}
+client.js:695 << >battle-gen7ou-48
+
+|player|p2|abc24124|2
+|teamsize|p2|6
+|gametype|singles
+|gen|7
+|tier|[Gen 7] OU
+|seed|
+|clearpoke
+|poke|p1|Alakazam, M|item
+|poke|p1|Skarmory, L95, M, shiny|item
+|poke|p1|Garchomp, F|item
+|poke|p1|Marowak-Alola, M|item
+|poke|p1|Nihilego|item
+|poke|p1|Togekiss, M|item
+|poke|p2|Alakazam, M|item
+|poke|p2|Skarmory, L95, M, shiny|item
+|poke|p2|Garchomp, M|item
+|poke|p2|Marowak-Alola, F|item
+|poke|p2|Nihilego|item
+|poke|p2|Togekiss, F|item
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Species Clause: Limit one of each Pokémon
+|rule|OHKO Clause: OHKO moves are banned
+|rule|Moody Clause: Moody is banned
+|rule|Evasion Moves Clause: Evasion moves are banned
+|rule|Endless Battle Clause: Forcing endless battles is banned
+|rule|HP Percentage Mod: HP is shown in percentages
+|teampreview
+client.js?04ceb465:755 >> battle-gen7ou-48|/team 623451|2
+client.js?04ceb465:695 << >battle-gen7ou-48
+|request|{"active":[{"moves":[{"move":"Air Slash","id":"airslash","pp":24,"maxpp":24,"target":"any","disabled":false},{"move":"Nasty Plot","id":"nastyplot","pp":32,"maxpp":32,"target":"self","disabled":false},{"move":"Roost","id":"roost","pp":16,"maxpp":16,"target":"self","disabled":false},{"move":"Thunder Wave","id":"thunderwave","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p1","pokemon":[{"ident":"p1: Togekiss","details":"Togekiss, M","condition":"374/374","active":true,"stats":{"atk":94,"def":226,"spa":277,"spd":361,"spe":196},"moves":["airslash","nastyplot","roost","thunderwave"],"baseAbility":"serenegrace","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: SkarioMario","details":"Skarmory, L95, M, shiny","condition":"317/317","active":false,"stats":{"atk":186,"def":396,"spa":99,"spd":167,"spe":168},"moves":["roost","spikes","bravebird","whirlwind"],"baseAbility":"sturdy","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Garchomp","details":"Garchomp, F","condition":"357/357","active":false,"stats":{"atk":359,"def":226,"spa":176,"spd":207,"spe":333},"moves":["earthquake","outrage","stoneedge","poisonjab"],"baseAbility":"roughskin","item":"choiceband","pokeball":"pokeball"},{"ident":"p1: Marowak","details":"Marowak-Alola, M","condition":"323/323","active":false,"stats":{"atk":284,"def":256,"spa":122,"spd":198,"spe":126},"moves":["bonemerang","flareblitz","ironhead"],"baseAbility":"lightningrod","item":"thickclub","pokeball":"pokeball"},{"ident":"p1: Nihilego","details":"Nihilego","condition":"422/422","active":false,"stats":{"atk":99,"def":130,"spa":388,"spd":299,"spe":242},"moves":["powergem","sludgebomb","toxicspikes","rest"],"baseAbility":"beastboost","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Alakazam","details":"Alakazam, M","condition":"251/251","active":false,"stats":{"atk":94,"def":126,"spa":369,"spd":227,"spe":372},"moves":["psychic","focusblast","shadowball","substitute"],"baseAbility":"synchronize","item":"alakazite","pokeball":"pokeball"}]},"rqid":4}
+client.js?04ceb465:695 << >battle-gen7ou-48
+
+|choice|team 6, team 2, team 3, team 4, team 5, team 1|
+|
+|start
+|switch|p1a: Togekiss|Togekiss, M|374/374
+|switch|p2a: SkarioMario|Skarmory, L95, M, shiny|100/100
+|turn|1
+client.js?04ceb465:755 >> battle-gen7ou-48|/choose move 4|4
+client.js?04ceb465:695 << >battle-gen7ou-48
+|request|{"active":[{"moves":[{"move":"Air Slash","id":"airslash","pp":24,"maxpp":24,"target":"any","disabled":false},{"move":"Nasty Plot","id":"nastyplot","pp":32,"maxpp":32,"target":"self","disabled":false},{"move":"Roost","id":"roost","pp":16,"maxpp":16,"target":"self","disabled":false},{"move":"Thunder Wave","id":"thunderwave","pp":31,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p1","pokemon":[{"ident":"p1: Togekiss","details":"Togekiss, M","condition":"374/374","active":true,"stats":{"atk":94,"def":226,"spa":277,"spd":361,"spe":196},"moves":["airslash","nastyplot","roost","thunderwave"],"baseAbility":"serenegrace","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: SkarioMario","details":"Skarmory, L95, M, shiny","condition":"317/317","active":false,"stats":{"atk":186,"def":396,"spa":99,"spd":167,"spe":168},"moves":["roost","spikes","bravebird","whirlwind"],"baseAbility":"sturdy","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Garchomp","details":"Garchomp, F","condition":"357/357","active":false,"stats":{"atk":359,"def":226,"spa":176,"spd":207,"spe":333},"moves":["earthquake","outrage","stoneedge","poisonjab"],"baseAbility":"roughskin","item":"choiceband","pokeball":"pokeball"},{"ident":"p1: Marowak","details":"Marowak-Alola, M","condition":"323/323","active":false,"stats":{"atk":284,"def":256,"spa":122,"spd":198,"spe":126},"moves":["bonemerang","flareblitz","ironhead"],"baseAbility":"lightningrod","item":"thickclub","pokeball":"pokeball"},{"ident":"p1: Nihilego","details":"Nihilego","condition":"422/422","active":false,"stats":{"atk":99,"def":130,"spa":388,"spd":299,"spe":242},"moves":["powergem","sludgebomb","toxicspikes","rest"],"baseAbility":"beastboost","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Alakazam","details":"Alakazam, M","condition":"251/251","active":false,"stats":{"atk":94,"def":126,"spa":369,"spd":227,"spe":372},"moves":["psychic","focusblast","shadowball","substitute"],"baseAbility":"synchronize","item":"alakazite","pokeball":"pokeball"}]},"rqid":6}
+client.js?04ceb465:695 << >battle-gen7ou-48
+
+|choice|move thunderwave|
+|
+|move|p1a: Togekiss|Thunder Wave|p2a: SkarioMario
+|-status|p2a: SkarioMario|par
+|move|p2a: SkarioMario|Spikes|p1a: Togekiss
+|-sidestart|p1: nrook|Spikes
+|
+|upkeep
+|turn|2
+client.js?04ceb465:755 >> battle-gen7ou-48|/choose switch 3|6
+client.js?04ceb465:695 << >battle-gen7ou-48
+|request|{"active":[{"moves":[{"move":"Earthquake","id":"earthquake","pp":16,"maxpp":16,"target":"allAdjacent","disabled":false},{"move":"Outrage","id":"outrage","pp":16,"maxpp":16,"target":"randomNormal","disabled":false},{"move":"Stone Edge","id":"stoneedge","pp":8,"maxpp":8,"target":"normal","disabled":false},{"move":"Poison Jab","id":"poisonjab","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p1","pokemon":[{"ident":"p1: Garchomp","details":"Garchomp, F","condition":"313/357","active":true,"stats":{"atk":359,"def":226,"spa":176,"spd":207,"spe":333},"moves":["earthquake","outrage","stoneedge","poisonjab"],"baseAbility":"roughskin","item":"choiceband","pokeball":"pokeball"},{"ident":"p1: SkarioMario","details":"Skarmory, L95, M, shiny","condition":"317/317","active":false,"stats":{"atk":186,"def":396,"spa":99,"spd":167,"spe":168},"moves":["roost","spikes","bravebird","whirlwind"],"baseAbility":"sturdy","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Togekiss","details":"Togekiss, M","condition":"374/374","active":false,"stats":{"atk":94,"def":226,"spa":277,"spd":361,"spe":196},"moves":["airslash","nastyplot","roost","thunderwave"],"baseAbility":"serenegrace","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Marowak","details":"Marowak-Alola, M","condition":"323/323","active":false,"stats":{"atk":284,"def":256,"spa":122,"spd":198,"spe":126},"moves":["bonemerang","flareblitz","ironhead"],"baseAbility":"lightningrod","item":"thickclub","pokeball":"pokeball"},{"ident":"p1: Nihilego","details":"Nihilego","condition":"422/422","active":false,"stats":{"atk":99,"def":130,"spa":388,"spd":299,"spe":242},"moves":["powergem","sludgebomb","toxicspikes","rest"],"baseAbility":"beastboost","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Alakazam","details":"Alakazam, M","condition":"251/251","active":false,"stats":{"atk":94,"def":126,"spa":369,"spd":227,"spe":372},"moves":["psychic","focusblast","shadowball","substitute"],"baseAbility":"synchronize","item":"alakazite","pokeball":"pokeball"}]},"rqid":8}
+client.js?04ceb465:695 << >battle-gen7ou-48
+
+|choice|switch 3|
+|
+|switch|p1a: Garchomp|Garchomp, F|357/357
+|-damage|p1a: Garchomp|313/357|[from] Spikes
+|switch|p2a: Marowak|Marowak-Alola, F|100/100
+|
+|upkeep
+|turn|3
+client.js?04ceb465:755 >> battle-gen7ou-48|/choose switch 5|8
+client.js?04ceb465:695 << >battle-gen7ou-48
+|request|{"active":[{"moves":[{"move":"Power Gem","id":"powergem","pp":32,"maxpp":32,"target":"normal","disabled":false},{"move":"Sludge Bomb","id":"sludgebomb","pp":16,"maxpp":16,"target":"normal","disabled":false},{"move":"Toxic Spikes","id":"toxicspikes","pp":32,"maxpp":32,"target":"foeSide","disabled":false},{"move":"Rest","id":"rest","pp":16,"maxpp":16,"target":"self","disabled":false}]}],"side":{"name":"nrook","id":"p1","pokemon":[{"ident":"p1: Nihilego","details":"Nihilego","condition":"396/422","active":true,"stats":{"atk":99,"def":130,"spa":388,"spd":299,"spe":242},"moves":["powergem","sludgebomb","toxicspikes","rest"],"baseAbility":"beastboost","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: SkarioMario","details":"Skarmory, L95, M, shiny","condition":"317/317","active":false,"stats":{"atk":186,"def":396,"spa":99,"spd":167,"spe":168},"moves":["roost","spikes","bravebird","whirlwind"],"baseAbility":"sturdy","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Togekiss","details":"Togekiss, M","condition":"374/374","active":false,"stats":{"atk":94,"def":226,"spa":277,"spd":361,"spe":196},"moves":["airslash","nastyplot","roost","thunderwave"],"baseAbility":"serenegrace","item":"leftovers","pokeball":"pokeball"},{"ident":"p1: Marowak","details":"Marowak-Alola, M","condition":"323/323","active":false,"stats":{"atk":284,"def":256,"spa":122,"spd":198,"spe":126},"moves":["bonemerang","flareblitz","ironhead"],"baseAbility":"lightningrod","item":"thickclub","pokeball":"pokeball"},{"ident":"p1: Garchomp","details":"Garchomp, F","condition":"313/357","active":false,"stats":{"atk":359,"def":226,"spa":176,"spd":207,"spe":333},"moves":["earthquake","outrage","stoneedge","poisonjab"],"baseAbility":"roughskin","item":"choiceband","pokeball":"pokeball"},{"ident":"p1: Alakazam","details":"Alakazam, M","condition":"251/251","active":false,"stats":{"atk":94,"def":126,"spa":369,"spd":227,"spe":372},"moves":["psychic","focusblast","shadowball","substitute"],"baseAbility":"synchronize","item":"alakazite","pokeball":"pokeball"}]},"rqid":10}
+client.js?04ceb465:695 << >battle-gen7ou-48
+
+|choice|switch 5|
+|
+|switch|p1a: Nihilego|Nihilego|422/422
+|-damage|p1a: Nihilego|370/422|[from] Spikes
+|switch|p2a: SkarioMario|Skarmory, L95, M, shiny|100/100 par
+|
+|-heal|p1a: Nihilego|396/422|[from] item: Leftovers
+|upkeep
+|turn|4

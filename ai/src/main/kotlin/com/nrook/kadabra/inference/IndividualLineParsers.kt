@@ -24,10 +24,20 @@ private fun expectLength(line: ReceivedMessage, expectedLength: Int) {
   val count = line.contentCount
   if (count != expectedLength) {
     val comparisonWord = if (count < expectedLength) "fewer" else "more"
-    throw IllegalArgumentException("" +
-        "Line of type ${line.class_} had $comparisonWord than $expectedLength elements:\n" +
-        line.contentList.joinToString("|"))
+    throw IllegalArgumentException(
+        debugMessage(line, "Line had $comparisonWord than $expectedLength elements"))
   }
+}
+
+private fun expectLength(line: ReceivedMessage, vararg expectedLengths: Int) {
+  val count = line.contentCount
+  if (!expectedLengths.contains(count)) {
+    throw IllegalArgumentException(debugMessage(line, "Unexpected length $count"))
+  }
+}
+
+private fun debugMessage(line: ReceivedMessage, reason: String): String {
+  return "$reason\n${line.class_}: ${line.contentList.joinToString("|")}"
 }
 
 @EventParser("player")
@@ -137,13 +147,69 @@ private fun parseFormeChangeEvent(line: ReceivedMessage): BattleEvent {
   return parseDetailsChangeOrFormeChange(line)
 }
 
+@EventParser("cant")
+private fun parseCantEvent(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 2, 3)
+  val move: MoveId? = if (line.contentList.size > 2) MoveId(line.contentList[2]) else null
+  return CantEvent(
+      parsePokemonString(line.contentList[0]),
+      line.contentList[1],
+      move)
+}
+
+@EventParser("faint")
+private fun parseFaintEvent(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 1)
+  return FaintEvent(parsePokemonString(line.contentList[0]))
+}
+
+@EventParser("-damage")
+private fun parseDamageEvent(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 2, 3, 4)
+  val tags = ArrayList(line.contentList.subList(2, line.contentList.size))
+  val from = popFromTag(tags)
+  if (!from.remainder.isEmpty()) {
+    logger.warn(debugMessage(line, "Extra tags"))
+  }
+
+  return DamageEvent(
+      parsePokemonString(line.contentList[0]),
+      parseConditionString(line.contentList[1]),
+      from.fromTag)
+}
+
+@EventParser("-heal")
+private fun parseHealEvent(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 2, 3, 4)
+  val tags = ArrayList(line.contentList.subList(2, line.contentList.size))
+  val from = popFromTag(tags)
+  if (!from.remainder.isEmpty()) {
+    logger.warn(debugMessage(line, "Extra tags"))
+  }
+
+  return HealEvent(
+      parsePokemonString(line.contentList[0]),
+      parseConditionString(line.contentList[1]),
+      from.fromTag)
+}
+
+@EventParser("turn")
+private fun parseTurnEvent(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 1)
+  return TurnEvent(line.contentList[0].toInt())
+}
+
 private fun parseDetailsChangeOrFormeChange(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 2, 3)
   val permanent = line.class_ == "detailschange"
+  val condition = if (line.contentList.size == 3) parseConditionString(line.contentList[2])
+    else null
+
   return DetailsChangeEvent(
       permanent,
       parsePokemonString(line.contentList[0]),
       parseDetails(line.contentList[1]),
-      parseConditionString(line.contentList[2]))
+      condition)
 }
 
 private val POKEMON_STRING_REGEX = Regex("(p[12])([a-z]): (.*)")
@@ -278,6 +344,11 @@ private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = Immutable
     ::parseMoveEvent,
     ::parseDetailsChangeEvent,
     ::parseFormeChangeEvent,
+    ::parseCantEvent,
+    ::parseFaintEvent,
+    ::parseTurnEvent,
+    ::parseDamageEvent,
+    ::parseHealEvent,
     ::parseChoiceEvent
 )
 

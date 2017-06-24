@@ -171,5 +171,70 @@ class IndividualLineParsersKtTest {
     assertThat(event.unparsedTags).containsExactly("[anim] Focus Blast", "[silent]").inOrder()
   }
 
-  // TODO: parseDetailsChange and parseFormeChange
+  @Test
+  fun megaEvolve() {
+    val event = parseEvent(
+        DetailsChangeEvent::class.java, "detailschange", "p1a: Alakazam", "Alakazam-Mega, F")
+    assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Alakazam")))
+    assertThat(event.condition).isNull()
+    assertThat(event.permanent).isTrue()
+    assertThat(event.newDetails.species).isEqualTo("Alakazam-Mega")
+    assertThat(event.newDetails.gender).isEqualTo(Gender.FEMALE)
+
+
+    // TODO: When we implement -mega, put this in:
+    // parseEvent(MegaEvent::class.java, "-mega", "p1a: Alakazam", "Alakazam", "Alakazite")
+  }
+
+  @Test
+  fun faint() {
+    val event = parseEvent(FaintEvent::class.java, "faint", "p2a: Skarmory")
+    assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.WHITE, Nickname("Skarmory")))
+  }
+
+  @Test
+  fun damageEvent() {
+    val event = parseEvent(
+        DamageEvent::class.java, "-damage", "p1a: Gengar", "79/100")
+    assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Gengar")))
+    assertThat(event.newCondition).isEqualTo(VisibleCondition(79, 100, Status.OK))
+    assertThat(event.from).isNull()
+  }
+
+  @Test
+  fun damageFromRockyHelmet() {
+    val event = parseEvent(
+        DamageEvent::class.java,
+        "-damage",
+        "p2a: Scizor",
+        "286/343",
+        "[from] item: Rocky Helmet",
+        "[of] p1a: Gengar")
+    assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.WHITE, Nickname("Scizor")))
+    assertThat(event.newCondition).isEqualTo(VisibleCondition(286, 343, Status.OK))
+    assertThat(event.from?.from).isEqualTo("item: Rocky Helmet")
+    assertThat(event.from?.source?.name).isEqualTo(Nickname("Gengar"))
+  }
+
+  @Test
+  fun healEvent() {
+    val event = parseEvent(
+        HealEvent::class.java,
+        "-heal",
+        "p1a: Tapu Fini",
+        "286/343",
+        "[from] item: Leftovers")
+    assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Tapu Fini")))
+    assertThat(event.newCondition).isEqualTo(VisibleCondition(286, 343, Status.OK))
+    assertThat(event.from?.from).isEqualTo("item: Leftovers")
+    assertThat(event.from?.source).isNull()
+  }
+
+  @Test
+  fun turnEvent() {
+    val event = parseEvent(TurnEvent::class.java, "turn", "5")
+    assertThat(event.turn).isEqualTo(5)
+  }
+
+  // TODO: cant and parseFormeChange
 }

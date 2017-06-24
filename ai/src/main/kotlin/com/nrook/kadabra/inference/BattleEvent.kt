@@ -175,17 +175,19 @@ data class MoveEvent(
  *
  * This includes both detailschange and -formechange events.
  *
+ * TODO: Figure out why condition is only sometimes sent.
+ *
  * @property permanent Whether or not the change is permanent. True for detailschange events, and
  *  false for -formechange events.
  * @property pokemon The Pokemon which changed its form.
  * @property newDetails The Pokemon's new form.
- * @property condition The Pokemon's new condition.
+ * @property condition The Pokemon's new condition. Only sometimes supplied; it's not clear why.
  */
 data class DetailsChangeEvent(
     val permanent: Boolean,
     val pokemon: PokemonIdentifier,
     val newDetails: PokemonDetails,
-    val condition: VisibleCondition
+    val condition: VisibleCondition?
 ): BattleEvent
 
 /**
@@ -264,11 +266,73 @@ data class ChoiceEvent(
 ): BattleEvent
 
 /**
+ * An event representing a move that tried to be used, but was failed.
+ *
+ * For instance, Disable triggers this event.
+ *
+ * @property reason A string explanation of why the Pokemon failed to use the move.
+ * @property move The move that failed. Sometimes not present.
+ */
+data class CantEvent(
+    val pokemon: PokemonIdentifier,
+    val reason: String,
+    val move: MoveId?
+): BattleEvent
+
+/**
+ * An event indicating that a Pokemon fainted.
+ */
+data class FaintEvent(
+    val pokemon: PokemonIdentifier
+): BattleEvent
+
+/**
+ * This event triggers when a Pokemon's HP changes. It includes [DamageEvent] and [HealEvent].
+ */
+interface HpChangeEvent: BattleEvent {
+  val pokemon: PokemonIdentifier
+  val newCondition: VisibleCondition
+}
+
+/**
+ * An event indicating that a Pokemon took damage.
+ *
+ * @property newCondition The Pokemon's new HP and status, after taking the damage.
+ */
+data class DamageEvent(
+    override val pokemon: PokemonIdentifier,
+    override val newCondition: VisibleCondition,
+    val from: FromTag?
+): HpChangeEvent
+
+/**
+ * An event indicating that a Pokemon healed up.
+ *
+ * @property newCondition The Pokemon's new HP and status, after healing.
+ */
+data class HealEvent(
+    override val pokemon: PokemonIdentifier,
+    override val newCondition: VisibleCondition,
+    val from: FromTag?
+): HpChangeEvent
+
+/**
+ * An event issued at the beginning of each turn; indicates the turn count.
+ *
+ * The first turn is 1.
+ *
+ * @property turn The turn number.
+ */
+data class TurnEvent(val turn: Int): BattleEvent
+
+/**
  * A Pokemon's nickname.
  *
  * Note that these identifiers do not change in battle, under any circumstances! For instance, if an
  * Alakazam is named Alakazam, then mega evolves into Alakazam-Mega, it'll still be named
  * Alakazam, not Alakazam-Mega.
+ *
+ * Similarly, in any battle (except those without Species Clause), these nicknames are unique.
  *
  * I'm not sure how Zoroark works here.
  */
