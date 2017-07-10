@@ -78,7 +78,7 @@ private fun parsePokeEvent(line: ReceivedMessage): BattleEvent {
   expectLength(line, 3)
   return PokeEvent(
       ID_TO_PLAYER_CONVERTER.convert(line.contentList[0])!!,
-      line.contentList[1],
+      parseDetails(line.contentList[1]),
       line.contentList[2]
   )
 }
@@ -199,6 +199,12 @@ private fun parseTurnEvent(line: ReceivedMessage): BattleEvent {
   return TurnEvent(line.contentList[0].toInt())
 }
 
+@EventParser("request")
+private fun parseRequestEvent(line: ReceivedMessage): BattleEvent {
+  expectLength(line, 1)
+  return RequestEvent(deserializeRequest(line.contentList[0]))
+}
+
 private fun parseDetailsChangeOrFormeChange(line: ReceivedMessage): BattleEvent {
   expectLength(line, 2, 3)
   val permanent = line.class_ == "detailschange"
@@ -212,19 +218,23 @@ private fun parseDetailsChangeOrFormeChange(line: ReceivedMessage): BattleEvent 
       condition)
 }
 
-private val POKEMON_STRING_REGEX = Regex("(p[12])([a-z]): (.*)")
+private val POKEMON_STRING_REGEX = Regex("(p[12])([a-z]?): (.*)")
 
 /**
  * Parses the identifier string used to identify a Pokemon.
  *
  * These strings typically look like "p1a: PokemonNickname".
  */
-private fun parsePokemonString(pokemon: String): PokemonIdentifier {
+// TODO: move out of this module
+fun parsePokemonString(pokemon: String): PokemonIdentifier {
   val result = POKEMON_STRING_REGEX.matchEntire(pokemon)
       ?: throw IllegalArgumentException("Could not parse Pokemon string: \"$pokemon\"")
 
   val player = ID_TO_PLAYER_CONVERTER.convert(result.groupValues[1])!!
-  if (result.groupValues[2] != "a") {
+
+  val position = result.groupValues[2]
+  if (position.isNotEmpty() && position != "a") {
+    // We ignore position if it's empty (benched Pokemon) or if it's "a" (active Pokemon in singles)
     throw IllegalArgumentException(
         "We can't handle doubles yet, " +
             "but the location for this Pokemon was ${result.groupValues[2]}")
@@ -232,9 +242,10 @@ private fun parsePokemonString(pokemon: String): PokemonIdentifier {
   return PokemonIdentifier(player, Nickname(result.groupValues[3]))
 }
 
+// TODO: move out of this module
 private var LEVEL_REGEX = Regex("L([0-9]+)")
 private var GENDER_REGEX = Regex("[MF]")
-private fun parseDetails(details: String): PokemonDetails {
+fun parseDetails(details: String): PokemonDetails {
   // Example string: "Skarmory, L95, M, shiny"
   // Each part is omitted if not applicable.
 
@@ -349,7 +360,8 @@ private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = Immutable
     ::parseTurnEvent,
     ::parseDamageEvent,
     ::parseHealEvent,
-    ::parseChoiceEvent
+    ::parseChoiceEvent,
+    ::parseRequestEvent
 )
 
 private fun getLineParsers(): ImmutableMap<String, (ReceivedMessage) -> BattleEvent> {

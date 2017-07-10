@@ -57,15 +57,13 @@ class ClearPokeEvent private constructor(): BattleEvent {
  * An event which describes a player's initial team from Team Preview.
  *
  * @param player Whose team this Pokemon is on.
- * @param details A "Pokemon details string". I haven't completely puzzled out this string's format,
- *    but it contains a Pokemon's species (to a certain extent: for certain Pokemon, Forme isn't
- *    included) and its gender.
+ * @param details The Pokemon details.
  * @param item If the Pokemon has an item, this is "item".
  *    TODO: What does the message look like if this isn't an item?
  */
 data class PokeEvent(
     val player: Player,
-    val details: String,
+    val details: PokemonDetails,
     val item: String
 ): BattleEvent
 
@@ -324,6 +322,11 @@ data class HealEvent(
  * @property turn The turn number.
  */
 data class TurnEvent(val turn: Int): BattleEvent
+
+/**
+ * An event issued to ask which options we, the player, will take.
+ */
+data class RequestEvent(val request: RequestMessage): BattleEvent
 
 /**
  * A Pokemon's nickname.

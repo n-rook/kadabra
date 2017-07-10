@@ -5,7 +5,9 @@ import com.nrook.kadabra.proto.PokemonSpec
 
 /**
  * Represents a single Pokemon on a team.
+ *
  */
+@Deprecated("We've decided wrapping protos is actually a bad idea.")
 class PokemonDefinition(val spec : PokemonSpec) {
   val species: String
     get() = this.spec.species

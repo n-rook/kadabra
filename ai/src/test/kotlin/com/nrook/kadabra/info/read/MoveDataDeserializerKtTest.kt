@@ -31,6 +31,7 @@ class MoveDataDeserializerKtTest {
     assertThat(dataset).containsKey(MoveId("thunderbolt"))
     val tbolt = dataset[MoveId("thunderbolt")]!!
     assertThat(tbolt.id).isEqualTo(MoveId("thunderbolt"))
+    assertThat(tbolt.name).isEqualTo("Thunderbolt")
     assertThat(tbolt.basePower).isEqualTo(90)
     assertThat(tbolt.type).isEqualTo(PokemonType.ELECTRIC)
     assertThat(tbolt.category).isEqualTo(MoveCategory.SPECIAL)

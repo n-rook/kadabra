@@ -1,0 +1,45 @@
+<< >battle-gen7ou-12
+|init|battle
+|title|nrook vs. agewgag
+|j|nrook
+|j|agewgag
+client.js?f8eb228d:701 << |updatesearch|{"searching":[],"games":{"battle-gen7ou-12":"[Gen 7] OU Battle"}}
+client.js?f8eb228d:701 << >battle-gen7ou-12
+|title|nrook vs. agewgag
+client.js?f8eb228d:701 << |b|battle-gen7ou-12| nrook| agewgag
+client.js?f8eb228d:701 << |updatechallenges|{"challengesFrom":{},"challengeTo":null}
+client.js?f8eb228d:701 << >battle-gen7ou-12
+
+|player|p1|nrook|266
+|teamsize|p1|6
+client.js?f8eb228d:701 << >battle-gen7ou-12
+|request|{"teamPreview":true,"maxTeamSize":6,"side":{"name":"agewgag","id":"p2","pokemon":[{"ident":"p2: Zapdos","details":"Zapdos","condition":"321/321","active":true,"stats":{"atk":217,"def":185,"spa":349,"spd":216,"spe":328},"moves":["thunderbolt","drillpeck","uturn","extrasensory"],"baseAbility":"pressure","item":"choicescarf","pokeball":"pokeball"},{"ident":"p2: Moltres","details":"Moltres","condition":"321/321","active":false,"stats":{"atk":184,"def":216,"spa":349,"spd":207,"spe":306},"moves":["fireblast","hurricane","extrasensory","hiddenpowerice60"],"baseAbility":"pressure","item":"lifeorb","pokeball":"pokeball"},{"ident":"p2: Articuno","details":"Articuno","condition":"384/384","active":false,"stats":{"atk":157,"def":236,"spa":317,"spd":287,"spe":206},"moves":["icebeam","hurricane","signalbeam","reflect"],"baseAbility":"pressure","item":"leftovers","pokeball":"pokeball"},{"ident":"p2: Dog","details":"Arcanine, F","condition":"383/383","active":false,"stats":{"atk":350,"def":196,"spa":212,"spd":198,"spe":226},"moves":["closecombat","extremespeed","flareblitz","wildcharge"],"baseAbility":"intimidate","item":"assaultvest","pokeball":"pokeball"},{"ident":"p2: Suicune","details":"Suicune","condition":"404/404","active":false,"stats":{"atk":139,"def":361,"spa":216,"spd":267,"spe":206},"moves":["rest","sleeptalk","scald","calmmind"],"baseAbility":"pressure","item":"leftovers","pokeball":"pokeball"},{"ident":"p2: Raikou","details":"Raikou","condition":"321/321","active":false,"stats":{"atk":207,"def":167,"spa":329,"spd":236,"spe":361},"moves":["crunch","extrasensory","thunderbolt","thunderwave"],"baseAbility":"pressure","item":"lifeorb","pokeball":"pokeball"}]},"rqid":3}
+client.js?f8eb228d:701 << >battle-gen7ou-12
+
+|player|p2|agewgag|169
+|teamsize|p2|6
+|gametype|singles
+|gen|7
+|tier|[Gen 7] OU
+|seed|
+|clearpoke
+|poke|p1|Alakazam, F|item
+|poke|p1|Skarmory, L95, M, shiny|item
+|poke|p1|Garchomp, M|item
+|poke|p1|Marowak-Alola, F|item
+|poke|p1|Nihilego|item
+|poke|p1|Togekiss, M|item
+|poke|p2|Zapdos|item
+|poke|p2|Moltres|item
+|poke|p2|Articuno|item
+|poke|p2|Arcanine, F|item
+|poke|p2|Suicune|item
+|poke|p2|Raikou|item
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Species Clause: Limit one of each Pokémon
+|rule|OHKO Clause: OHKO moves are banned
+|rule|Moody Clause: Moody is banned
+|rule|Evasion Moves Clause: Evasion moves are banned
+|rule|Endless Battle Clause: Forcing endless battles is banned
+|rule|HP Percentage Mod: HP is shown in percentages
+|teampreview

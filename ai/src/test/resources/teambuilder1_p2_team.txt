@@ -1,0 +1,57 @@
+Zapdos @ Choice Scarf  
+Ability: Pressure  
+EVs: 4 Atk / 252 SpA / 252 Spe  
+Hasty Nature  
+- Thunderbolt  
+- Drill Peck  
+- U-turn  
+- Extrasensory  
+
+Moltres @ Life Orb  
+Ability: Pressure  
+EVs: 252 SpA / 4 SpD / 252 Spe  
+Timid Nature  
+IVs: 0 Atk  
+- Fire Blast  
+- Hurricane  
+- Extrasensory  
+- Hidden Power [Ice]  
+
+Articuno @ Leftovers  
+Ability: Pressure  
+EVs: 252 HP / 252 SpA / 4 SpD  
+Modest Nature  
+IVs: 0 Atk  
+- Ice Beam  
+- Hurricane  
+- Signal Beam  
+- Reflect  
+
+Dog (Arcanine) @ Assault Vest  
+Ability: Intimidate  
+EVs: 248 HP / 252 Atk / 8 SpD  
+Adamant Nature  
+- Close Combat  
+- Extreme Speed  
+- Flare Blitz  
+- Wild Charge  
+
+Suicune @ Leftovers  
+Ability: Pressure  
+EVs: 252 HP / 252 Def / 4 SpD  
+Bold Nature  
+IVs: 0 Atk  
+- Rest  
+- Sleep Talk  
+- Scald  
+- Calm Mind  
+
+Raikou @ Life Orb  
+Ability: Pressure  
+EVs: 4 Atk / 252 SpA / 252 Spe  
+Hasty Nature  
+- Crunch  
+- Extrasensory  
+- Thunderbolt  
+- Thunder Wave  
+

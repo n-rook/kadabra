@@ -11,7 +11,7 @@ import com.nrook.kadabra.proto.PokemonSpec
 import java.net.URL
 import java.nio.charset.Charset
 
-val MATCH_SPECIES_LINE = Regex("""([\S]+) @ ([\S].*\S)""")
+val MATCH_SPECIES_LINE = Regex("""(.*) @ ([\S].*\S)""")
 val MATCH_ABILITY_LINE = Regex("""Ability: ([\S]+)""")
 val MATCH_RELEVANT_PART_OF_EV_LINE = Regex("""EVs: (.*)""")
 val MATCH_SINGLE_EV_DECLARATION = Regex("""(\d{1,3}) (\w{3})""")
@@ -31,24 +31,28 @@ val MAX_IVS : IvSpread = IvSpread.newBuilder()
 /**
  * Load a team from a Java resource.
  */
+@Deprecated("Use TeamLoader instead.")
 fun loadTeamFromResource(resource : URL) : List<PokemonDefinition> {
   return loadTeamFromLines(Resources.readLines(resource, Charset.forName("UTF-8")));
 }
 
 internal fun loadTeamFromLines(lines : List<String>) : List<PokemonDefinition> {
+  // For some reason, some of the dex exporters append whitespace to the end of lines.
+  val trimmedLines = lines.map { it.trim() }
+
   var index = 0
   val team : MutableList<PokemonDefinition> = mutableListOf()
   while (true) {
-    if (index >= lines.size) {
+    if (index >= trimmedLines.size) {
       return team
     }
 
-    if (lines[index].isBlank()) {
+    if (trimmedLines[index].isEmpty()) {
       index++
       continue
     }
 
-    val result = readSinglePokemon(lines, index)
+    val result = readSinglePokemon(trimmedLines, index)
     index = result.index
     team.add(result.definition)
   }

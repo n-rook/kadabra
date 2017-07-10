@@ -67,6 +67,7 @@ val MAGCARGO: Species = Species(
 
 val EARTHQUAKE: Move = Move(
     MoveId("earthquake"),
+    "Earthquake",
     100,
     PokemonType.GROUND,
     MoveCategory.PHYSICAL,
@@ -75,6 +76,7 @@ val EARTHQUAKE: Move = Move(
 
 val SURF: Move = Move(
     MoveId("surf"),
+    "Surf",
     90,
     PokemonType.WATER,
     MoveCategory.SPECIAL,
@@ -83,6 +85,7 @@ val SURF: Move = Move(
 
 val TACKLE: Move = Move(
     MoveId("tackle"),
+    "Tackle",
     40,
     PokemonType.NORMAL,
     MoveCategory.PHYSICAL,
@@ -91,6 +94,7 @@ val TACKLE: Move = Move(
 
 val FLAMETHROWER: Move = Move(
     MoveId("flamethrower"),
+    "Flamethrower",
     90,
     PokemonType.FIRE,
     MoveCategory.SPECIAL,
@@ -99,6 +103,7 @@ val FLAMETHROWER: Move = Move(
 
 val AERIAL_ACE: Move = Move(
     MoveId("aerialace"),
+    "Aerial Ace",
     60,
     PokemonType.FLYING,
     MoveCategory.PHYSICAL,

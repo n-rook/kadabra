@@ -63,7 +63,8 @@ class IndividualLineParsersKtTest {
   fun parsePokeEvent() {
     val pokeEvent = parseEvent(PokeEvent::class.java, "poke", "p2", "Scizor, F", "item")
     assertThat(pokeEvent.player).isEqualTo(Player.WHITE)
-    assertThat(pokeEvent.details).isEqualTo("Scizor, F")
+    assertThat(pokeEvent.details.species).isEqualTo("Scizor")
+    assertThat(pokeEvent.details.gender).isEqualTo(Gender.FEMALE)
     assertThat(pokeEvent.item).isEqualTo("item")
   }
 

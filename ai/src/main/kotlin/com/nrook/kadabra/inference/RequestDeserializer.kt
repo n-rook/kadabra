@@ -1,5 +1,6 @@
 package com.nrook.kadabra.inference
 
+import com.google.common.collect.ImmutableList
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -43,10 +44,22 @@ private class RequestDeserializer: JsonDeserializer<RequestMessage> {
 private fun deserializeTeamBuilderRequest(root: JsonObject)
     : TeamPreviewRequest {
   val ourSide = root["side"].asJsonObject
+  val ourPokemon = ourSide["pokemon"].asJsonArray
+  val parsedPokemon = ourPokemon
+      .map { it.asJsonObject }
+      .map(::deserializeRequestInfoPokemon)
 
   return TeamPreviewRequest(
       ourSide["name"].asString,
-      ID_TO_PLAYER_CONVERTER.convert(ourSide["id"].asString)!!)
+      ID_TO_PLAYER_CONVERTER.convert(ourSide["id"].asString)!!,
+      ImmutableList.copyOf(parsedPokemon))
+}
+
+private fun deserializeRequestInfoPokemon(info: JsonObject): RequestInfoPokemon {
+  return RequestInfoPokemon(
+      parsePokemonString(info["ident"].asString),
+      parseDetails(info["details"].asString)
+  )
 }
 
 interface RequestMessage
@@ -54,13 +67,23 @@ interface RequestMessage
 /**
  * A request sent during the "Team Preview" phase of the game.
  *
- * The Team Preview message also contains lots of statistical information about our team, but since
- * we should already know all this information, it isn't terribly relevant.
+ * I've been lazy here; we don't actually parse unnecessary info.
  *
  * @param name The name of this player: the name of the player making the request.
  * @param id Which player this is: White or Black.
  */
 data class TeamPreviewRequest(
     val name: String,
-    val id: Player
+    val id: Player,
+    val pokemon: List<RequestInfoPokemon>
 ): RequestMessage
+
+/**
+ * The information available about a Pokemon when the Team Preview request is sent.
+ *
+ * This is information about *our* Pokemon, not theirs.
+ */
+data class RequestInfoPokemon(
+    val pokemon: PokemonIdentifier,
+    val details: PokemonDetails
+)

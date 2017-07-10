@@ -105,7 +105,7 @@ data class EvSpread(val values: Map<Stat, Int>) {
 }
 
 /**
- * Generate an EV spread from incomplete data. Primarily for tests.
+ * Generate an EV spread from incomplete data.
  */
 fun makeEvs(values: Map<Stat, Int>): EvSpread {
   return EvSpread(Stat.values().associate{ it to (values[it]?:0) })

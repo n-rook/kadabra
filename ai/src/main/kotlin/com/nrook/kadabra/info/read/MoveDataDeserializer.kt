@@ -44,6 +44,7 @@ private class MoveDeserializer: JsonDeserializer<Move> {
     val root = json.asJsonObject
     return Move(
         MoveId(root["id"].asString),
+        root["name"].asString,
         root["basePower"].asInt,
         context.deserialize(root["type"], PokemonType::class.java),
         getCategoryFromString(root["category"].asString),

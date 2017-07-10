@@ -3,6 +3,7 @@ package com.nrook.kadabra.info
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Maps
 import java.util.*
+import kotlin.NoSuchElementException
 
 /**
  * The move ID of the unique move, Hidden Power.
@@ -16,6 +17,7 @@ class Pokedex private constructor(
     private val speciesById: ImmutableMap<PokemonId, Species>,
     private val speciesByName: ImmutableMap<String, Species>,
     private val moveById: ImmutableMap<MoveId, Move>,
+    private val moveByName: ImmutableMap<String, Move>,
     private val abilityByUsageCode: ImmutableMap<String, AbilityId>) {
 
   companion object {
@@ -27,11 +29,12 @@ class Pokedex private constructor(
       val speciesById = Maps.uniqueIndex(species, {it!!.id})
       val speciesByName = Maps.uniqueIndex(species, {it!!.name})
       val movesById = Maps.uniqueIndex(moves, {it!!.id})
+      val movesByName = Maps.uniqueIndex(moves, {it!!.name})
       val abilities = species.flatMap { it.ability.asSet() }
           .toSet()
       val abilitiesByUsageCode = Maps.uniqueIndex(abilities, {abilityIdToUsageCode(it!!)})
 
-      return Pokedex(speciesById, speciesByName, movesById, abilitiesByUsageCode)
+      return Pokedex(speciesById, speciesByName, movesById, movesByName, abilitiesByUsageCode)
     }
   }
 
@@ -46,6 +49,30 @@ class Pokedex private constructor(
 
   fun getMoveById(id: MoveId): Move {
     return moveById[id]!!
+  }
+
+  /**
+   * Returns a move given its name.
+   *
+   * @param name A move's name, e.g. "Close Combat".
+   */
+  fun getMoveByName(name: String): Move {
+    return moveByName[name]
+        ?: throw NoSuchElementException("We cannot find a move named \"$name\"")
+  }
+
+  /**
+   * Returns a move given its name.
+   *
+   * Unlike [getMoveByName], this function knows how to handle move names like "Hidden Power [Ice]".
+   */
+  fun getMoveByExtendedName(name: String): Move {
+    if (name.startsWith("Hidden Power")) {
+      return moveById[HIDDEN_POWER]!!
+    }
+
+    return moveByName[name]
+        ?: throw NoSuchElementException("We cannot find a move named \"$name\"")
   }
 
   fun getMoveByUsageCode(usageCode: String): Move {
