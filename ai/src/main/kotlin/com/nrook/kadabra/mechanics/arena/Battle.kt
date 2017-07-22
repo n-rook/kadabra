@@ -319,7 +319,7 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
     return battle
   }
 
-  if (!moveBeingExecuted.move.fullyUnderstood) {
+  if (!moveBeingExecuted.move.fullyRepresented) {
     logger.debug(
         "Simulating move ${moveBeingExecuted.move.id} even though we don't fully understand it")
   }

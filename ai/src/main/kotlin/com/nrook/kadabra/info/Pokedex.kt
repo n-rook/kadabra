@@ -2,8 +2,6 @@ package com.nrook.kadabra.info
 
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.Maps
-import java.util.*
-import kotlin.NoSuchElementException
 
 /**
  * The move ID of the unique move, Hidden Power.

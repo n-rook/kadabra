@@ -42,12 +42,31 @@ private class MoveDeserializer: JsonDeserializer<Move> {
   override fun deserialize(
       json: JsonElement, expectedType: Type, context: JsonDeserializationContext): Move {
     val root = json.asJsonObject
+    var fullyRepresented = false  // TODO: use
+
+    val selfSwitchValue: JsonPrimitive? = if (root.has("selfSwitch"))
+      root["selfSwitch"].asJsonPrimitive
+    else
+      null
+    var selfSwitch: Boolean
+    if (selfSwitchValue == null) {
+      selfSwitch = false
+    } else if (selfSwitchValue.isBoolean) {
+      selfSwitch = selfSwitchValue.asBoolean
+    } else {
+      // Baton Pass sets this to the string "copyvolatile". I don't know what that means.
+      selfSwitch = false
+      fullyRepresented = true
+    }
+
+
     return Move(
         MoveId(root["id"].asString),
         root["name"].asString,
         root["basePower"].asInt,
         context.deserialize(root["type"], PokemonType::class.java),
         getCategoryFromString(root["category"].asString),
+        selfSwitch,
         false)
   }
 }

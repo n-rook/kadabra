@@ -35,6 +35,15 @@ class MoveDataDeserializerKtTest {
     assertThat(tbolt.basePower).isEqualTo(90)
     assertThat(tbolt.type).isEqualTo(PokemonType.ELECTRIC)
     assertThat(tbolt.category).isEqualTo(MoveCategory.SPECIAL)
-    assertThat(tbolt.fullyUnderstood).isFalse()
+    assertThat(tbolt.fullyRepresented).isFalse()
+  }
+
+  @Test
+  fun uTurnEffectRecognized() {
+    val uturnId = MoveId("uturn")
+    assertThat(dataset).containsKey(uturnId)
+    val uturn = dataset[uturnId]!!
+
+    assertThat(uturn.type).isEqualTo(PokemonType.BUG)
   }
 }

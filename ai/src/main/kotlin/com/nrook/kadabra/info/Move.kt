@@ -34,11 +34,25 @@ data class Move(
     val category: MoveCategory,
 
     /**
-     * Whether or not we are actually representing all the mechanics behind
-     * this move.
+     * If true, the moving Pokemon will switch out if their move executes successfully.
+     *
+     * If this is an attack, like U-Turn, it only triggers if the move actually connects.
+     * For instance, if the opponent is immune to the move, this effect will not trigger.
+     *
+     * TODO(nrook): Implement
      */
-    val fullyUnderstood: Boolean
-)
+    val selfSwitch: Boolean,
+
+    /**
+     * Whether or not we read in all the mechanics behind this move.
+     */
+    val fullyRepresented: Boolean
+) {
+  fun fullyUnderstood(): Boolean {
+    return fullyRepresented
+      && !selfSwitch
+  }
+}
 
 /**
  * The ID of a move.

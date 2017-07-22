@@ -6,6 +6,8 @@ import com.nrook.kadabra.mechanics.Nature
 import com.nrook.kadabra.mechanics.PokemonSpec
 import com.nrook.kadabra.mechanics.makeEvs
 
+// TODO: This is dumb, just use the pokedex.
+
 val CHARIZARD: Species = Species(
     PokemonId("charizard"),
     "Charizard",
@@ -71,6 +73,7 @@ val EARTHQUAKE: Move = Move(
     100,
     PokemonType.GROUND,
     MoveCategory.PHYSICAL,
+    false,
     true
 )
 
@@ -80,6 +83,7 @@ val SURF: Move = Move(
     90,
     PokemonType.WATER,
     MoveCategory.SPECIAL,
+    false,
     true
 )
 
@@ -89,6 +93,7 @@ val TACKLE: Move = Move(
     40,
     PokemonType.NORMAL,
     MoveCategory.PHYSICAL,
+    false,
     true
 )
 
@@ -98,6 +103,7 @@ val FLAMETHROWER: Move = Move(
     90,
     PokemonType.FIRE,
     MoveCategory.SPECIAL,
+    false,
     false  // burn
 )
 
@@ -107,6 +113,7 @@ val AERIAL_ACE: Move = Move(
     60,
     PokemonType.FLYING,
     MoveCategory.PHYSICAL,
+    false,
     false  // perfect accuracy
 )
 
