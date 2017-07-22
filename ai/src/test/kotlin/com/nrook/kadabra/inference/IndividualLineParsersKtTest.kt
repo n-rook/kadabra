@@ -2,6 +2,7 @@ package com.nrook.kadabra.inference
 
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.Gender
+import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.arena.Player
 import com.nrook.kadabra.proto.ReceivedMessage
@@ -111,16 +112,16 @@ class IndividualLineParsersKtTest {
         "p1a: Togekiss", "Togekiss, M", "374/374")
     assertThat(event.condition.maxHp).isEqualTo(374)
     assertThat(event.condition.hp).isEqualTo(374)
-    assertThat(event.condition.status).isEqualTo(Status.OK)
+    assertThat(event.condition.status).isEqualTo(Condition.OK)
   }
 
   @Test
-  fun parseSwitchEventWithStatus() {
+  fun parseSwitchEventWithCondition() {
     val event = parseEvent(SwitchEvent::class.java, "switch",
         "p2a: SkarioMario", "Skarmory, L95, M, shiny", "95/100 par")
     assertThat(event.condition.hp).isEqualTo(95)
     assertThat(event.condition.maxHp).isEqualTo(100)
-    assertThat(event.condition.status).isEqualTo(Status.PARALYZED)
+    assertThat(event.condition.status).isEqualTo(Condition.PARALYSIS)
   }
 
   @Test
@@ -198,7 +199,7 @@ class IndividualLineParsersKtTest {
     val event = parseEvent(
         DamageEvent::class.java, "-damage", "p1a: Gengar", "79/100")
     assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Gengar")))
-    assertThat(event.newCondition).isEqualTo(VisibleCondition(79, 100, Status.OK))
+    assertThat(event.newCondition).isEqualTo(VisibleCondition(79, 100, Condition.OK))
     assertThat(event.from).isNull()
   }
 
@@ -212,7 +213,7 @@ class IndividualLineParsersKtTest {
         "[from] item: Rocky Helmet",
         "[of] p1a: Gengar")
     assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.WHITE, Nickname("Scizor")))
-    assertThat(event.newCondition).isEqualTo(VisibleCondition(286, 343, Status.OK))
+    assertThat(event.newCondition).isEqualTo(VisibleCondition(286, 343, Condition.OK))
     assertThat(event.from?.from).isEqualTo("item: Rocky Helmet")
     assertThat(event.from?.source?.name).isEqualTo(Nickname("Gengar"))
   }
@@ -226,7 +227,7 @@ class IndividualLineParsersKtTest {
         "286/343",
         "[from] item: Leftovers")
     assertThat(event.pokemon).isEqualTo(PokemonIdentifier(Player.BLACK, Nickname("Tapu Fini")))
-    assertThat(event.newCondition).isEqualTo(VisibleCondition(286, 343, Status.OK))
+    assertThat(event.newCondition).isEqualTo(VisibleCondition(286, 343, Condition.OK))
     assertThat(event.from?.from).isEqualTo("item: Leftovers")
     assertThat(event.from?.source).isNull()
   }

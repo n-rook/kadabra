@@ -38,7 +38,8 @@ private fun load(lines: Iterable<String>): ImmutableList<LogLine> {
     }
 
     if (splitLine.isEmpty()) {
-      throw IllegalArgumentException("Could not read line $line")
+      // For some reason, there are a bunch of empty lines in the logs.
+      continue
     }
     builder.add(
         LogLine.newBuilder()

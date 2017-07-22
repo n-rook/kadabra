@@ -37,7 +37,7 @@ private class RequestDeserializer: JsonDeserializer<RequestMessage> {
       return deserializeTeamBuilderRequest(root)
     }
 
-    throw NotImplementedError("We have not yet handled non-team builder requests.")
+    return UnknownRequest()
   }
 }
 
@@ -87,3 +87,8 @@ data class RequestInfoPokemon(
     val pokemon: PokemonIdentifier,
     val details: PokemonDetails
 )
+
+/**
+ * A request which we haven't learned to parse yet.
+ */
+class UnknownRequest: RequestMessage

@@ -3,6 +3,7 @@ package com.nrook.kadabra.inference
 import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.MoveId
+import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.arena.Player
 
@@ -212,7 +213,7 @@ data class PokemonIdentifier(
  *
  * These are most prominently displayed in a [SwitchEvent].
  *
- * @param species The Pokemon's species name, like "Venasaur-Mega".
+ * @param species The Pokemon's species name, like "Venusaur-Mega". This should match up with [com.nrook.kadabra.info.Species.name].
  * @param shiny Whether the Pokemon is shiny.
  * @param gender The Pokemon's gender.
  * @param level The Pokemon's level.
@@ -230,7 +231,7 @@ data class PokemonDetails(
 data class VisibleCondition(
     val hp: Int,
     val maxHp: Int,
-    val status: Status
+    val status: Condition
 )
 
 /**
@@ -238,20 +239,7 @@ data class VisibleCondition(
  *
  * In the spec, the max HP of fainted Pokemon is generally unknown, so it is just set to 1 here.
  */
-val CONDITION_FAINTED = VisibleCondition(0, 1, Status.FAINTED)
-
-/**
- * A Pokemon's visible status effect.
- */
-enum class Status {
-  OK,
-  POISON,
-  TOXIC,
-  BURN,
-  FROZEN,
-  PARALYZED,
-  FAINTED
-}
+val CONDITION_FAINTED = VisibleCondition(0, 1, Condition.FAINT)
 
 /**
  * An event representing a choice made by us.

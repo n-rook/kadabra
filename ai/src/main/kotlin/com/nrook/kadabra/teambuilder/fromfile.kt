@@ -12,7 +12,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 val MATCH_SPECIES_LINE = Regex("""(.*) @ ([\S].*\S)""")
-val MATCH_ABILITY_LINE = Regex("""Ability: ([\S]+)""")
+val MATCH_ABILITY_LINE = Regex("""Ability: (.+)""")
 val MATCH_RELEVANT_PART_OF_EV_LINE = Regex("""EVs: (.*)""")
 val MATCH_SINGLE_EV_DECLARATION = Regex("""(\d{1,3}) (\w{3})""")
 val MATCH_NATURE = Regex("""(\w*) Nature""")

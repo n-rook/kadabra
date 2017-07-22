@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.MoveId
+import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.proto.ReceivedMessage
 import kotlin.jvm.internal.CallableReference
@@ -97,7 +98,7 @@ private fun parseTeamPreviewEvent(line: ReceivedMessage): BattleEvent {
 
 @EventParser("choice")
 private fun parseChoiceEvent(line: ReceivedMessage): BattleEvent {
-  // FOr some reason, choice events always have a tailing "".
+  // For some reason, choice events always have a tailing "".
   expectLength(line, 2)
   return ChoiceEvent(line.contentList[0])
 }
@@ -306,10 +307,10 @@ private fun parseConditionString(condition: String): VisibleCondition {
 /**
  * Parses a status string, like "par", into a Status object.
  */
-private fun parseStatusString(status: String): Status {
+private fun parseStatusString(status: String): Condition {
   return when (status) {
-    "" -> Status.OK
-    "par" -> Status.PARALYZED
+    "" -> Condition.OK
+    "par" -> Condition.PARALYSIS
     else -> throw IllegalArgumentException("Unknown status $status")
   }
 }

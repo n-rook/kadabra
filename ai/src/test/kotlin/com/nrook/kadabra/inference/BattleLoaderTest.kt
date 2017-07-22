@@ -2,9 +2,11 @@ package com.nrook.kadabra.inference
 
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.inference.testing.loadEventsFromResource
+import com.nrook.kadabra.inference.testing.snipToTurn
 import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.read.getGen7Pokedex
+import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.arena.Player
 import com.nrook.kadabra.teambuilder.TeamLoader
 import org.junit.Before
@@ -13,11 +15,13 @@ import org.junit.Test
 class BattleLoaderTest {
 
   lateinit var pokedex: Pokedex
+  lateinit var battleLoader: BattleLoader
   lateinit var teamLoader: TeamLoader
 
   @Before
   fun setUp() {
     pokedex = getGen7Pokedex()
+    battleLoader = BattleLoader(pokedex)
     teamLoader = TeamLoader(pokedex)
   }
 
@@ -27,7 +31,7 @@ class BattleLoaderTest {
     val teamDefinitions = teamLoader.loadTeamFromResource("teambuilder1_p2_team.txt")
     val teamSpecs = teamDefinitions.map { it.toSpec() }
 
-    val teamBuilderInfo = BattleLoader(pokedex).parseTeamPreviewBattle(teamSpecs, teamBuilderEvents)
+    val teamBuilderInfo = battleLoader.parseTeamPreviewBattle(teamSpecs, teamBuilderEvents)
 
     assertThat(teamBuilderInfo.us).isEqualTo(Player.WHITE)
 
@@ -44,5 +48,43 @@ class BattleLoaderTest {
     val firstMemberOfTheirTeam = teamBuilderInfo.theirBench[0]
     assertThat(firstMemberOfTheirTeam.species.name).isEqualTo("Alakazam")
     assertThat(firstMemberOfTheirTeam.gender).isEqualTo(Gender.FEMALE)
+  }
+
+  @Test
+  fun damageUpdatesWorkOnOurSide() {
+    val events = loadEventsFromResource("battle1.log")
+    val teamDefinitions = teamLoader.loadTeamFromResource("battle1_p2_team.txt")
+    val teamSpecs = teamDefinitions.map { it.toSpec() }
+
+    val info = battleLoader.parseBattle(teamSpecs, events)
+
+    assertThat(info.us).isEqualTo(Player.WHITE)
+    assertThat(info.ourSide.active).isNotNull()
+
+    val ourActivePokemon = info.ourSide.active!!
+    assertThat(ourActivePokemon.species.name).isEqualTo("Nihilego")
+    assertThat(ourActivePokemon.hp).isEqualTo(222)
+    assertThat(ourActivePokemon.condition).isEqualTo(Condition.PARALYSIS)
+
+    assertThat(info.ourSide.bench).hasSize(4)
+  }
+
+  @Test
+  fun damageUpdatesWorkOnTheirSide() {
+    val events = snipToTurn(loadEventsFromResource("battle1.log"), 6)
+    val teamDefinitions = teamLoader.loadTeamFromResource("battle1_p2_team.txt")
+    val teamSpecs = teamDefinitions.map { it.toSpec() }
+
+    val info = battleLoader.parseBattle(teamSpecs, events)
+
+    assertThat(info.us).isEqualTo(Player.WHITE)
+    assertThat(info.theirSide.active).isNotNull()
+
+    val theirActivePokemon = info.theirSide.active!!
+    assertThat(theirActivePokemon.species.name).isEqualTo("Raikou")
+    assertThat(theirActivePokemon.hp).isEqualTo(HpFraction(20, 100))
+    assertThat(theirActivePokemon.condition).isEqualTo(Condition.OK)
+
+    assertThat(info.theirSide.bench).hasSize(4)
   }
 }

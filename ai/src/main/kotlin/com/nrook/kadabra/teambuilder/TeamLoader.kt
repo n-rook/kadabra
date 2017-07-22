@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.io.Resources
 import com.nrook.kadabra.info.AbilityId
+import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.Move
 import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.Stat
@@ -15,6 +16,8 @@ import com.nrook.kadabra.mechanics.Nature
 import com.nrook.kadabra.mechanics.makeEvs
 
 private val MATCH_SPECIES_AND_NICKNAME_LINE = Regex("""(.*) \((.*)\)""")
+private val MATCH_LEVEL_LINE = Regex("""Level: ([\d]+)""")
+private val MATCH_SHINY_LINE = Regex("""Shiny: Yes""")
 
 /**
  * Loads a team from a file.
@@ -70,6 +73,23 @@ class TeamLoader(private val pokedex: Pokedex) {
     val ability = AbilityId(abilityResult.groupValues[1])
 
     index++
+    val levelResult = MATCH_LEVEL_LINE.find(lines[index])
+    var level: Int?
+    if (levelResult == null) {
+      level = null
+      index--  // no level supplied
+    } else {
+      level = levelResult.groupValues[1].toInt()
+    }
+
+    index++
+    val shinyResult = MATCH_SHINY_LINE.find(lines[index])
+    val shiny = shinyResult != null
+    if (shinyResult == null) {
+      index--  // no shininess supplied
+    }
+
+    index++
     val evs = readEvLine(lines[index])
 
     index++
@@ -107,11 +127,25 @@ class TeamLoader(private val pokedex: Pokedex) {
    * Reads the part of a Pokemon's definition that comes before the @.
    */
   private fun readSpeciesAndNickname(speciesAndNickname: String): SpeciesAndNickname {
-    if (speciesAndNickname.contains("(")) {
-      val matchResult = MATCH_SPECIES_AND_NICKNAME_LINE.matchEntire(speciesAndNickname)!!
+    var speciesAndNicknameWithoutGender: String
+    var gender: Gender?
+    if (speciesAndNickname.endsWith(" (M)")) {
+      gender = Gender.MALE
+      speciesAndNicknameWithoutGender = speciesAndNickname.removeSuffix(" (M)")
+    } else if (speciesAndNickname.endsWith(" (F)")) {
+      gender = Gender.FEMALE
+      speciesAndNicknameWithoutGender = speciesAndNickname.removeSuffix(" (F)")
+    } else {
+      gender = null  // random; that is, unspecified
+      speciesAndNicknameWithoutGender = speciesAndNickname
+    }
+
+    if (speciesAndNicknameWithoutGender.contains("(")) {
+      val matchResult = MATCH_SPECIES_AND_NICKNAME_LINE.matchEntire(
+          speciesAndNicknameWithoutGender)!!
       return SpeciesAndNickname(matchResult.groupValues[2], matchResult.groupValues[1])
     } else {
-      return SpeciesAndNickname(speciesAndNickname, null)
+      return SpeciesAndNickname(speciesAndNicknameWithoutGender, null)
     }
   }
 
