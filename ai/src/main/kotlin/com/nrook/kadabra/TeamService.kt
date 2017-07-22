@@ -18,7 +18,7 @@ class TeamService(val selectors : Map<String, TeamPickingStrategy>): TeamService
           "Unknown metagame ${request.metagame}. We only know about: ${selectors.keys.joinToString()}")
     }
     val team = TeamSpec.newBuilder()
-        .addAllPokemon(selector.pick().map { p -> p.toSpec() })
+        .addAllPokemon(selector.pick().map { it.toSpecProto() })
         .build()
     responseObserver.onNext(team)
     responseObserver.onCompleted()

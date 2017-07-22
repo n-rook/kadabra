@@ -23,41 +23,6 @@ data class PokemonSpec(
     val moves: List<Move>
 ) {
 
-  companion object {
-
-    /**
-     * Creates a PokemonSpec from a PokemonDefinition.
-     *
-     * TODO: This is ugly. Maybe this should be in some sort of central dataset class?
-     */
-    fun createFromPokemonDefinition(
-        definition: PokemonDefinition,
-        pokedex: Pokedex): PokemonSpec {
-      val species = pokedex.getSpeciesByName(definition.species)
-
-      // The problem here is that usage data is incompatible with pokedex data.
-      // In the pokedex, Dugtrio has Arena Trap. In usage data, it has arenatrap.
-      // Similarly, in usage data, Pokemon are listed by name, not by id.
-      // This is too much work for a static factory method. It should be done somewhere else.
-
-//      val species = pokedex[PokemonId(definition.species)]!!
-      val gender = species.gender.possibilities.first()
-      val nature: Nature = Nature.valueOf(definition.nature.name)
-      val moves: List<Move> = ImmutableList.copyOf(
-          definition.moves.map({pokedex.getMoveByUsageCode(it)}))
-
-      return PokemonSpec(
-          pokedex.getSpeciesByName(definition.species),
-          pokedex.getAbilityByUsageCode(definition.ability),
-          gender,
-          nature,
-          makeEvs(definition.evs),
-          IvSpread(definition.ivs),
-          Level(100),
-          moves)
-    }
-  }
-
   init {
     if (!species.ability.asSet().contains(ability)) {
       throw IllegalArgumentException(
@@ -102,6 +67,10 @@ data class EvSpread(val values: Map<Stat, Int>) {
       throw IllegalArgumentException("EVs $values too high; they sum to ${values.values.sum()}")
     }
   }
+
+  operator fun get(stat: Stat): Int {
+    return values[stat]!!
+  }
 }
 
 /**
@@ -124,6 +93,10 @@ data class IvSpread(val values: Map<Stat, Int>) {
     if (values.values.any { it < 0 || it > 31 }) {
       throw IllegalArgumentException("Illegal IV value in $values")
     }
+  }
+
+  operator fun get(stat: Stat): Int {
+    return values[stat]!!
   }
 }
 

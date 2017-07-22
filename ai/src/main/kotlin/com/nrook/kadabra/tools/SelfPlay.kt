@@ -1,12 +1,9 @@
 package com.nrook.kadabra.tools
 
-import com.nrook.kadabra.ai.framework.runToCompletion
 import com.nrook.kadabra.ai.framework.runToTurnLimit
 import com.nrook.kadabra.ai.perfect.Ai
 import com.nrook.kadabra.ai.perfect.MixedStrategyAiWrapper
 import com.nrook.kadabra.ai.perfect.MonteCarloAi
-import com.nrook.kadabra.ai.perfect.RandomAi
-import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.read.getGen7Pokedex
 import com.nrook.kadabra.mechanics.PokemonSpec
 import com.nrook.kadabra.mechanics.arena.*
@@ -27,8 +24,8 @@ fun selfPlay(blackAi: Ai, whiteAi: Ai, context: BattleContext): Player? {
   val dataset = getOuUsageDataset()
   val pokedex = getGen7Pokedex()
 
-  val teamPicker = UsageDatasetTeamPicker.create(Random(), dataset, 0.005)
-  val teams = (0..1).map { pickTeam(teamPicker, pokedex) }
+  val teamPicker = UsageDatasetTeamPicker.create(pokedex, Random(), dataset, 0.005)
+  val teams = (0..1).map { pickTeam(teamPicker) }
 
   val blackLeadIndex = blackAi.chooseLead(teams[0], teams[1], Player.BLACK)
   val whiteLeadIndex = whiteAi.chooseLead(teams[0], teams[1], Player.WHITE)
@@ -70,11 +67,10 @@ fun versus(ai1: Ai, ai2: Ai, context: BattleContext, reps: Int): Double {
   return wins.toDouble() / reps
 }
 
-private fun pickTeam(
-    picker: TeamPickingStrategy, pokedex: Pokedex):
+private fun pickTeam(picker: TeamPickingStrategy):
     List<PokemonSpec> {
-  val definitions = picker.pick()
-  return definitions.map { PokemonSpec.createFromPokemonDefinition(it, pokedex) }
+  val team = picker.pick()
+  return team.map { it.toSpec() }
 }
 
 // Results notes:

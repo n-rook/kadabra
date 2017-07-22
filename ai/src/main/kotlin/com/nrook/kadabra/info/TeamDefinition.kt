@@ -40,6 +40,36 @@ data class TeamPokemon(
         species, ability, genderInSpec, nature, evSpread, ivSpread, level, moves)
   }
 
+  fun toSpecProto(): com.nrook.kadabra.proto.PokemonSpec {
+    val evs: com.nrook.kadabra.proto.EvSpread = com.nrook.kadabra.proto.EvSpread.newBuilder()
+        .setHp(this.evSpread[Stat.HP])
+        .setAttack(this.evSpread[Stat.ATTACK])
+        .setDefense(this.evSpread[Stat.DEFENSE])
+        .setSpecialAttack(this.evSpread[Stat.SPECIAL_ATTACK])
+        .setSpecialDefense(this.evSpread[Stat.SPECIAL_DEFENSE])
+        .setSpeed(this.evSpread[Stat.SPEED])
+        .build()
+
+    val ivs: com.nrook.kadabra.proto.IvSpread = com.nrook.kadabra.proto.IvSpread.newBuilder()
+        .setHp(this.ivSpread[Stat.HP])
+        .setAttack(this.ivSpread[Stat.ATTACK])
+        .setDefense(this.ivSpread[Stat.DEFENSE])
+        .setSpecialAttack(this.ivSpread[Stat.SPECIAL_ATTACK])
+        .setSpecialDefense(this.ivSpread[Stat.SPECIAL_DEFENSE])
+        .setSpeed(this.ivSpread[Stat.SPEED])
+        .build()
+
+    return com.nrook.kadabra.proto.PokemonSpec.newBuilder()
+        .setSpecies(this.species.name)
+        .setItem(this.item)
+        .setAbility(this.ability.str)
+        .setEvs(evs)
+        .setIvs(ivs)
+        .setNature(com.nrook.kadabra.proto.Nature.valueOf(this.nature.name))
+        .addAllMove(this.moves.map { it.name })
+        .build()
+  }
+
   private fun selectGender(actualGender: Gender?): Gender {
     if (gender == null) {
       if (actualGender == null) {

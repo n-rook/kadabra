@@ -1,9 +1,11 @@
 package com.nrook.kadabra.teambuilder
 
 import com.nrook.kadabra.common.RandomBasket
-import com.nrook.kadabra.info.PokemonDefinition
-import com.nrook.kadabra.info.PokemonId
-import com.nrook.kadabra.proto.PokemonSpec
+import com.nrook.kadabra.info.AbilityId
+import com.nrook.kadabra.info.Pokedex
+import com.nrook.kadabra.info.TeamPokemon
+import com.nrook.kadabra.mechanics.Level
+import com.nrook.kadabra.mechanics.Nature
 import com.nrook.kadabra.usage.PokemonUsageData
 import com.nrook.kadabra.usage.StatSpread
 import com.nrook.kadabra.usage.UsageDataset
@@ -16,6 +18,7 @@ import java.util.*
  * @param usageDataset The usage dataset to use as a base.
  */
 class UsageDatasetTeamPicker private constructor(
+    private val pokedex: Pokedex,
     private val random: Random,
     private val usageDataset: UsageDataset,
     private val speciesPicker: RandomBasket<PokemonUsageData>) : TeamPickingStrategy {
@@ -28,10 +31,12 @@ class UsageDatasetTeamPicker private constructor(
      *  the chance a Pokemon will be on a given team, so don't make this too strict by accident.
      */
     fun create(
+        pokedex: Pokedex,
         random: Random,
         usageDataset: UsageDataset,
         chanceFloor: Double): UsageDatasetTeamPicker {
       return UsageDatasetTeamPicker(
+          pokedex,
           random,
           usageDataset,
           RandomBasket.create(random, usageDataset.data.values, { it.usage }, chanceFloor)
@@ -39,8 +44,8 @@ class UsageDatasetTeamPicker private constructor(
     }
   }
 
-  override fun pick(): List<PokemonDefinition> {
-    val team: MutableList<PokemonDefinition> = mutableListOf()
+  override fun pick(): List<TeamPokemon> {
+    val team: MutableList<TeamPokemon> = mutableListOf()
     for (i in 0..5) {
       val choiceData = pickNotAlreadyPicked(speciesPicker, team)
       team.add(rectifySpecies(choiceData))
@@ -49,9 +54,7 @@ class UsageDatasetTeamPicker private constructor(
     return team
   }
 
-  private fun rectifySpecies(usageData: PokemonUsageData): PokemonDefinition {
-    // TODO: Make this better
-
+  private fun rectifySpecies(usageData: PokemonUsageData): TeamPokemon {
     val ability: String = usageData.abilities.maxBy { it.usage }!!.ability
     val item: String = usageData.items.values.maxBy { it.usage }!!.item
     val statSpread: StatSpread = usageData.spreads.maxBy { it.usage }!!.spread
@@ -59,22 +62,23 @@ class UsageDatasetTeamPicker private constructor(
         .slice(0..3)
         .map { it.move }
 
-    return PokemonDefinition(
-        PokemonSpec.newBuilder()
-            .setSpecies(usageData.species)
-            .setAbility(ability)
-            .setEvs(statSpread.asEvSpreadProto())
-            .setIvs(MAX_IVS)
-            .setItem(item)
-            .setNature(statSpread.nature)
-            .addAllMove(moves)
-            .build())
+    return TeamPokemon(
+        pokedex.getSpeciesByName(usageData.species),
+        item,
+        AbilityId(ability),
+        null,
+        Nature.valueOf(statSpread.nature.name),
+        statSpread.asEvSpread(),
+        com.nrook.kadabra.mechanics.MAX_IVS,
+        Level(100),
+        moves.map { pokedex.getMoveByUsageCode(it) }
+    )
   }
 }
 
-private fun pickNotAlreadyPicked(randomBasket: RandomBasket<PokemonUsageData>, team: List<PokemonDefinition>):
+private fun pickNotAlreadyPicked(randomBasket: RandomBasket<PokemonUsageData>, team: List<TeamPokemon>):
     PokemonUsageData {
-  val species = team.map { it.species }.toSet()
+  val species = team.map { it.species.id.str }.toSet()
   for (i in 0..99) {
     val choice = randomBasket.pick()
     if (!species.contains(choice.species)) {

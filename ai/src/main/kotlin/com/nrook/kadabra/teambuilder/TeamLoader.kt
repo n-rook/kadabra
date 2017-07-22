@@ -15,6 +15,13 @@ import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.Nature
 import com.nrook.kadabra.mechanics.makeEvs
 
+private val MATCH_SPECIES_LINE = Regex("""(.*) @ ([\S].*\S)""")
+private val MATCH_ABILITY_LINE = Regex("""Ability: (.+)""")
+private val MATCH_RELEVANT_PART_OF_EV_LINE = Regex("""EVs: (.*)""")
+private val MATCH_SINGLE_EV_DECLARATION = Regex("""(\d{1,3}) (\w{3})""")
+private val MATCH_NATURE = Regex("""(\w*) Nature""")
+private val MATCH_RELEVANT_PART_OF_IV_LINE = Regex("""IVs: (.*)""")
+private val MATCH_MOVE = Regex("""- (.*)""")
 private val MATCH_SPECIES_AND_NICKNAME_LINE = Regex("""(.*) \((.*)\)""")
 private val MATCH_LEVEL_LINE = Regex("""Level: ([\d]+)""")
 private val MATCH_SHINY_LINE = Regex("""Shiny: Yes""")
@@ -119,7 +126,7 @@ class TeamLoader(private val pokedex: Pokedex) {
 
     // TODO: Actually read in gender. I'll never actually do this but w/e
     val teamPokemon = TeamPokemon(
-        species, item, ability, null, nature, evs, ivs, Level(100), moves.build())
+        species, item, ability, null, nature, evs, ivs, Level(level ?: 100), moves.build())
     return ReadSingleResult(teamPokemon, index)
   }
 

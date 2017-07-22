@@ -3,6 +3,7 @@ package com.nrook.kadabra.teambuilder
 import com.google.common.io.Resources
 import com.google.common.truth.Truth
 import com.google.gson.GsonBuilder
+import com.nrook.kadabra.info.read.getGen7Pokedex
 import com.nrook.kadabra.usage.UsageDataset
 import com.nrook.kadabra.usage.registerDeserializers
 import org.junit.BeforeClass
@@ -28,7 +29,7 @@ class UsageDatasetTeamPickerTest {
 
   @Test
   fun works() {
-    val picker = UsageDatasetTeamPicker.create(Random(), usageDataset, 0.01)
+    val picker = UsageDatasetTeamPicker.create(getGen7Pokedex(), Random(), usageDataset, 0.01)
     val team = picker.pick()
     Truth.assertThat(team).hasSize(6)
   }

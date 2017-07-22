@@ -174,6 +174,13 @@ data class StatSpread(
         .setSpeed(evs[Stat.SPEED]!!)
         .build()
   }
+
+  /**
+   * We should either deprecate this class or the other EvSpread.
+   */
+  fun asEvSpread(): com.nrook.kadabra.mechanics.EvSpread {
+    return com.nrook.kadabra.mechanics.EvSpread(evs)
+  }
 }
 
 /**
