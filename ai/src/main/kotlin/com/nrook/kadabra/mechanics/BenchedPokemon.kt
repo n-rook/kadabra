@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics
 
+import com.google.common.collect.ImmutableSet
 import com.nrook.kadabra.info.Species
 import com.nrook.kadabra.info.Stat
 
@@ -23,7 +24,7 @@ data class BenchedPokemon(
    * Converts the data only; this call does not active enter-the-battle effects.
    */
   fun toActive(): ActivePokemon {
-    return ActivePokemon(species, originalSpec, hp, condition)
+    return ActivePokemon(species, originalSpec, hp, condition, ImmutableSet.of())
   }
 }
 

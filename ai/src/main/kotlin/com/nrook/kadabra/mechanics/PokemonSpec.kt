@@ -1,8 +1,11 @@
 package com.nrook.kadabra.mechanics
 
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
-import com.nrook.kadabra.info.*
+import com.nrook.kadabra.info.AbilityId
+import com.nrook.kadabra.info.Gender
+import com.nrook.kadabra.info.Move
+import com.nrook.kadabra.info.Species
+import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.formulas.computeStat
 
 /**

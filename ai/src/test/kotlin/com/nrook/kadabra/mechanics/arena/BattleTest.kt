@@ -2,6 +2,7 @@ package com.nrook.kadabra.mechanics.arena
 
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableTable
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.*
 import com.nrook.kadabra.info.read.getGen7Pokedex
@@ -55,7 +56,7 @@ class BattleTest {
 
     val rng = RandomNumberGenerator(RandomPolicy(MoveDamagePolicy.ONE), Random())
     context = BattleContext(rng, debugLogger())
-    charizardVsBlastoise = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+    charizardVsBlastoise = Battle(1, blackSide, whiteSide, ImmutableTable.of(), Phase.BEGIN, null)
 
     flamethrower = pokedex.getMoveById(MoveId("flamethrower"))
     earthquake = pokedex.getMoveById(MoveId("earthquake"))
@@ -78,8 +79,7 @@ class BattleTest {
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
-    assertThat(turn2.blackChoice).isNull()
-    assertThat(turn2.whiteChoice).isNull()
+    assertThat(turn2.choices).isEmpty()
 
     // EQ deals between 90 and 106 damage to Blastoise, who has 300 HP
     assertThat(turn2.whiteSide.active.hp).isEqualTo(300 - 97)
@@ -103,8 +103,6 @@ class BattleTest {
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
-    assertThat(turn2.blackChoice).isNull()
-    assertThat(turn2.whiteChoice).isNull()
 
     // FT deals between 45 and 54 damage to Blastoise, since it's not very effective
     val damage = 300 - turn2.whiteSide.active.hp
@@ -118,8 +116,6 @@ class BattleTest {
 
     assertThat(turn2.turn).isEqualTo(2)
     assertThat(turn2.phase).isEqualTo(Phase.BEGIN)
-    assertThat(turn2.blackChoice).isNull()
-    assertThat(turn2.whiteChoice).isNull()
 
     // EQ shouldn't have done anything to Charizard.
     assertThat(turn2.blackSide.active.hp).isEqualTo(298)
@@ -156,7 +152,7 @@ class BattleTest {
     val blackSide = Side(newActivePokemonFromSpec(magcargoSpec),
         ImmutableMap.of(charizardSpec.species.id, newBenchedPokemonFromSpec(charizardSpec)))
     val whiteSide = Side(newActivePokemonFromSpec(blastoiseSpec), ImmutableMap.of())
-    val beginning = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+    val beginning = Battle(1, blackSide, whiteSide, ImmutableTable.of(), Phase.BEGIN, null)
 
     // Wipe Magcargo out in one move with a 4x effective Surf.
     val faintedMagcargoBattle =

@@ -1,6 +1,7 @@
 package com.nrook.kadabra.ai.framework
 
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableTable
 import com.google.common.truth.Truth
 import com.nrook.kadabra.ai.perfect.RandomAi
 import com.nrook.kadabra.info.AbilityId
@@ -47,7 +48,7 @@ class RunToCompletionKtTest {
     val rng = RandomNumberGenerator(RandomPolicy(MoveDamagePolicy.ONE), Random())
 
     val context = BattleContext(rng, debugLogger())
-    val battle = Battle(1, blackSide, whiteSide, null, null, Phase.BEGIN, null)
+    val battle = Battle(1, blackSide, whiteSide, ImmutableTable.of(), Phase.BEGIN, null)
 
     val winner = runToCompletion(battle, RandomAi(random), RandomAi(random), context)
 

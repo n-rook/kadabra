@@ -39,6 +39,9 @@ data class Move(
      * If this is an attack, like U-Turn, it only triggers if the move actually connects.
      * For instance, if the opponent is immune to the move, this effect will not trigger.
      *
+     * Effects which take place upon a Pokemon fainting happen before the switch. For instance, if
+     * a U-Turn causes a Pokemon with Aftermath to faint, the U-Turn Pokemon will take the hit.
+     *
      * TODO(nrook): Implement
      */
     val selfSwitch: Boolean,

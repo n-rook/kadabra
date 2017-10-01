@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.info.Move
 import com.nrook.kadabra.info.PokemonId
 
@@ -28,6 +29,16 @@ data class MoveChoice(val move: Move): Choice {
  *  Mega Garchomp, this is generally going to be "garchomp".
  */
 data class SwitchChoice(val target: PokemonId): Choice {
+  companion object {
+
+    /**
+     * Returns SwitchChoices for each Pokemon on this side's bench.
+     */
+    fun forSide(s: Side): ImmutableList<SwitchChoice> {
+      return ImmutableList.copyOf(s.bench.keys.map { SwitchChoice(it) })
+    }
+  }
+
   override fun toString(): String {
     return "[-> ${target.str}]"
   }

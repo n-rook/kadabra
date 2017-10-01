@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics
 
+import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.*
 import com.nrook.kadabra.info.testdata.EARTHQUAKE
@@ -50,7 +51,7 @@ class ActivePokemonTest {
         Nature.TIMID,
         evs, ivs, Level(100), listOf(EARTHQUAKE))
 
-    val activeCharizard: ActivePokemon = ActivePokemon(CHARIZARD, thisCharizard, 1, Condition.OK)
+    val activeCharizard: ActivePokemon = ActivePokemon(CHARIZARD, thisCharizard, 1, Condition.OK, ImmutableSet.of())
 
     // Expected values computed with Pokemon Showdown on 2017-02-20
     assertThat(activeCharizard.getStat(Stat.HP)).isEqualTo(307)

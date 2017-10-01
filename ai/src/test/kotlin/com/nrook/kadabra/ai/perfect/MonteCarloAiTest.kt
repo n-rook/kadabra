@@ -1,6 +1,7 @@
 package com.nrook.kadabra.ai.perfect
 
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableTable
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.*
 import com.nrook.kadabra.info.read.getGen7Pokedex
@@ -62,8 +63,7 @@ class MonteCarloAiTest {
         2,
         Side(almostDeadCharizard, ImmutableMap.of()),
         Side(almostDeadBlastoise, ImmutableMap.of()),
-        null,
-        null,
+        ImmutableTable.of(),
         Phase.BEGIN,
         null)
   }
@@ -78,8 +78,7 @@ class MonteCarloAiTest {
         2,
         Side(almostDeadCharizard, ImmutableMap.of()),
         Side(almostDeadBlastoise, ImmutableMap.of()),
-        null,
-        null,
+        ImmutableTable.of(),
         Phase.BEGIN,
         null)
 

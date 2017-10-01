@@ -1,8 +1,11 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableTable
 import com.google.common.collect.Maps
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.mechanics.Condition
+import com.nrook.kadabra.mechanics.EffectFlag
 import com.nrook.kadabra.mechanics.PokemonSpec
 import com.nrook.kadabra.mechanics.formulas.Modifier
 import com.nrook.kadabra.mechanics.formulas.computeDamage
@@ -21,13 +24,15 @@ val logger = KLogging().logger()
  * Class rules:
  * Trivial mutations and features are kept in the class.
  * More complex operations are kept outside the class.
+ *
+ * @property choices A table from a player and a phase to the choice they made in that phase.
+ *    Most cells are empty.
  */
 data class Battle(
     val turn: Int,
     val blackSide: Side,
     val whiteSide: Side,
-    val blackChoice: Choice?,
-    val whiteChoice: Choice?,
+    val choices: ImmutableTable<Player, Phase, Choice>,
 
     val phase: Phase,
     val faster: Player?
@@ -40,11 +45,8 @@ data class Battle(
     }
   }
 
-  fun choiceOf(player: Player): Choice? {
-    return when (player) {
-      Player.BLACK -> blackChoice
-      Player.WHITE -> whiteChoice
-    }
+  fun move(player: Player): Choice? {
+    return choices[player, Phase.BEGIN]
   }
 
   /**
@@ -54,21 +56,19 @@ data class Battle(
    * for both players.
    */
   fun choices(player: Player): List<Choice> {
+    if (!this.phase.choice) {
+      return listOf()
+    }
+
     when (this.phase) {
       Phase.BEGIN -> {
         return beginningOfTurnCommands(player)
       }
-      Phase.COMPUTE_TURN_ORDER -> {
-        return listOf()
+      Phase.FIRST_MOVE_SWITCH -> {
+        return moveSwitchChoices(this, player)
       }
-      Phase.FIRST_ACTION -> {
-        return listOf()
-      }
-      Phase.SECOND_ACTION -> {
-        return listOf()
-      }
-      Phase.PRIORITY_BEFORE_END -> {
-        return listOf()
+      Phase.SECOND_MOVE_SWITCH -> {
+        return moveSwitchChoices(this, player)
       }
       Phase.END -> {
         val choosingSide = side(player)
@@ -78,11 +78,8 @@ data class Battle(
           return emptyList()
         }
       }
-      Phase.FIRST_SWITCH_AFTER_FAINT -> {
-        return listOf()
-      }
-      Phase.SECOND_SWITCH_AFTER_FAINT -> {
-        return listOf()
+      else -> {
+        throw RuntimeException("This should never happen")
       }
     }
   }
@@ -90,7 +87,7 @@ data class Battle(
   private fun beginningOfTurnCommands(player: Player): List<Choice> {
     val side = side(player)
     val moves = side.active.moves.map(::MoveChoice)
-    val switches = side.bench.keys.map { SwitchChoice(it) }
+    val switches = SwitchChoice.forSide(side)
     return moves + switches
   }
 
@@ -114,29 +111,50 @@ data class Battle(
   }
 
   internal fun incrementTurn(): Battle {
-    return Battle(turn + 1, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    return Battle(turn + 1, blackSide, whiteSide, choices, phase, faster)
   }
 
   internal fun withSide(player: Player, side: Side): Battle {
     return if (player == Player.BLACK)
-      Battle(turn, side, whiteSide, blackChoice, whiteChoice, phase, faster)
-    else Battle(turn, blackSide, side, blackChoice, whiteChoice, phase, faster)
+      Battle(turn, side, whiteSide, choices, phase, faster)
+    else
+      Battle(turn, blackSide, side, choices, phase, faster)
   }
 
   internal fun withPhase(phase: Phase): Battle {
-    return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    return Battle(turn, blackSide, whiteSide, choices, phase, faster)
+  }
+
+  internal fun incrementPhase(): Battle {
+    return withPhase(this.phase.next())
   }
 
   internal fun withChoices(blackChoice: Choice?, whiteChoice: Choice?): Battle {
-    return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, faster)
+    val newChoices: ImmutableTable.Builder<Player, Phase, Choice> = ImmutableTable.builder()
+    newChoices.putAll(choices)
+
+    fun addChoice(player: Player, choice: Choice?) {
+      if (choice != null) {
+        if (choices.contains(player, phase)) {
+          throw IllegalStateException(
+              "$player already made a choice, ${choices[player, phase]}. " +
+                  "They can't make a second choice, $choice.")
+        }
+        newChoices.put(player, phase, choice)
+      }
+    }
+    addChoice(Player.BLACK, blackChoice)
+    addChoice(Player.WHITE, whiteChoice)
+
+    return Battle(turn, blackSide, whiteSide, newChoices.build(), phase, faster)
   }
 
   internal fun clearChoices(): Battle {
-    return Battle(turn, blackSide, whiteSide, null, null, phase, faster)
+    return Battle(turn, blackSide, whiteSide, ImmutableTable.of(), phase, faster)
   }
 
   internal fun withFaster(fasterPlayer: Player): Battle {
-    return Battle(turn, blackSide, whiteSide, blackChoice, whiteChoice, phase, fasterPlayer)
+    return Battle(turn, blackSide, whiteSide, choices, phase, fasterPlayer)
   }
 
   /**
@@ -168,8 +186,7 @@ fun startBattle(blackTeam: List<PokemonSpec>, blackLead: Int,
       1,
       teamSpecToSide(blackTeam, blackLead),
       teamSpecToSide(whiteTeam, whiteLead),
-      null,
-      null,
+      ImmutableTable.of(),
       Phase.BEGIN,
       null)
   context.logger.startOfTurnOverview(battle)
@@ -213,13 +230,32 @@ fun simulateBattle(battle: Battle, context: BattleContext, blackChoice: Choice?,
 internal fun validateChoice(battle: Battle, choice: Choice?, player: Player) {
   val validChoices = battle.choices(player)
   if (choice == null && validChoices.isNotEmpty()) {
-    throw IllegalArgumentException("$player cannot make no choice right now; the following " +
-        "choices are possible: $validChoices")
+    throw IllegalArgumentException("$player cannot make no choice during ${battle.phase}; the " +
+        "following choices are possible: $validChoices")
   }
   if (choice != null && !validChoices.contains(choice)) {
     throw IllegalArgumentException("$player cannot make choice $choice right now; the only " +
         "choices possible are $validChoices")
   }
+}
+
+internal fun moveSwitchChoices(battle: Battle, player: Player): ImmutableList<Choice> {
+  val side = battle.side(player)
+  if (!side.active.effects.contains(EffectFlag.SELF_SWITCH)) {
+    return ImmutableList.of()
+  }
+
+  val ourTurn = when (battle.phase) {
+    Phase.FIRST_MOVE_SWITCH -> battle.faster == player
+    Phase.SECOND_MOVE_SWITCH -> battle.faster != player
+    else -> throw IllegalArgumentException("Bad phase ${battle.phase}")
+  }
+
+  if (ourTurn && !side.bench.isEmpty()) {
+    // If you're the only Pokemon left, switch effects don't trigger.
+    return SwitchChoice.forSide(side) as ImmutableList<Choice>
+  }
+  return ImmutableList.of()
 }
 
 /**
@@ -228,43 +264,53 @@ internal fun validateChoice(battle: Battle, choice: Choice?, player: Player) {
 internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
   when (battle.phase) {
     Phase.BEGIN -> {
-      return battle.withPhase(Phase.COMPUTE_TURN_ORDER)
+      return battle.incrementPhase()
     }
     Phase.COMPUTE_TURN_ORDER -> {
-      return recalculatePriority(battle, context).withPhase(Phase.FIRST_ACTION)
+      return recalculatePriority(battle, context).incrementPhase()
     }
     Phase.FIRST_ACTION -> {
-      return takeAction(battle, context, battle.faster!!).withPhase(Phase.SECOND_ACTION)
+      return takeAction(battle, context, battle.faster!!).incrementPhase()
+    }
+    Phase.FIRST_MOVE_SWITCH -> {
+      return makeAfterMoveSwitch(battle, context, battle.faster!!)
+          .incrementPhase()
     }
     Phase.SECOND_ACTION -> {
       return takeAction(battle, context, battle.faster!!.other())
-          .withPhase(Phase.PRIORITY_BEFORE_END)
+          .incrementPhase()
+    }
+    Phase.SECOND_MOVE_SWITCH -> {
+      return makeAfterMoveSwitch(battle, context, battle.faster!!.other())
+          .incrementPhase()
     }
     Phase.PRIORITY_BEFORE_END -> {
-      return recalculatePriorityForEndOfTurnSwitch(battle, context).withPhase(Phase.END)
-          .clearChoices()
+      return recalculatePriorityForEndOfTurnSwitch(battle, context).incrementPhase()
     }
     Phase.END -> {
-      return battle.withPhase(Phase.FIRST_SWITCH_AFTER_FAINT)
+      return battle.incrementPhase()
     }
     Phase.FIRST_SWITCH_AFTER_FAINT -> {
       val switcher = battle.faster!!
-      if (battle.choiceOf(switcher) == null) {
-        return battle.withPhase(Phase.SECOND_SWITCH_AFTER_FAINT)
+      if (battle.side(switcher).active.condition != Condition.FAINT) {
+        return battle.incrementPhase()
       }
 
       return switchAfterFaint(battle, switcher, context)
-          .withPhase(Phase.SECOND_SWITCH_AFTER_FAINT)
+          .incrementPhase()
     }
     Phase.SECOND_SWITCH_AFTER_FAINT -> {
       val switcher = battle.faster!!.other()
-      if (battle.choiceOf(switcher) == null) {
-        return battle.withPhase(Phase.BEGIN).incrementTurn()
+      if (battle.side(switcher).active.condition != Condition.FAINT) {
+        return battle.incrementPhase()
+            .incrementTurn()
+            .clearChoices()
       }
 
       val nextTurn = switchAfterFaint(battle, switcher, context)
-          .withPhase(Phase.BEGIN)
+          .incrementPhase()
           .incrementTurn()
+          .clearChoices()
       context.logger.startOfTurnOverview(battle)
       return nextTurn
     }
@@ -277,10 +323,10 @@ internal fun simulatePhase(battle: Battle, context: BattleContext): Battle {
  * This function does not update the phase.
  */
 internal fun takeAction(battle: Battle, context: BattleContext, mover: Player): Battle {
-  val choice = battle.choiceOf(mover)
+  val choice = battle.move(mover)
   return when (choice) {
     is MoveChoice -> makeMove(battle, context, mover)
-    is SwitchChoice -> makeSwitch(battle, context, mover)
+    is SwitchChoice -> makeSwitch(battle, context, mover, choice)
     else -> throw IllegalArgumentException("Unknown choice type $choice")
   }
 }
@@ -293,7 +339,7 @@ internal fun takeAction(battle: Battle, context: BattleContext, mover: Player): 
 internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Battle {
   val movingSide = battle.side(mover)
   val otherSide = battle.side(mover.other())
-  val choiceBeingExecuted = battle.choiceOf(mover)
+  val choiceBeingExecuted = battle.move(mover)
 
   if (battle.side(mover).active.condition == Condition.FAINT) {
     // No move: the Pokemon is fainted.
@@ -311,28 +357,28 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
         choiceBeingExecuted.javaClass.name)
   }
 
-  val moveBeingExecuted: MoveChoice = choiceBeingExecuted as MoveChoice
-  context.logger.useMove(mover, moveBeingExecuted.move, movingSide.active)
+  val move = (choiceBeingExecuted as MoveChoice).move
+  context.logger.useMove(mover, move, movingSide.active)
 
-  if (moveBeingExecuted.move.basePower == 0) {
-    logger.debug("Not simulating move ${moveBeingExecuted.move.id}; we don't understand it")
+  if (move.basePower == 0) {
+    logger.debug("Not simulating move ${move.id}; we don't understand it")
     return battle
   }
 
-  if (!moveBeingExecuted.move.fullyRepresented) {
+  if (!move.fullyUnderstood()) {
     logger.debug(
-        "Simulating move ${moveBeingExecuted.move.id} even though we don't fully understand it")
+        "Simulating move ${move.id} even though we don't fully understand it")
   }
 
   val effectiveness = computeTypeEffectiveness(
-      moveBeingExecuted.move.type,
+      move.type,
       otherSide.active.species.types)
 
-  val offensiveStat = movingSide.active.getStat(moveBeingExecuted.move.category.offensiveStat())
-  val defensiveStat = otherSide.active.getStat(moveBeingExecuted.move.category.defensiveStat())
+  val offensiveStat = movingSide.active.getStat(move.category.offensiveStat())
+  val defensiveStat = otherSide.active.getStat(move.category.defensiveStat())
 
   val modifiers: MutableSet<Modifier> = mutableSetOf()
-  if (movingSide.active.species.types.contains(moveBeingExecuted.move.type)) {
+  if (movingSide.active.species.types.contains(move.type)) {
     modifiers.add(Modifier.STAB)
   }
 
@@ -340,24 +386,52 @@ internal fun makeMove(battle: Battle, context: BattleContext, mover: Player): Ba
       movingSide.active.originalSpec.level,
       offensiveStat = offensiveStat,
       defensiveStat = defensiveStat,
-      movePower = moveBeingExecuted.move.basePower,
+      movePower = move.basePower,
       effectiveness = effectiveness,
       damageRoll = context.random.moveDamage(),
       modifiers = modifiers)
   context.logger.attack(mover, movingSide.active, otherSide.active, moveDamage)
 
   val newOpposingActivePokemon = otherSide.active.takeDamageAndMaybeFaint(moveDamage)
-
   val newOtherSide = otherSide.updateActivePokemon(newOpposingActivePokemon)
 
-  return battle.withSide(mover.other(), newOtherSide)
+  var newAttacker = movingSide.active
+  if (move.selfSwitch) {
+    newAttacker = newAttacker.withEffect(EffectFlag.SELF_SWITCH)
+  }
+  val newMovingSide = movingSide.updateActivePokemon(newAttacker)
+
+  return battle.withSide(mover, newMovingSide)
+      .withSide(mover.other(), newOtherSide)
 }
 
 /**
- * Adjudicates a switch ordered by a player at the beginning of a turn.
+ * Adjudicates a switch ordered by a player after a move like U-Turn, if warranted.
  */
-internal fun makeSwitch(battle: Battle, context: BattleContext, mover: Player): Battle {
-  val switch = battle.choiceOf(mover) as SwitchChoice
+internal fun makeAfterMoveSwitch(battle: Battle, context: BattleContext, switcher: Player): Battle {
+  val side = battle.side(switcher)
+  if (!side.active.effects.contains(EffectFlag.SELF_SWITCH)) {
+    return battle
+  }
+
+  if (side.bench.isEmpty()) {
+    // If the bench is empty, U-Turn does not switch you out.
+    val newActive = side.active.clearEffect(EffectFlag.SELF_SWITCH)
+    return battle.withSide(switcher, side.updateActivePokemon(newActive))
+  }
+
+  val switch = (battle.choices[switcher, Phase.SECOND_MOVE_SWITCH]
+      ?: battle.choices[switcher, Phase.FIRST_MOVE_SWITCH]) as SwitchChoice?
+
+  return makeSwitch(battle, context, switcher, switch!!)
+}
+
+/**
+ * Adjudicates a switch ordered by a player.
+ *
+ * This method is used both at the beginning of the turn and after a U-Turn connects.
+ */
+internal fun makeSwitch(battle: Battle, context: BattleContext, mover: Player, switch: SwitchChoice): Battle {
   val switchingSide = battle.side(mover)
   val switchedIn = switchingSide.bench[switch.target]
       ?: throw IllegalArgumentException(
@@ -429,7 +503,7 @@ internal fun calculateFasterAction(battle: Battle): Player? {
  * Switching has very high priority, such that it almost always goes before moves.
  */
 internal fun calculatePriority(battle: Battle, player: Player): Int {
-  val choice = battle.choiceOf(player)!!
+  val choice = battle.move(player)!!
   if (choice is SwitchChoice) {
     return 6
   }
@@ -442,7 +516,7 @@ internal fun switchAfterFaint(battle: Battle, switcher: Player, context: BattleC
     throw IllegalArgumentException("Pokemon ${switchingSide.active} is not fainted")
   }
 
-  val choice = battle.choiceOf(switcher) as SwitchChoice
+  val choice = battle.choices[switcher, Phase.END] as SwitchChoice
   val switchTarget = switchingSide.bench[choice.target]!!
   context.logger.switchAfterFaint(switcher, switchingSide.active, switchTarget)
 
@@ -462,12 +536,16 @@ internal fun switchAfterFaint(battle: Battle, switcher: Player, context: BattleC
 
 /**
  * The individual parts of each turn. Listed in order.
+ *
+ * @property choice Whether or not players get to make a choice at this time. For all of these,
+ *    the player doesn't necessarily get to make a choice if this is true, but they definitely
+ *    don't make a choice if it's false.
  */
-enum class Phase {
+enum class Phase(val choice: Boolean = false) {
   /**
    * During this phase, trainers decide which moves to use.
    */
-  BEGIN,
+  BEGIN(true),
 
   /**
    * During this phase, Battle#faster is set.
@@ -480,11 +558,21 @@ enum class Phase {
   FIRST_ACTION,
 
   /**
+   * If the first mover successfully used a self-switch move, this is where they switch.
+   */
+  FIRST_MOVE_SWITCH(true),
+
+  /**
    * During this phase, the action of the slower Pokemon is adjudicated. If
    * this Pokemon is fainted or otherwise out of action, this might not
    * happen.
    */
   SECOND_ACTION,
+
+  /**
+   * If the second mover successfully used a self-switch move, this is where they switch.
+   */
+  SECOND_MOVE_SWITCH(true),
 
   /**
    * Before end-of-turn effects, priority is calculated. Again.
@@ -497,7 +585,7 @@ enum class Phase {
    *
    * At the end of this phase, trainers get to decide what to do with fainted Pokemon.
    */
-  END,
+  END(true),
 
   /**
    * The faster Pokemon gets the opportunity to switch out if fainted.
@@ -507,9 +595,18 @@ enum class Phase {
   /**
    * The slower Pokemon gets the opportunity to switch out if fainted.
    */
-  SECOND_SWITCH_AFTER_FAINT
+  SECOND_SWITCH_AFTER_FAINT;
 
   // TODO: Consider adding a true 'end of turn' phase which clears choices.
+
+  /**
+   * Returns the phase after this one.
+   *
+   * If it's the last phase, returns the first phase.
+   */
+  fun next(): Phase {
+    return Phase.values()[(this.ordinal + 1) % Phase.values().size]
+  }
 }
 
 /**
