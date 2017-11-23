@@ -220,7 +220,7 @@ fun simulateBattle(battle: Battle, context: BattleContext, blackChoice: Choice?,
   var battle = battle.withChoices(blackChoice, whiteChoice)
   do {
     battle = simulatePhase(battle, context)
-  } while (battle.choices(Player.BLACK).isEmpty() && battle.choices(Player.WHITE).isEmpty())
+  } while (battle.choices(Player.BLACK).isEmpty() && battle.choices(Player.WHITE).isEmpty() && battle.winner() == null)
   return battle
 }
 
