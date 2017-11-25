@@ -48,13 +48,13 @@ class UsageDatasetTeamPicker private constructor(
     val team: MutableList<TeamPokemon> = mutableListOf()
     for (i in 0..5) {
       val choiceData = pickNotAlreadyPicked(speciesPicker, team)
-      team.add(rectifySpecies(choiceData))
+      team.add(reifySpecies(choiceData))
     }
 
     return team
   }
 
-  private fun rectifySpecies(usageData: PokemonUsageData): TeamPokemon {
+  private fun reifySpecies(usageData: PokemonUsageData): TeamPokemon {
     val ability: String = usageData.abilities.maxBy { it.usage }!!.ability
     val item: String = usageData.items.values.maxBy { it.usage }!!.item
     val statSpread: StatSpread = usageData.spreads.maxBy { it.usage }!!.spread
@@ -65,7 +65,7 @@ class UsageDatasetTeamPicker private constructor(
     return TeamPokemon(
         pokedex.getSpeciesByName(usageData.species),
         item,
-        AbilityId(ability),
+        pokedex.getAbilityByUsageCode(ability),
         null,
         Nature.valueOf(statSpread.nature.name),
         statSpread.asEvSpread(),
@@ -74,17 +74,19 @@ class UsageDatasetTeamPicker private constructor(
         moves.map { pokedex.getMoveByUsageCode(it) }
     )
   }
-}
 
-private fun pickNotAlreadyPicked(randomBasket: RandomBasket<PokemonUsageData>, team: List<TeamPokemon>):
-    PokemonUsageData {
-  val species = team.map { it.species.id.str }.toSet()
-  for (i in 0..99) {
-    val choice = randomBasket.pick()
-    if (!species.contains(choice.species)) {
-      return choice
+  private fun pickNotAlreadyPicked(
+      randomBasket: RandomBasket<PokemonUsageData>,
+      team: List<TeamPokemon>):
+      PokemonUsageData {
+    val species = team.map { it.species.id }.toSet()
+    for (i in 0..99) {
+      val choice = randomBasket.pick()
+      if (!species.contains(pokedex.getSpeciesByName(choice.species).id)) {
+        return choice
+      }
     }
-  }
 
-  throw IllegalStateException("Tried 100 times to pick a Pokemon; something is wrong with the state data")
+    throw IllegalStateException("Tried 100 times to pick a Pokemon; something is wrong with the state data")
+  }
 }

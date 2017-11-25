@@ -33,4 +33,11 @@ class UsageDatasetTeamPickerTest {
     val team = picker.pick()
     Truth.assertThat(team).hasSize(6)
   }
+
+  @Test
+  fun speccable() {
+    val picker = UsageDatasetTeamPicker.create(getGen7Pokedex(), Random(), usageDataset, 0.01)
+    val team = picker.pick()
+    team.map { it.toSpec() }
+  }
 }

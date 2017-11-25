@@ -16,7 +16,6 @@ import java.util.*
 
 private val logger = mu.KLogging().logger()
 
-
 /**
  * Play a full game of Pokemon using two AIs and random OU teams.
  */
