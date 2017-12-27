@@ -10,10 +10,7 @@ import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.Stat
 import com.nrook.kadabra.info.StatFromAbbreviation
 import com.nrook.kadabra.info.TeamPokemon
-import com.nrook.kadabra.mechanics.EvSpread
-import com.nrook.kadabra.mechanics.Level
-import com.nrook.kadabra.mechanics.Nature
-import com.nrook.kadabra.mechanics.makeEvs
+import com.nrook.kadabra.mechanics.*
 
 private val MATCH_SPECIES_LINE = Regex("""(.*) @ ([\S].*\S)""")
 private val MATCH_ABILITY_LINE = Regex("""Ability: (.+)""")
@@ -97,16 +94,24 @@ class TeamLoader(private val pokedex: Pokedex) {
     }
 
     index++
-    val evs = readEvLine(lines[index])
+    val evs: EvSpread;
+    if (MATCH_RELEVANT_PART_OF_EV_LINE.matches(lines[index])) {
+      evs = readEvLine(lines[index])
+      index++
+    } else {
+      // If EVs are absent, that means they're all zero
+      evs = NO_EVS
+    }
 
-    index++
-    val natureString = (MATCH_NATURE.find(lines[index])
-        ?: throw FileParsingException("Could not find nature", lines[index]))
-        .groupValues[1]
-    val nature = Nature.valueOf(natureString.toUpperCase())
+    val nature: Nature
+    val natureString = MATCH_NATURE.find(lines[index])
+    if (natureString == null) {
+      nature = Nature.HARDY
+    } else {
+      nature = Nature.valueOf(natureString.groupValues[1].toUpperCase())
+      index++
+    }
 
-    // Maybe IVs, maybe not
-    index++
     if (MATCH_RELEVANT_PART_OF_IV_LINE.matches(lines[index])) {
       // TODO: Actually set this stuff!
       index++

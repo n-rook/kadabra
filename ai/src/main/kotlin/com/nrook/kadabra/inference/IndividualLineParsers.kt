@@ -76,11 +76,12 @@ private fun parseClearPokeEvent(line: ReceivedMessage): BattleEvent {
 
 @EventParser("poke")
 private fun parsePokeEvent(line: ReceivedMessage): BattleEvent {
-  expectLength(line, 3)
+  expectLength(line, 2, 3)
+  val item = if (line.contentList.size == 3) line.contentList[2] else null
   return PokeEvent(
       ID_TO_PLAYER_CONVERTER.convert(line.contentList[0])!!,
       parseDetails(line.contentList[1]),
-      line.contentList[2]
+      item
   )
 }
 

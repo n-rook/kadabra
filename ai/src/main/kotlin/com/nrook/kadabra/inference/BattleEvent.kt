@@ -59,13 +59,13 @@ class ClearPokeEvent private constructor(): BattleEvent {
  *
  * @param player Whose team this Pokemon is on.
  * @param details The Pokemon details.
- * @param item If the Pokemon has an item, this is "item".
- *    TODO: What does the message look like if this isn't an item?
+ * @param item If the Pokemon has an item, this is "item". If not, it is null.
+ *    (In the protocol, this is absent if a Pokemon has no item.)
  */
 data class PokeEvent(
     val player: Player,
     val details: PokemonDetails,
-    val item: String
+    val item: String?
 ): BattleEvent
 
 /**

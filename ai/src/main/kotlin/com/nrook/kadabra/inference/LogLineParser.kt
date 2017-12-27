@@ -26,7 +26,7 @@ fun parseLogLines(logLines: List<LogLine>): List<BattleEvent> {
       try {
         parsedLine = parseLine(received)
       } catch (e: Exception) {
-        logger.warn("Could not parse received message", e)
+        logger.warn("Could not parse received message\n${line}", e)
         parsedLine = null
       }
 

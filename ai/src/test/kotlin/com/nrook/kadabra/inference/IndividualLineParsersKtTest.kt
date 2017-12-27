@@ -70,6 +70,15 @@ class IndividualLineParsersKtTest {
   }
 
   @Test
+  fun parsePokeNoItemEvent() {
+    val pokeEvent = parseEvent(PokeEvent::class.java, "poke", "p2", "Scizor, F")
+    assertThat(pokeEvent.player).isEqualTo(Player.WHITE)
+    assertThat(pokeEvent.details.species).isEqualTo("Scizor")
+    assertThat(pokeEvent.details.gender).isEqualTo(Gender.FEMALE)
+    assertThat(pokeEvent.item).isNull()
+  }
+
+  @Test
   fun parseRuleEvent() {
     val sleepClause = parseEvent(RuleEvent::class.java, "rule",
         "Sleep Clause Mod: Limit one foe put to sleep")
