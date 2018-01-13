@@ -2,6 +2,7 @@ package com.nrook.kadabra.inference.testing
 
 import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.inference.BattleEvent
+import com.nrook.kadabra.inference.DamageEvent
 import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.TeamPokemon
 import com.nrook.kadabra.teambuilder.TeamLoader
@@ -51,6 +52,46 @@ class EventFileBank(val pokedex: Pokedex) {
     EventFileWithBlackTeam(
         ImmutableList.copyOf(loadEventsFromResource("teambuilder1.log")),
         teamLoader.loadTeamFromResource("teambuilder1_p2_team.txt")
+    )
+  }
+
+  /**
+   * On White's first turn, their lead Scizor uses U-Turn. The log ends at the
+   * the decision to switch.
+   */
+  val U_TURN_FIRST by lazy {
+    EventFileWithWhiteTeam(
+        ImmutableList.copyOf(loadEventsFromResource("BattleWithUturnGoingFirst.log")),
+        teamLoader.loadTeamFromResource("UTurnTeam.txt")
+    )
+  }
+
+  /**
+   * On White's first turn, their lead Scizors uses U-Turn after their opponent attacks.
+   *
+   * Ends immediately after the U-Turn connects.
+   *
+   */
+  val U_TURN_SECOND_IMMEDIATELY_AFTER_U_TURN_HITS by lazy {
+    EventFileWithWhiteTeam(
+        snipToEvent(
+            loadEventsFromResource("BattleWithUturnGoingSecond.log"),
+            { it is DamageEvent &&
+                it.pokemon.name.nickname == "Jolteon" &&
+                it.newCondition.hp == 42}),
+        teamLoader.loadTeamFromResource("UTurnTeam.txt")
+    )
+  }
+
+  /**
+   * On White's first turn, their lead Scizors uses U-Turn after their opponent attacks.
+   *
+   * This log ends on turn 2.
+   */
+  val U_TURN_SECOND by lazy {
+    EventFileWithWhiteTeam(
+        ImmutableList.copyOf(loadEventsFromResource("BattleWithUturnGoingSecond.log")),
+        teamLoader.loadTeamFromResource("UTurnTeam.txt")
     )
   }
 }

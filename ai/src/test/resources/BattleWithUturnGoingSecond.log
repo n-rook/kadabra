@@ -1,0 +1,70 @@
+<< >battle-gen7ou-48
+|init|battle
+|title|nrook2 vs. nrook
+|j|nrook2
+|j|nrook
+client.js?3047e9bb:715 << >battle-gen7ou-48
+|request|
+client.js?3047e9bb:715 << |b|battle-gen7ou-48| nrook2| nrook
+client.js?3047e9bb:715 << |updatechallenges|{"challengesFrom":{},"challengeTo":null}
+client.js?3047e9bb:715 << >battle-gen7ou-48
+
+|player|p1|nrook2|102
+|teamsize|p1|1
+client.js?3047e9bb:715 << >battle-gen7ou-48
+|request|{"teamPreview":true,"maxTeamSize":6,"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, F","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"}]},"rqid":3}
+
+|player|p2|nrook|102
+|teamsize|p2|2
+|gametype|singles
+|gen|7
+|tier|[Gen 7] OU
+|seed|
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Species Clause: Limit one of each Pokémon
+|rule|OHKO Clause: OHKO moves are banned
+|rule|Moody Clause: Moody is banned
+|rule|Evasion Moves Clause: Evasion moves are banned
+|rule|Endless Battle Clause: Forcing endless battles is banned
+|rule|HP Percentage Mod: HP is shown in percentages
+|clearpoke
+|poke|p1|Jolteon, M|
+|poke|p2|Scizor, F|item
+|poke|p2|Tauros, M|item
+|teampreview
+client.js?3047e9bb:769 >> battle-gen7ou-48|/team 12|3
+client.js?3047e9bb:715 << >battle-gen7ou-48
+|request|{"active":[{"moves":[{"move":"U-turn","id":"uturn","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, F","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"}]},"rqid":5}
+client.js?3047e9bb:715 << >battle-gen7ou-48
+
+|choice||team 1, team 2
+|
+|start
+|switch|p1a: Jolteon|Jolteon, M|100/100
+|switch|p2a: Scizor|Scizor, F|281/281
+|turn|1
+client.js?3047e9bb:769 >> battle-gen7ou-48|/choose move 1|5
+client.js?3047e9bb:715 << >battle-gen7ou-48
+|request|{"forceSwitch":[true],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, F","condition":"252/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"}]},"noCancel":true,"rqid":7}
+client.js?3047e9bb:715 << >battle-gen7ou-48
+
+|choice||move uturn
+|
+|move|p1a: Jolteon|Return|p2a: Scizor
+|-resisted|p2a: Scizor
+|-damage|p2a: Scizor|252/281
+|move|p2a: Scizor|U-turn|p1a: Jolteon
+|-damage|p1a: Jolteon|42/100
+client.js?3047e9bb:769 >> battle-gen7ou-48|/choose switch 2|7
+client.js?3047e9bb:715 << >battle-gen7ou-48
+|request|{"active":[{"moves":[{"move":"Return 102","id":"return","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":true,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"},{"ident":"p2: Scizor","details":"Scizor, F","condition":"252/281","active":false,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"}]},"rqid":9}
+client.js?3047e9bb:715 << >battle-gen7ou-48
+
+|choice||switch 2
+|
+|switch|p2a: Tauros|Tauros, M|291/291
+|-ability|p2a: Tauros|Intimidate|boost
+|-unboost|p1a: Jolteon|atk|1
+|
+|upkeep
+|turn|2

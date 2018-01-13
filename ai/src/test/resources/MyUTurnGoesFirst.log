@@ -1,0 +1,136 @@
+>> |/autojoin
+client.js?e25e420d:715 << |updateuser|Guest 1|0|170
+|customgroups|[{"symbol":"~","name":"Administrator","type":"leadership"},{"symbol":"&","name":"Leader","type":"leadership"},{"symbol":"#","name":"Room Owner","type":"leadership"},{"symbol":"★","name":"Host","type":"leadership"},{"symbol":"@","name":"Moderator","type":"staff"},{"symbol":"%","name":"Driver","type":"staff"},{"symbol":"☆","name":"Player","type":"normal"},{"symbol":"*","name":"Bot","type":"normal"},{"symbol":"+","name":"Voice","type":"normal"},{"symbol":" ","name":null,"type":"normal"},{"symbol":"‽","name":"Locked","type":"punishment"},{"symbol":"!","name":"Muted","type":"punishment"}]
+|formats|,LL|,1|US/UM Singles|[Gen 7] Random Battle,f|[Gen 7] Unrated Random Battle,b|[Gen 7] OU,e|[Gen 7] Ubers,e|[Gen 7] UU,e|[Gen 7] RU,e|[Gen 7] NU,e|[Gen 7] PU,e|[Gen 7] LC,e|[Gen 7] Monotype,e|[Gen 7] Anything Goes,e|[Gen 7] CAP,e|[Gen 7] CAP LC,c|[Gen 7] Battle Spot Singles,1e|[Gen 7] Battle Spot Special 7,1e|[Gen 7] Dragon Cup,1e|[Gen 7] Custom Game,c|,1|US/UM Doubles|[Gen 7] Random Doubles Battle,f|[Gen 7] Doubles OU,e|[Gen 7] Doubles Ubers,e|[Gen 7] Doubles UU,e|[Gen 7] VGC 2018,1e|[Gen 7] VGC 2017,1e|[Gen 7] Battle Spot Doubles,1e|[Gen 7] Doubles Custom Game,c|,2|OM of the Month|[Gen 7] Full Potential,e|[Gen 7] Dual Wielding,e|,2|Other Metagames|[Gen 7] Balanced Hackmons,e|[Gen 7] 1v1,e|[Gen 7] Mix and Mega,e|[Gen 7] Almost Any Ability,e|[Gen 7] Camomons,e|[Gen 7] STABmons,c|[Gen 7] 2v2 Doubles,c|[Gen 6] Gen-NEXT OU,c|,2|Randomized Metas|[Gen 6] Battle Factory,f|[Gen 7] BSS Factory,f|[Gen 7] Monotype Random Battle,d|[Gen 7] Challenge Cup 1v1,f|[Gen 7] Challenge Cup 2v2,d|[Gen 7] Hackmons Cup,f|[Gen 7] Doubles Hackmons Cup,d|[Gen 6] Random Battle,f|[Gen 5] Random Battle,f|[Gen 4] Random Battle,f|[Gen 3] Random Battle,f|[Gen 2] Random Battle,f|[Gen 1] Random Battle,f|[Gen 1] Challenge Cup,9|,3|RoA Spotlight|[Gen 5] PU,e|,3|OR/AS Singles|[Gen 6] OU,e|[Gen 6] Ubers,e|[Gen 6] UU,e|[Gen 6] RU,e|[Gen 6] NU,e|[Gen 6] PU,e|[Gen 6] LC,e|[Gen 6] Anything Goes,e|[Gen 6] Monotype,c|[Gen 6] CAP,c|[Gen 6] Battle Spot Singles,1e|[Gen 6] Inverse Battle,c|[Gen 6] Custom Game,c|,3|OR/AS Doubles/Triples|[Gen 6] Doubles OU,e|[Gen 6] Doubles Ubers,c|[Gen 6] Doubles UU,c|[Gen 6] VGC 2016,1e|[Gen 6] Battle Spot Doubles,1e|[Gen 6] Doubles Custom Game,c|[Gen 6] Battle Spot Triples,1e|[Gen 6] Triples Custom Game,c|,4|B2/W2 Singles|[Gen 5] OU,e|[Gen 5] Ubers,e|[Gen 5] UU,e|[Gen 5] RU,e|[Gen 5] NU,e|[Gen 5] LC,e|[Gen 5] GBU Singles,1c|[Gen 5] Custom Game,c|,4|B2/W2 Doubles|[Gen 5] Doubles OU,e|[Gen 5] GBU Doubles,1c|[Gen 5] Doubles Custom Game,c|,4|Past Generations|[Gen 4] OU,e|[Gen 4] Ubers,e|[Gen 4] UU,e|[Gen 4] NU,c|[Gen 4] LC,e|[Gen 4] Custom Game,c|[Gen 4] Doubles Custom Game,c|[Gen 3] OU,e|[Gen 3] Ubers,e|[Gen 3] Custom Game,c|[Gen 3] Doubles Custom Game,c|[Gen 2] OU,e|[Gen 2] Ubers,c|[Gen 2] Custom Game,c|[Gen 1] OU,e|[Gen 1] Ubers,c|[Gen 1] OU (tradeback),c|[Gen 1] Stadium,c|[Gen 1] Custom Game,c
+client.js?e25e420d:715 << |init|chat
+|title|Lobby
+|users|0
+|:|1514411607
+client.js?e25e420d:715 << |challstr|4|b2044c90d792e986c8dbecb110333960fc9d1e7b37e8bacc9d480af44eb538494effab4fbc369c3e5691cd8586d945e6407f2adbceb834f90415298c3d385aefbee3babe65898156e4ce61ee475cc1125327a2b5114dcf3ab926846a17e25e2d311b4710da798cec8a682e33acba568ec3f6af9db62fd2d2bd8a4832df1a2f9b
+chrome-extension://hdokiejnpimakedhajhdlcegeplioahd/onloadwff.js:58 Not filling because tld mismatch between https://play.pokemonshowdown.com/crossdomain.php?host=localhost.psim.us&path=&protocol=http%3A and psim.us
+console_error @ chrome-extension://hdokiejnpimakedhajhdlcegeplioahd/onloadwff.js:58
+VM47:1 This page includes a password or credit card input in a non-secure context. A warning has been added to the URL bar. For more information, see https://goo.gl/zmWq3m.
+client.js?e25e420d:769 >> |/trn nrook,0,b2044c90d792e986c8dbecb110333960fc9d1e7b37e8bacc9d480af44eb538494effab4fbc369c3e5691cd8586d945e6407f2adbceb834f90415298c3d385aefbee3babe65898156e4ce61ee475cc1125327a2b5114dcf3ab926846a17e25e2d311b4710da798cec8a682e33acba568ec3f6af9db62fd2d2bd8a4832df1a2f9b,nrook,2,1514411815,localhost;1b85aa919be48c81c45e251bb4bdee799cd863467e05fad9b59000bc7ef5bd55c4d25df4db2c226a6112e16c8db572ae8cc4e5f9655616b9eda766d87f5806740c905a146e344b8b5523a4e5203217a916e2e085af6ed2f6bc75ddb2ab3feced8dcdacdfd80c75dae273caf3a65f493ae057a255ad0f6bd2908231485640e8ab6f0cc97634b511a2967bcf7acdbd14bad2792af2eb6520d8a896db2daa79220c46e3b48cbe2e37845b2f302d79a30720b4c503b042843fc6df3ca9a68a960db95bda0c4b2859c69930f3937bdd436e9e7f57cfe4ea0ca5d3da708e61c8f64368b7657576bf027e65ba4537b411b67bb179e2daea246cd74f814deb3f906ff11669cad8ce2bf64ca995bbb207982bb93bbb4f57dd47b8fd06608fbbbe02357ae61b67dd88ec9278335dc0db840a6dde942e2b781fd923daa55257e40f7649b1b166c1d45072defccecb2a3a1be194a579f8d3b9d5f497ce350a9b7ad22dbd206ebd5c881e56768831050ea16f5c5c4edf6eb58ca4a86d27b38adbf7f90d7759830d2403e2eb9c3120ef9d7573d111fa7302da881cb1e7482ca11cb4d67fa627f7649d3b260034df419f7bb3cbe3c052891c7fbd77df0cdd2b5ed3e3f0b9b2ba1546ec0b9eeded118674c3f9a0b2b9dd1a4b4bba517aa7600874010a41d39c46ab515773bbb1427bd6a59cefc52662f52309890abfacf8ce03c1cedc9f2b2c5fd6
+client.js?e25e420d:715 << |updatesearch|{"searching":[],"games":null}
+client.js?e25e420d:715 << |updateuser|nrook|1|170
+client.js?e25e420d:715 << |j| nrook
+client.js?e25e420d:715 << |j| a11a11a1
+client.js?e25e420d:769 >> |/utm |scizor|lumberry||uturn|||||||]|tauros|lumberry||return|||||||
+client.js?e25e420d:769 >> |/vtm gen7ou
+client.js?e25e420d:715 << |popup|Your team is valid for [Gen 7] OU.
+client.js?e25e420d:769 >> |/cmd userdetails a11a11a1
+client.js?e25e420d:715 << |queryresponse|userdetails|{"userid":"a11a11a1","avatar":266,"group":" ","rooms":{"lobby":{}}}
+client.js?e25e420d:1971 [Deprecation] The Notification API may no longer be used from insecure origins. You should consider switching your application to a secure origin, such as HTTPS. See https://goo.gl/rStTGz for more details.
+requestNotifications @ client.js?e25e420d:1971
+challenge @ client.js?e25e420d:2481
+dispatchClickButton @ client.js?e25e420d:2246
+wrapper @ lodash.core.js?66b6d754:1157
+dispatch @ jquery-2.1.4.min.js:3
+r.handle @ jquery-2.1.4.min.js:3
+client.js?e25e420d:769 >> |/utm |scizor|lumberry||uturn|||||||]|tauros|lumberry||return|||||||
+client.js?e25e420d:769 >> |/challenge a11a11a1, gen7ou
+client.js?e25e420d:715 << |updatechallenges|{"challengesFrom":{},"challengeTo":{"to":"a11a11a1","format":"gen7ou"}}
+client.js?e25e420d:715 << |updatesearch|{"searching":[],"games":{"battle-gen7ou-1":"[Gen 7] OU Battle"}}
+client.js?e25e420d:715 << >battle-gen7ou-1
+|init|battle
+|title|a11a11a1 vs. nrook
+|j|a11a11a1
+|j|nrook
+client.js?e25e420d:715 << >battle-gen7ou-1
+|request|
+client.js?e25e420d:715 << |b|battle-gen7ou-1| a11a11a1| nrook
+client.js?e25e420d:715 << |updatechallenges|{"challengesFrom":{},"challengeTo":null}
+client.js?e25e420d:715 << >battle-gen7ou-1
+
+|player|p1|a11a11a1|266
+|teamsize|p1|1
+client.js?e25e420d:715 << >battle-gen7ou-1
+|request|{"teamPreview":true,"maxTeamSize":6,"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, M","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"}]},"rqid":3}
+client.js?e25e420d:1996 [Deprecation] The Notification API may no longer be used from insecure origins. You should consider switching your application to a secure origin, such as HTTPS. See https://goo.gl/rStTGz for more details.
+notify @ client.js?e25e420d:1996
+notifyRequest @ client-battle.js?d8811d1a:927
+receiveRequest @ client-battle.js?d8811d1a:913
+add @ client-battle.js?d8811d1a:159
+receive @ client-battle.js?d8811d1a:95
+receive @ client.js?e25e420d:867
+socket.onmessage @ client.js?e25e420d:717
+n.dispatchEvent @ sockjs-1.1.1-nwjsfix.min.js:2
+(anonymous) @ sockjs-1.1.1-nwjsfix.min.js:2
+r._transportMessage @ sockjs-1.1.1-nwjsfix.min.js:2
+n.emit @ sockjs-1.1.1-nwjsfix.min.js:2
+ws.onmessage @ sockjs-1.1.1-nwjsfix.min.js:3
+client.js?e25e420d:715 << >battle-gen7ou-1
+
+|player|p2|nrook|170
+|teamsize|p2|2
+|gametype|singles
+|gen|7
+|tier|[Gen 7] OU
+|seed|
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Species Clause: Limit one of each Pokémon
+|rule|OHKO Clause: OHKO moves are banned
+|rule|Moody Clause: Moody is banned
+|rule|Evasion Moves Clause: Evasion moves are banned
+|rule|Endless Battle Clause: Forcing endless battles is banned
+|rule|HP Percentage Mod: HP is shown in percentages
+|clearpoke
+|poke|p1|Snorlax, M|
+|poke|p2|Scizor, M|item
+|poke|p2|Tauros, M|item
+|teampreview
+battle-gen7ou-1:1 Uncaught (in promise) DOMException: The play() request was interrupted by a call to pause(). https://goo.gl/LdLk22
+Promise (async)
+Ja.start.play @ soundmanager2-nodebug-jsmin.js?aa988d75:36
+BattleSoundLibrary.playBgm @ battle.js?25eb3cc5:114
+Battle.soundStart @ battle.js?25eb3cc5:7231
+Battle.play @ battle.js?25eb3cc5:6949
+initialize @ client-battle.js?d8811d1a:40
+Backbone.View @ backbone.js?8a8d8296:1224
+constructor @ client.js?e25e420d:1889
+constructor @ client-chat.js?34927826:22
+child @ backbone.js?8a8d8296:1884
+_addRoom @ client.js?e25e420d:1398
+joinRoom @ client.js?e25e420d:1316
+receive @ client.js?e25e420d:801
+socket.onmessage @ client.js?e25e420d:717
+n.dispatchEvent @ sockjs-1.1.1-nwjsfix.min.js:2
+(anonymous) @ sockjs-1.1.1-nwjsfix.min.js:2
+r._transportMessage @ sockjs-1.1.1-nwjsfix.min.js:2
+n.emit @ sockjs-1.1.1-nwjsfix.min.js:2
+ws.onmessage @ sockjs-1.1.1-nwjsfix.min.js:3
+client.js?e25e420d:769 >> battle-gen7ou-1|/team 12|3
+client.js?e25e420d:715 << >battle-gen7ou-1
+|request|{"active":[{"moves":[{"move":"U-turn","id":"uturn","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, M","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"}]},"rqid":5}
+client.js?e25e420d:715 << >battle-gen7ou-1
+
+|choice||team 1, team 2
+|
+|start
+|switch|p1a: Snorlax|Snorlax, M|100/100
+|switch|p2a: Scizor|Scizor, M|281/281
+|turn|1
+client.js?e25e420d:769 >> battle-gen7ou-1|/choose move 1|5
+client.js?e25e420d:715 << >battle-gen7ou-1
+|request|{"forceSwitch":[true],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, M","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"}]},"noCancel":true,"rqid":7}
+client.js?e25e420d:715 << >battle-gen7ou-1
+
+|choice||move uturn
+|
+|move|p2a: Scizor|U-turn|p1a: Snorlax
+|-damage|p1a: Snorlax|71/100
+client.js?e25e420d:769 >> battle-gen7ou-1|/choose switch 2|7
+client.js?e25e420d:715 << >battle-gen7ou-1
+|request|{"active":[{"moves":[{"move":"Return 102","id":"return","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Tauros","details":"Tauros, M","condition":"201/291","active":true,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"lumberry","pokeball":"pokeball","ability":"intimidate"},{"ident":"p2: Scizor","details":"Scizor, M","condition":"281/281","active":false,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"lumberry","pokeball":"pokeball","ability":"swarm"}]},"rqid":9}
+client.js?e25e420d:715 << >battle-gen7ou-1
+
+|choice||switch 2
+|
+|switch|p2a: Tauros|Tauros, M|291/291
+|-ability|p2a: Tauros|Intimidate|boost
+|-unboost|p1a: Snorlax|atk|1
+|move|p1a: Snorlax|Return|p2a: Tauros
+|-damage|p2a: Tauros|201/291
+|
+|upkeep
+|turn|2

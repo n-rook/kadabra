@@ -1,0 +1,49 @@
+<< >battle-gen7ou-47
+|request|
+client.js?b9a57424:715 << |b|battle-gen7ou-47| aabaaab| nrook
+client.js?b9a57424:715 << |updatechallenges|{"challengesFrom":{},"challengeTo":null}
+client.js?b9a57424:715 << >battle-gen7ou-47
+
+|player|p1|aabaaab|170
+|teamsize|p1|1
+<< >battle-gen7ou-47
+|request|{"teamPreview":true,"maxTeamSize":6,"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, F","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"","pokeball":"pokeball","ability":"intimidate"}]},"rqid":3}
+
+|player|p2|nrook|102
+|teamsize|p2|2
+|gametype|singles
+|gen|7
+|tier|[Gen 7] OU
+|seed|
+|rule|Sleep Clause Mod: Limit one foe put to sleep
+|rule|Species Clause: Limit one of each Pokémon
+|rule|OHKO Clause: OHKO moves are banned
+|rule|Moody Clause: Moody is banned
+|rule|Evasion Moves Clause: Evasion moves are banned
+|rule|Endless Battle Clause: Forcing endless battles is banned
+|rule|HP Percentage Mod: HP is shown in percentages
+|clearpoke
+|poke|p1|Snorlax, M|
+|poke|p2|Scizor, F|
+|poke|p2|Tauros, M|
+|teampreview
+>> battle-gen7ou-47|/team 12|3
+<< >battle-gen7ou-47
+|request|{"active":[{"moves":[{"move":"U-turn","id":"uturn","pp":32,"maxpp":32,"target":"normal","disabled":false}]}],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, F","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"","pokeball":"pokeball","ability":"intimidate"}]},"rqid":5}
+client.js?b9a57424:715 << >battle-gen7ou-47
+
+|choice||team 1, team 2
+|
+|start
+|switch|p1a: Snorlax|Snorlax, M|100/100
+|switch|p2a: Scizor|Scizor, F|281/281
+|turn|1
+>> battle-gen7ou-47|/choose move 1|5
+<< >battle-gen7ou-47
+|request|{"forceSwitch":[true],"side":{"name":"nrook","id":"p2","pokemon":[{"ident":"p2: Scizor","details":"Scizor, F","condition":"281/281","active":true,"stats":{"atk":296,"def":236,"spa":146,"spd":196,"spe":166},"moves":["uturn"],"baseAbility":"swarm","item":"","pokeball":"pokeball","ability":"swarm"},{"ident":"p2: Tauros","details":"Tauros, M","condition":"291/291","active":false,"stats":{"atk":236,"def":226,"spa":116,"spd":176,"spe":256},"moves":["return"],"baseAbility":"intimidate","item":"","pokeball":"pokeball","ability":"intimidate"}]},"noCancel":true,"rqid":7}
+<< >battle-gen7ou-47
+
+|choice||move uturn
+|
+|move|p2a: Scizor|U-turn|p1a: Snorlax
+|-damage|p1a: Snorlax|68/100

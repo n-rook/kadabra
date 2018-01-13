@@ -14,3 +14,14 @@ fun snipToTurn(events: List<BattleEvent>, turn: Int): ImmutableList<BattleEvent>
   }
   return ImmutableList.copyOf(events.subList(0, turnIndex + 1))
 }
+
+/**
+ * Eliminates all events after an event matching the given definition.
+ */
+fun snipToEvent(events: List<BattleEvent>, matcher: (BattleEvent) -> Boolean ): ImmutableList<BattleEvent> {
+  val eventIndex = events.indexOfFirst(matcher)
+  if (eventIndex == -1) {
+    throw IllegalArgumentException("Could not locate matching event")
+  }
+  return ImmutableList.copyOf(events.subList(0, eventIndex + 1))
+}

@@ -83,4 +83,37 @@ class BattleLoaderTest {
 
     assertThat(info.theirSide.bench).hasSize(4)
   }
+
+  @Test
+  fun uTurnFirst() {
+    val info = battleLoader.parseBattle(
+        eventBank.U_TURN_FIRST.white.map { it.toSpec() },
+        eventBank.U_TURN_FIRST.events)
+    assertThat(info.us).isEqualTo(Player.WHITE)
+    assertThat(info.turn).isEqualTo(1)
+
+    assertThat(info.theirSide.active).isNotNull()
+    val theirActivePokemon = info.theirSide.active!!
+    assertThat(theirActivePokemon.species.name).isEqualTo("Snorlax")
+    assertThat(theirActivePokemon.hp).isEqualTo(HpFraction(68, 100))
+  }
+
+  @Test
+  fun uTurnSecond() {
+    val info = battleLoader.parseBattle(
+        eventBank.U_TURN_SECOND_IMMEDIATELY_AFTER_U_TURN_HITS.white.map { it.toSpec() },
+        eventBank.U_TURN_SECOND_IMMEDIATELY_AFTER_U_TURN_HITS.events)
+    assertThat(info.us).isEqualTo(Player.WHITE)
+    assertThat(info.turn).isEqualTo(1)
+
+    assertThat(info.theirSide.active).isNotNull()
+    val theirActivePokemon = info.theirSide.active!!
+    assertThat(theirActivePokemon.species.name).isEqualTo("Jolteon")
+    assertThat(theirActivePokemon.hp).isEqualTo(HpFraction(42, 100))
+
+    assertThat(info.ourSide.active).isNotNull()
+    val ourActivePokemon = info.ourSide.active!!
+    assertThat(ourActivePokemon.species.name).isEqualTo("Scizor")
+    assertThat(ourActivePokemon.hp).isEqualTo(252)
+  }
 }
