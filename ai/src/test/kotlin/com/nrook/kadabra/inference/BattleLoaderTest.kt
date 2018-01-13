@@ -1,7 +1,7 @@
 package com.nrook.kadabra.inference
 
 import com.google.common.truth.Truth.assertThat
-import com.nrook.kadabra.inference.testing.loadEventsFromResource
+import com.nrook.kadabra.inference.testing.EventFileBank
 import com.nrook.kadabra.inference.testing.snipToTurn
 import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.Pokedex
@@ -17,21 +17,21 @@ class BattleLoaderTest {
   lateinit var pokedex: Pokedex
   lateinit var battleLoader: BattleLoader
   lateinit var teamLoader: TeamLoader
+  lateinit var eventBank: EventFileBank
 
   @Before
   fun setUp() {
     pokedex = getGen7Pokedex()
     battleLoader = BattleLoader(pokedex)
     teamLoader = TeamLoader(pokedex)
+    eventBank = EventFileBank(pokedex)
   }
 
   @Test
   fun parseTeamPreviewBattle() {
-    val teamBuilderEvents = loadEventsFromResource("teambuilder1.log")
-    val teamDefinitions = teamLoader.loadTeamFromResource("teambuilder1_p2_team.txt")
-    val teamSpecs = teamDefinitions.map { it.toSpec() }
-
-    val teamBuilderInfo = battleLoader.parseTeamPreviewBattle(teamSpecs, teamBuilderEvents)
+    val teamSpecs = eventBank.TEAM_PREVIEW.black.map { it.toSpec() }
+    val teamBuilderInfo = battleLoader.parseTeamPreviewBattle(
+        teamSpecs, eventBank.TEAM_PREVIEW.events)
 
     assertThat(teamBuilderInfo.us).isEqualTo(Player.WHITE)
 
@@ -52,11 +52,8 @@ class BattleLoaderTest {
 
   @Test
   fun damageUpdatesWorkOnOurSide() {
-    val events = loadEventsFromResource("battle1.log")
-    val teamDefinitions = teamLoader.loadTeamFromResource("battle1_p2_team.txt")
-    val teamSpecs = teamDefinitions.map { it.toSpec() }
-
-    val info = battleLoader.parseBattle(teamSpecs, events)
+    val teamSpecs = eventBank.SAMPLE.black.map { it.toSpec() }
+    val info = battleLoader.parseBattle(teamSpecs, eventBank.SAMPLE.events)
 
     assertThat(info.us).isEqualTo(Player.WHITE)
     assertThat(info.ourSide.active).isNotNull()
@@ -71,9 +68,8 @@ class BattleLoaderTest {
 
   @Test
   fun damageUpdatesWorkOnTheirSide() {
-    val events = snipToTurn(loadEventsFromResource("battle1.log"), 6)
-    val teamDefinitions = teamLoader.loadTeamFromResource("battle1_p2_team.txt")
-    val teamSpecs = teamDefinitions.map { it.toSpec() }
+    val events = snipToTurn(eventBank.SAMPLE.events, 6)
+    val teamSpecs = eventBank.SAMPLE.black.map { it.toSpec() }
 
     val info = battleLoader.parseBattle(teamSpecs, events)
 
