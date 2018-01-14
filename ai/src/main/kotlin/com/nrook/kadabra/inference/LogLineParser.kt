@@ -7,7 +7,7 @@ import mu.KLogging
 
 // Pokemon Showdown's battle event format is defined in PROTOCOL.md in the Showdown source code.
 
-val logger = KLogging().logger()
+private val logger = KLogging().logger()
 
 fun parseLogLines(logLines: List<LogLine>): List<BattleEvent> {
 //  val us = identifyWhichPlayerIsUs(logLines)

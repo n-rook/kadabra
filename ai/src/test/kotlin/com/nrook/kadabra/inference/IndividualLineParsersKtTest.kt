@@ -254,6 +254,11 @@ class IndividualLineParsersKtTest {
     assertThat(event.turn).isEqualTo(5)
   }
 
+  @Test
+  fun upkeepEvent() {
+    parseEvent(UpkeepEvent::class.java, "upkeep")
+  }
+
   // TODO: cant and parseFormeChange
 
   @Test

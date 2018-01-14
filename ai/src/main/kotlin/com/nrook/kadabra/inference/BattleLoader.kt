@@ -10,6 +10,9 @@ import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.PokemonSpec
 import com.nrook.kadabra.mechanics.arena.Player
+import mu.KLogging
+
+private val logger = KLogging().logger()
 
 /**
  * A class which reads in a battle state from a list of logs.
@@ -52,7 +55,40 @@ class BattleLoader(private val pokedex: Pokedex) {
       }
     }
 
+    ongoingBattle = ongoingBattle.setPhase(deducePhase(battleEvents, ongoingBattle))
+
     return ongoingBattle
+  }
+
+  private fun deducePhase(
+      events: List<BattleEvent>, state: OngoingBattle): DecisionPhase {
+    // Try to figure out what phase we're in.
+    // Unfortunately, Showdown won't just tell us, so we'll have to puzzle it out.
+    val thisTurnIndex = events.indexOf(TurnEvent(state.turn))
+    if (thisTurnIndex == -1) {
+      // No turn events have shown up!
+      throw IllegalArgumentException("No turn events have happened yet; this makes no sense")
+    }
+
+    val thisTurn = events.subList(
+        events.indexOf(TurnEvent(state.turn)), events.size)
+    if (thisTurn.any { it is UpkeepEvent }) {
+      return DecisionPhase.END
+    }
+
+    val moves = thisTurn.filterIsInstance(MoveEvent::class.java)
+    return when (moves.size) {
+      0 -> DecisionPhase.BEGIN
+      1 -> DecisionPhase.FIRST_MOVE_SWITCH
+      2 -> DecisionPhase.SECOND_MOVE_SWITCH
+      else -> {
+        logger.warn(
+            "Danger! We have detected {} moves in this turn: {}. We are probably confused.",
+            moves.size,
+            moves.map { it.move }.joinToString(", "))
+        return DecisionPhase.SECOND_MOVE_SWITCH
+      }
+    }
   }
 
   private fun updateSwitchOrDragEvent(
@@ -256,7 +292,7 @@ data class TeamPreviewBattleState(
         OurSide(null, ourBench),
         TheirSide(null, theirBench),
         1,
-        DecisionPhase.TEAM_PREVIEW
+        null
     )
   }
 }
@@ -320,17 +356,22 @@ data class OngoingBattle(
   fun updateTheirSide(newTheirSide: TheirSide): OngoingBattle {
     return OngoingBattle(us, ourSide, newTheirSide, turn, phase)
   }
+
+  /**
+   * Updates the phase of the battle. Throws an error if the phase is already set.
+   */
+  fun setPhase(phase: DecisionPhase): OngoingBattle {
+    if (this.phase != null) {
+      throw IllegalStateException("Phase already set to $phase")
+    }
+    return OngoingBattle(us, ourSide, theirSide, turn, phase)
+  }
 }
 
 /**
  * Which section of a turn we are in.
  */
 enum class DecisionPhase {
-
-  /**
-   * A special state before the battle proper begins.
-   */
-  TEAM_PREVIEW,
 
   /**
    * The beginning of the turn, in which players pick moves.

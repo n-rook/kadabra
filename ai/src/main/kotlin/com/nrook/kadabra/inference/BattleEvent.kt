@@ -312,6 +312,17 @@ data class HealEvent(
 data class TurnEvent(val turn: Int): BattleEvent
 
 /**
+ * An event which fires at the end of the turn.
+ *
+ * UpkeepEvent fires BEFORE switch-after-faint.
+ */
+class UpkeepEvent private constructor(): BattleEvent {
+  companion object instance {
+    val INSTANCE = UpkeepEvent()
+  }
+}
+
+/**
  * An event issued to ask which options we, the player, will take.
  */
 data class RequestEvent(val request: RequestMessage): BattleEvent

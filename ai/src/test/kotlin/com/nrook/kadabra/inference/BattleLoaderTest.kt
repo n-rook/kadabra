@@ -1,10 +1,16 @@
 package com.nrook.kadabra.inference
 
+import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
+import com.nrook.kadabra.inference.testing.EventFile
 import com.nrook.kadabra.inference.testing.EventFileBank
+import com.nrook.kadabra.inference.testing.EventFileWithBlackTeam
+import com.nrook.kadabra.inference.testing.EventFileWithWhiteTeam
 import com.nrook.kadabra.inference.testing.snipToTurn
+import com.nrook.kadabra.inference.testing.snipUntilChoice
 import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.info.Pokedex
+import com.nrook.kadabra.info.TeamPokemon
 import com.nrook.kadabra.info.read.getGen7Pokedex
 import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.arena.Player
@@ -25,6 +31,20 @@ class BattleLoaderTest {
     battleLoader = BattleLoader(pokedex)
     teamLoader = TeamLoader(pokedex)
     eventBank = EventFileBank(pokedex)
+  }
+
+  private fun parseBattle(e: EventFile): OngoingBattle {
+    val team: ImmutableList<TeamPokemon>
+    when (e) {
+      is EventFileWithWhiteTeam -> {
+        team = e.white
+      }
+      is EventFileWithBlackTeam -> {
+        team = e.black
+      }
+      else -> throw IllegalArgumentException("Can only parse battle with one team!")
+    }
+    return battleLoader.parseBattle(team.map { it.toSpec() }, e.events)
   }
 
   @Test
@@ -92,12 +112,27 @@ class BattleLoaderTest {
   }
 
   @Test
+  fun beginningOfTurnPhaseDetected() {
+    val info = parseBattle(eventBank.SAMPLE)
+    assertThat(info.phase).isEqualTo(DecisionPhase.BEGIN)
+  }
+
+  @Test
+  fun endOfTurnPhaseDetected() {
+    val info = battleLoader.parseBattle(
+        eventBank.SAMPLE.black.map { it.toSpec() },
+        snipUntilChoice(eventBank.SAMPLE.events, "17"))
+    assertThat(info.phase).isEqualTo(DecisionPhase.END)
+  }
+
+  @Test
   fun uTurnFirst() {
     val info = battleLoader.parseBattle(
         eventBank.U_TURN_FIRST.white.map { it.toSpec() },
         eventBank.U_TURN_FIRST.events)
     assertThat(info.us).isEqualTo(Player.WHITE)
     assertThat(info.turn).isEqualTo(1)
+    assertThat(info.phase).isEqualTo(DecisionPhase.FIRST_MOVE_SWITCH)
 
     assertThat(info.theirSide.active).isNotNull()
     val theirActivePokemon = info.theirSide.active!!
@@ -112,6 +147,7 @@ class BattleLoaderTest {
         eventBank.U_TURN_SECOND_IMMEDIATELY_AFTER_U_TURN_HITS.events)
     assertThat(info.us).isEqualTo(Player.WHITE)
     assertThat(info.turn).isEqualTo(1)
+    assertThat(info.phase).isEqualTo(DecisionPhase.SECOND_MOVE_SWITCH)
 
     assertThat(info.theirSide.active).isNotNull()
     val theirActivePokemon = info.theirSide.active!!

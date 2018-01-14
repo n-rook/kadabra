@@ -39,6 +39,7 @@ class EventFileBank(val pokedex: Pokedex) {
   /**
    * The first sample battle recorded; consists of a few actions. Only the BLACK team is available.
    */
+  // TODO: Wait, this makes no sense. Looking at the log, aren't we WHITE?
   val SAMPLE by lazy {
     EventFileWithBlackTeam(
         ImmutableList.copyOf(loadEventsFromResource("battle1.log")),

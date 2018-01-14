@@ -7,6 +7,7 @@ import com.nrook.kadabra.info.MoveId
 import com.nrook.kadabra.mechanics.Condition
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.proto.ReceivedMessage
+import mu.KLogging
 import kotlin.jvm.internal.CallableReference
 import kotlin.reflect.full.findAnnotation
 
@@ -16,6 +17,8 @@ import kotlin.reflect.full.findAnnotation
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class EventParser(val className: String)
+
+private val logger = KLogging().logger()
 
 private fun expectEmpty(line: ReceivedMessage) {
   expectLength(line, 0)
@@ -201,6 +204,12 @@ private fun parseTurnEvent(line: ReceivedMessage): BattleEvent {
   return TurnEvent(line.contentList[0].toInt())
 }
 
+@EventParser("upkeep")
+private fun parseUpkeepEvent(line: ReceivedMessage): BattleEvent {
+  expectEmpty(line)
+  return UpkeepEvent.INSTANCE
+}
+
 @EventParser("request")
 private fun parseRequestEvent(line: ReceivedMessage): BattleEvent {
   expectLength(line, 1)
@@ -363,6 +372,7 @@ private val PARSERS: ImmutableList<(ReceivedMessage) -> BattleEvent> = Immutable
     ::parseDamageEvent,
     ::parseHealEvent,
     ::parseChoiceEvent,
+    ::parseUpkeepEvent,
     ::parseRequestEvent
 )
 
