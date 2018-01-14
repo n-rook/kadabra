@@ -26,29 +26,43 @@ fun loadEventsFromFile(lines: Iterable<String>): List<BattleEvent> {
 private fun load(lines: Iterable<String>): ImmutableList<LogLine> {
   val builder: ImmutableList.Builder<LogLine> = ImmutableList.builder()
   for (line in lines) {
-    if (line.isEmpty() || line[0] != '|') {
-      continue
-    }
+    if (line.contains(">>")) {
+      // Sent message!
+      val index = line.indexOf('|')
+      if (index != -1) {
+        val lineWithoutPrefix = line.subSequence(index + 1, line.length)
+        builder.add(
+            LogLine.newBuilder()
+                .setSent(lineWithoutPrefix.toString())
+                .build())
+      }
+    } else {
+      if (line.isEmpty() || line[0] != '|') {
+        continue
+      }
 
-    var splitLine = line.split('|')
-    splitLine = splitLine.subList(1, splitLine.size)
-    if (splitLine.isNotEmpty() && splitLine[splitLine.size - 1].isEmpty()) {
-      // Some events just have an empty part at the end for some reason.
-      splitLine = splitLine.subList(0, splitLine.size - 1)
-    }
+      var splitLine = line.split('|')
+      splitLine = splitLine.subList(1, splitLine.size)
+      if (splitLine.isNotEmpty() && splitLine[splitLine.size - 1].isEmpty()) {
+        // Some events just have an empty part at the end for some reason.
+        splitLine = splitLine.subList(0, splitLine.size - 1)
+      }
 
-    if (splitLine.isEmpty()) {
-      // For some reason, there are a bunch of empty lines in the logs.
-      continue
+      if (splitLine.isEmpty()) {
+        // For some reason, there are a bunch of empty lines in the logs.
+        continue
+      }
+      builder.add(
+          LogLine.newBuilder()
+              .setReceived(
+                  ReceivedMessage.newBuilder()
+                      .setClass_(splitLine[0])
+                      .addAllContent(splitLine.drop(1)))
+              .build())
+
     }
-    builder.add(
-        LogLine.newBuilder()
-            .setReceived(
-                ReceivedMessage.newBuilder()
-                    .setClass_(splitLine[0])
-                    .addAllContent(splitLine.drop(1)))
-            .build())
   }
 
   return builder.build()
 }
+

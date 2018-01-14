@@ -2,6 +2,7 @@ package com.nrook.kadabra.inference.testing
 
 import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.inference.BattleEvent
+import com.nrook.kadabra.inference.ChooseSwitchEvent
 import com.nrook.kadabra.inference.DamageEvent
 import com.nrook.kadabra.info.Pokedex
 import com.nrook.kadabra.info.TeamPokemon
@@ -74,11 +75,9 @@ class EventFileBank(val pokedex: Pokedex) {
    */
   val U_TURN_SECOND_IMMEDIATELY_AFTER_U_TURN_HITS by lazy {
     EventFileWithWhiteTeam(
-        snipToEvent(
+        snipUntilChoice(
             loadEventsFromResource("BattleWithUturnGoingSecond.log"),
-            { it is DamageEvent &&
-                it.pokemon.name.nickname == "Jolteon" &&
-                it.newCondition.hp == 42}),
+            "7"),
         teamLoader.loadTeamFromResource("UTurnTeam.txt")
     )
   }

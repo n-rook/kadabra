@@ -317,6 +317,51 @@ data class TurnEvent(val turn: Int): BattleEvent
 data class RequestEvent(val request: RequestMessage): BattleEvent
 
 /**
+ * A choice sent by us to the server.
+ */
+interface SentEvent: BattleEvent {
+  /**
+   * The Request ID of the event. Used to make sure a choice isn't taken out of context: the request
+   * ID should match the ID given on a specific [RequestEvent] sent earlier.
+   */
+  val rqid: String?
+}
+
+/**
+ * An event during team preview, where we chose which Pokemon to send out first.
+ */
+data class ChooseTeamOrderEvent(
+    /**
+     * The order in which we sent out our team. Indices from 1 to 6.
+     *
+     * Only the first item matters (or the first two in doubles).
+     */
+    val teamOrder: ImmutableList<Int>,
+    override val rqid: String?
+): SentEvent
+
+/**
+ * An action where we chose to make a move.
+ */
+data class ChooseMoveEvent(
+    val move: Int,
+    val target: Int?,
+    val mega: Boolean,
+    override val rqid: String?
+): SentEvent
+
+/**
+ * An action where we chose to switch Pokemon.
+ */
+data class ChooseSwitchEvent(
+    /**
+     * The index of the targeted Pokemon on our bench (2-6).
+     */
+    val target: Int,
+    override val rqid: String?
+): SentEvent
+
+/**
  * A Pokemon's nickname.
  *
  * Note that these identifiers do not change in battle, under any circumstances! For instance, if an

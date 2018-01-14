@@ -2,6 +2,7 @@ package com.nrook.kadabra.inference.testing
 
 import com.google.common.collect.ImmutableList
 import com.nrook.kadabra.inference.BattleEvent
+import com.nrook.kadabra.inference.SentEvent
 import com.nrook.kadabra.inference.TurnEvent
 
 /**
@@ -24,4 +25,11 @@ fun snipToEvent(events: List<BattleEvent>, matcher: (BattleEvent) -> Boolean ): 
     throw IllegalArgumentException("Could not locate matching event")
   }
   return ImmutableList.copyOf(events.subList(0, eventIndex + 1))
+}
+
+/**
+ * Eliminates a sent event and all events after it.
+ */
+fun snipUntilChoice(events: List<BattleEvent>, rqid: String): ImmutableList<BattleEvent> {
+  return snipToEvent(events, { it is SentEvent && it.rqid == rqid })
 }

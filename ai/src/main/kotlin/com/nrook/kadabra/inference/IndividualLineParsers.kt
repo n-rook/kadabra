@@ -394,6 +394,74 @@ fun parseLine(line: ReceivedMessage): BattleEvent {
 }
 
 /**
+ * Parses a sent messages and returns the resulting [BattleEvent]
+ *
+ * @param line The sent message.
+ * @return The parsed event.
+ */
+fun parseSentLine(line: String): SentEvent {
+  val info = decodeSentLine(line)
+
+  return when (info.code) {
+    "team" ->
+      ChooseTeamOrderEvent(
+          ImmutableList.copyOf(info.extra[0].map { it.toString().toInt() }),
+          info.rqid)
+    "move" -> {
+      ChooseMoveEvent(
+          info.extra[0].toInt(),
+          if (info.extra.size > 1 && info.extra[1] != "mega") info.extra[1].toInt() else null,
+          info.extra.contains("mega"),
+          info.rqid)
+    }
+    "switch" -> {
+      ChooseSwitchEvent(
+          info.extra[0].toInt(),
+          info.rqid
+      )
+    }
+    else -> throw IllegalArgumentException("Unknown choice type ${info.code}")
+  }
+}
+
+private data class SentLineInfo(
+    val code: String,
+    val extra: ImmutableList<String>,
+    val rqid: String?
+)
+private fun decodeSentLine(line: String): SentLineInfo {
+  val rqidMatchEntireResult = Regex("(.*)\\|([0-9]+)").matchEntire(line)
+  val choice: String
+  val rqid: String?
+  if (rqidMatchEntireResult == null) {
+    choice = line
+    rqid = null
+  } else {
+    choice = rqidMatchEntireResult.groupValues[1]
+    rqid = rqidMatchEntireResult.groupValues[2]
+  }
+
+  val tokens = choice.split(' ')
+  if (tokens.isEmpty()) {
+    throw IllegalArgumentException("Bad sent line (no code): $line")
+  }
+
+  val code: String
+  val extra: List<String>
+  if (tokens[0] == "/choose") {
+    if (tokens.size < 2) {
+      throw IllegalArgumentException("No choice after /choose: $line")
+    }
+    code = tokens[1]
+    extra = tokens.subList(2, tokens.size)
+  } else {
+    code = tokens[0].removePrefix("/")
+    extra = tokens.subList(1, tokens.size)
+  }
+  return SentLineInfo(code, ImmutableList.copyOf(extra), rqid)
+}
+
+/**
  * Returns whether or not [parseLine] is capable of parsing this line.
  */
 fun isLineKnown(line: ReceivedMessage): Boolean {

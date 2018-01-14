@@ -242,7 +242,8 @@ data class TeamPreviewBattleState(
         us,
         OurSide(null, ourBench),
         TheirSide(null, theirBench),
-        1
+        1,
+        DecisionPhase.TEAM_PREVIEW
     )
   }
 }
@@ -289,15 +290,54 @@ data class OngoingBattle(
     val us: Player,
     val ourSide: OurSide,
     val theirSide: TheirSide,
-    val turn: Int
+    val turn: Int,
+
+    /**
+     * The phase of the turn. Null if the phase is unknown.
+     *
+     * Generally this should be known if we're making a decision. After all, we can't make a
+     * decision unless we know what to do, right?
+     */
+    val phase: DecisionPhase?
 ) {
   fun updateOurSide(newOurSide: OurSide): OngoingBattle {
-    return OngoingBattle(us, newOurSide, theirSide, turn)
+    return OngoingBattle(us, newOurSide, theirSide, turn, phase)
   }
 
   fun updateTheirSide(newTheirSide: TheirSide): OngoingBattle {
-    return OngoingBattle(us, ourSide, newTheirSide, turn)
+    return OngoingBattle(us, ourSide, newTheirSide, turn, phase)
   }
+}
+
+/**
+ * Which section of a turn we are in.
+ */
+enum class DecisionPhase {
+
+  /**
+   * A special state before the battle proper begins.
+   */
+  TEAM_PREVIEW,
+
+  /**
+   * The beginning of the turn, in which players pick moves.
+   */
+  BEGIN,
+
+  /**
+   * The faster Pokemon has used U-Turn, and thus the player needs to choose where to go.
+   */
+  FIRST_MOVE_SWITCH,
+
+  /**
+   * The slower Pokemon has used U-Turn.
+   */
+  SECOND_MOVE_SWITCH,
+
+  /**
+   * Moves have been made; now players with KOed Pokemon have to send out new ones.
+   */
+  END
 }
 
 /**

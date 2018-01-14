@@ -1,5 +1,6 @@
 package com.nrook.kadabra.inference
 
+import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.nrook.kadabra.info.Gender
 import com.nrook.kadabra.mechanics.Condition
@@ -21,6 +22,12 @@ class IndividualLineParsersKtTest {
       expectedClass: Class<T>, className: String, vararg content: String): T {
     val message = buildReceivedMessage(className, *content)
     val event = parseLine(message)
+    assertThat(event).isInstanceOf(expectedClass)
+    return event as T
+  }
+
+  fun <T: SentEvent> parseSentEvent(expectedClass: Class<T>, line: String): T {
+    val event = parseSentLine(line)
     assertThat(event).isInstanceOf(expectedClass)
     return event as T
   }
@@ -248,4 +255,36 @@ class IndividualLineParsersKtTest {
   }
 
   // TODO: cant and parseFormeChange
+
+  @Test
+  fun chooseTeamOrderEvent() {
+    val event = parseSentEvent(ChooseTeamOrderEvent::class.java, "/team 321456|3")
+    assertThat(event.teamOrder).isEqualTo(ImmutableList.of(3, 2, 1, 4, 5, 6))
+    assertThat(event.rqid).isEqualTo("3")
+  }
+
+  @Test
+  fun chooseMoveEvent() {
+    val event = parseSentEvent(ChooseMoveEvent::class.java, "/choose move 2|5")
+    assertThat(event.move).isEqualTo(2)
+    assertThat(event.target).isNull()
+    assertThat(event.mega).isFalse()
+    assertThat(event.rqid).isEqualTo("5")
+  }
+
+  @Test
+  fun chooseMoveEventMega() {
+    val event = parseSentEvent(ChooseMoveEvent::class.java, "/choose move 1 mega|13")
+    assertThat(event.move).isEqualTo(1)
+    assertThat(event.target).isNull()
+    assertThat(event.mega).isTrue()
+    assertThat(event.rqid).isEqualTo("13")
+  }
+
+  @Test
+  fun chooseSwitchEvent() {
+    val event = parseSentEvent(ChooseSwitchEvent::class.java, "/choose switch 5|17")
+    assertThat(event.target).isEqualTo(5)
+    assertThat(event.rqid).isEqualTo("17")
+  }
 }

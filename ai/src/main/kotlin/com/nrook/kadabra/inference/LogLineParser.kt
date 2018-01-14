@@ -13,25 +13,43 @@ fun parseLogLines(logLines: List<LogLine>): List<BattleEvent> {
 //  val us = identifyWhichPlayerIsUs(logLines)
 
   val events: ImmutableList.Builder<BattleEvent> = ImmutableList.builder()
-  for (line in logLines) {
-    if (line.lineCase == LogLine.LineCase.RECEIVED) {
-      val received = line.received
+  lines@ for (line in logLines) {
+    when (line.lineCase) {
+      LogLine.LineCase.RECEIVED -> {
+        val received = line.received
 
-      if (!isLineKnown(received)) {
-        // When we parse most messages, we'll add a warning here.
-        continue
+        if (!isLineKnown(received)) {
+          // When we parse most messages, we'll add a warning here.
+          continue@lines
+        }
+
+        var parsedLine: BattleEvent?
+        try {
+          parsedLine = parseLine(received)
+        } catch (e: Exception) {
+          logger.warn("Could not parse received message\n${line}", e)
+          parsedLine = null
+        }
+
+        if (parsedLine != null) {
+          events.add(parsedLine)
+        }
       }
+      LogLine.LineCase.SENT -> {
+        var parsedLine: BattleEvent?
+        try {
+          parsedLine = parseSentLine(line.sent)
+        } catch (e: Exception) {
+          logger.warn("Could not parse sent message\n${line}", e)
+          parsedLine = null
+        }
 
-      var parsedLine: BattleEvent?
-      try {
-        parsedLine = parseLine(received)
-      } catch (e: Exception) {
-        logger.warn("Could not parse received message\n${line}", e)
-        parsedLine = null
+        if (parsedLine != null) {
+          events.add(parsedLine)
+        }
       }
-
-      if (parsedLine != null) {
-        events.add(parsedLine)
+      LogLine.LineCase.LINE_NOT_SET -> {
+        logger.warn("Line not set")
       }
     }
   }

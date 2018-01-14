@@ -11,4 +11,3 @@ import com.nrook.kadabra.mechanics.arena.Player
 val ID_TO_PLAYER_CONVERTER: Converter<String, Player> = Maps.asConverter(ImmutableBiMap.of(
     "p1", Player.BLACK,
     "p2", Player.WHITE))
-
