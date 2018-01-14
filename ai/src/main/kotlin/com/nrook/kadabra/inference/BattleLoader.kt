@@ -42,6 +42,9 @@ class BattleLoader(private val pokedex: Pokedex) {
           is HealEvent -> {
             ongoingBattle = updateHealEvent(event, ongoingBattle)
           }
+          is TurnEvent -> {
+            ongoingBattle = updateTurnEvent(event, ongoingBattle)
+          }
         }
       } catch (e: RuntimeException) {
         logger.error("Error parsing event #$index", e)
@@ -106,6 +109,16 @@ class BattleLoader(private val pokedex: Pokedex) {
           .updateCondition(event.newCondition.status)
       return state.updateTheirSide(state.theirSide.updateActive(newActive))
     }
+  }
+
+  private fun updateTurnEvent(event: TurnEvent, state: OngoingBattle): OngoingBattle {
+    return OngoingBattle(
+        state.us,
+        state.ourSide,
+        state.theirSide,
+        event.turn,
+        state.phase
+    )
   }
 
   private fun assertIsActive(state: OngoingBattle, identifier: PokemonIdentifier) {

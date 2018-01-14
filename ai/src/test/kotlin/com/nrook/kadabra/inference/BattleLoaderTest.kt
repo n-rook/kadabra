@@ -51,6 +51,13 @@ class BattleLoaderTest {
   }
 
   @Test
+  fun turnUpdates() {
+    val teamSpecs = eventBank.SAMPLE.black.map { it.toSpec() }
+    val info = battleLoader.parseBattle(teamSpecs, eventBank.SAMPLE.events)
+    assertThat(info.turn).isEqualTo(7)
+  }
+
+  @Test
   fun damageUpdatesWorkOnOurSide() {
     val teamSpecs = eventBank.SAMPLE.black.map { it.toSpec() }
     val info = battleLoader.parseBattle(teamSpecs, eventBank.SAMPLE.events)
