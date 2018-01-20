@@ -3,7 +3,7 @@ package com.nrook.kadabra
 import com.google.common.collect.ImmutableList
 import com.google.common.io.Resources
 import com.google.gson.GsonBuilder
-import com.nrook.kadabra.ai.client.ClientAi
+import com.nrook.kadabra.ai.client.RandomClientAi
 import com.nrook.kadabra.info.TeamPokemon
 import com.nrook.kadabra.info.read.getGen7Pokedex
 import com.nrook.kadabra.teambuilder.TeamLoader
@@ -52,7 +52,7 @@ fun createAndStartAiServer(port: Int): AiServer {
 
   val server = ServerBuilder.forPort(port)
       .addService(TeamService(mapOf("gen7ou" to teamSelector)))
-      .addService(BattleService(ClientAi()))
+      .addService(BattleService(RandomClientAi()))
       .build()
   println("starting server on port " + port)
   server.start()

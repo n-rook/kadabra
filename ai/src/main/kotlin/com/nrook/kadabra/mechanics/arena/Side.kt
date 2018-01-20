@@ -1,5 +1,6 @@
 package com.nrook.kadabra.mechanics.arena
 
+import com.google.common.collect.Maps
 import com.nrook.kadabra.info.PokemonId
 import com.nrook.kadabra.mechanics.ActivePokemon
 import com.nrook.kadabra.mechanics.BenchedPokemon
@@ -20,6 +21,12 @@ data class Side(
      */
     val bench: Map<PokemonId, BenchedPokemon>
 ) {
+
+  /**
+   * Constructs a Side without having to build the bench map ourselves.
+   */
+  constructor(active: ActivePokemon, bench: Iterable<BenchedPokemon>):
+      this(active, Maps.uniqueIndex(bench, { it!!.species.id }))
 
   /**
    * Returns a new Side with a new active Pokemon.

@@ -17,6 +17,12 @@ data class UsageDataset(
      */
     val data: Map<String, PokemonUsageData>
 ) {
+
+  /**
+   * Remove a Pokemon from the dataset.
+   *
+   * Intended for cases where a Pokemon was banned recently.
+   */
   fun banPokemon(bans: Iterable<String>): UsageDataset {
     val newData = HashMap<String, PokemonUsageData>(data)
     for (ban in bans) {
@@ -112,7 +118,13 @@ data class AbilityUsageData(
      * "raw count".
      */
     val usage: Double
-)
+): Comparable<AbilityUsageData> {
+  override fun compareTo(other: AbilityUsageData): Int {
+    return ComparisonChain.start()
+        .compare(this.usage, other.usage)
+        .result()
+  }
+}
 
 data class ItemUsageData(
     /**
@@ -197,4 +209,10 @@ data class MoveUsageData(
      * moves, but the proportions are right, at least.
      */
     val usage: Double
-)
+): Comparable<MoveUsageData> {
+  override fun compareTo(other: MoveUsageData): Int {
+    return ComparisonChain.start()
+        .compare(this.usage, other.usage)
+        .result()
+  }
+}

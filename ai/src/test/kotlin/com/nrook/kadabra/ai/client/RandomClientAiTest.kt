@@ -2,15 +2,10 @@ package com.nrook.kadabra.ai.client
 
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth
-import com.nrook.kadabra.proto.ActionRequest
-import com.nrook.kadabra.proto.ActionResponse
-import com.nrook.kadabra.proto.MoveStatus
-import com.nrook.kadabra.proto.PokemonSideInfo
-import com.nrook.kadabra.proto.PokemonSpec
-import com.nrook.kadabra.proto.SideInfo
+import com.nrook.kadabra.proto.*
 
-class ClientAiTest {
-  lateinit var ai: ClientAi
+class RandomClientAiTest {
+  lateinit var ai: RandomClientAi
 
   // For some reason, putting this constant outside the test class
   // causes catastrophic classloader issues.
@@ -21,7 +16,7 @@ class ClientAiTest {
 
   @org.junit.Before
   fun setUp() {
-    ai = ClientAi()
+    ai = RandomClientAi()
   }
 
   @org.junit.Test

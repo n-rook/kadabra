@@ -1,7 +1,11 @@
 package com.nrook.kadabra
 
 import com.nrook.kadabra.ai.client.ClientAi
-import com.nrook.kadabra.proto.*
+import com.nrook.kadabra.proto.ActionRequest
+import com.nrook.kadabra.proto.ActionResponse
+import com.nrook.kadabra.proto.BattleServiceGrpc
+import com.nrook.kadabra.proto.LeadChoice
+import com.nrook.kadabra.proto.LeadRequest
 import io.grpc.stub.StreamObserver
 
 /**

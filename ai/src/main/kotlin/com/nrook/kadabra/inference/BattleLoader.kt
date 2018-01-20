@@ -29,6 +29,7 @@ class BattleLoader(private val pokedex: Pokedex) {
     val startIndex = eventsList.indexOfFirst { it is StartEvent }
     val battleEvents = eventsList.subList(startIndex, eventsList.size)
 
+    // TODO: This is not going to work well with U-Turns until we actually update who has priority.
     var ongoingBattle = teamPreview.toOngoingBattle()
     for ((index, event) in battleEvents.withIndex()) {
       try {
@@ -47,6 +48,9 @@ class BattleLoader(private val pokedex: Pokedex) {
           }
           is TurnEvent -> {
             ongoingBattle = updateTurnEvent(event, ongoingBattle)
+          }
+          is UpkeepEvent -> {
+            ongoingBattle = handleUpkeepEvent(event, ongoingBattle)
           }
         }
       } catch (e: RuntimeException) {
@@ -153,8 +157,13 @@ class BattleLoader(private val pokedex: Pokedex) {
         state.ourSide,
         state.theirSide,
         event.turn,
-        state.phase
+        state.phase,
+        state.faster
     )
+  }
+
+  private fun handleUpkeepEvent(event: UpkeepEvent, state: OngoingBattle): OngoingBattle {
+    return state.clearFaster()
   }
 
   private fun assertIsActive(state: OngoingBattle, identifier: PokemonIdentifier) {
@@ -292,6 +301,7 @@ data class TeamPreviewBattleState(
         OurSide(null, ourBench),
         TheirSide(null, theirBench),
         1,
+        null,
         null
     )
   }
@@ -347,14 +357,19 @@ data class OngoingBattle(
      * Generally this should be known if we're making a decision. After all, we can't make a
      * decision unless we know what to do, right?
      */
-    val phase: DecisionPhase?
+    val phase: DecisionPhase?,
+
+    /**
+     * This is set when we know which player's Pokemon was faster this turn.
+     */
+    val faster: Player?
 ) {
   fun updateOurSide(newOurSide: OurSide): OngoingBattle {
-    return OngoingBattle(us, newOurSide, theirSide, turn, phase)
+    return OngoingBattle(us, newOurSide, theirSide, turn, phase, faster)
   }
 
   fun updateTheirSide(newTheirSide: TheirSide): OngoingBattle {
-    return OngoingBattle(us, ourSide, newTheirSide, turn, phase)
+    return OngoingBattle(us, ourSide, newTheirSide, turn, phase, faster)
   }
 
   /**
@@ -364,7 +379,28 @@ data class OngoingBattle(
     if (this.phase != null) {
       throw IllegalStateException("Phase already set to $phase")
     }
-    return OngoingBattle(us, ourSide, theirSide, turn, phase)
+    return OngoingBattle(us, ourSide, theirSide, turn, phase, faster)
+  }
+
+  /**
+   * Update which player is recorded as being faster during this turn.
+   *
+   * If it's the END phase, this indicates which player's KOed Pokemon will come out first
+   * (and is always unset right now).
+   */
+  fun setFaster(faster: Player): OngoingBattle {
+    return setNullableFaster(faster)
+  }
+
+  /**
+   * Clears the [faster] field.
+   */
+  fun clearFaster(): OngoingBattle {
+    return setNullableFaster(null)
+  }
+
+  private fun setNullableFaster(faster: Player?): OngoingBattle {
+    return OngoingBattle(us, ourSide, theirSide, turn, phase, faster)
   }
 }
 
@@ -423,7 +459,7 @@ data class OurSide(
    * Bring in a new Pokemon. Used only when we have no active Pokemon.
    */
   fun comeIn(benchIndex: Int): OurSide {
-    if (active != null) {
+    if (active != null && active.condition != Condition.FAINT) {
       throw IllegalArgumentException("There is already a Pokemon active, ${active.species.name}.")
     }
 
@@ -448,8 +484,8 @@ data class OurSide(
    * @throws IllegalStateException if there is no active Pokemon right now.
    */
   fun swap(benchIndex: Int): OurSide {
-    if (active == null) {
-      throw IllegalArgumentException("Active Pokemon is null, we can't switch someone in")
+    if (active == null || active.condition == Condition.FAINT) {
+      throw IllegalArgumentException("Active Pokemon is null or faint, we can't switch someone in")
     }
 
     val unbenched = bench[benchIndex]
@@ -539,7 +575,7 @@ data class TheirSide(
    * opportunity to discover the nicknames of one's opponents.
    */
   fun comeIn(benchIndex: Int, nickname: Nickname): TheirSide {
-    if (active != null) {
+    if (active != null && active.condition != Condition.FAINT) {
       throw IllegalArgumentException("There is already a Pokemon active, ${active.species.name}.")
     }
 
@@ -575,8 +611,8 @@ data class TheirSide(
    * @throws IllegalStateException if there is no active Pokemon right now.
    */
   fun swap(benchIndex: Int, nickname: Nickname): TheirSide {
-    if (active == null) {
-      throw IllegalArgumentException("Active Pokemon is null, we can't switch someone in")
+    if (active == null || active.condition == Condition.FAINT) {
+      throw IllegalArgumentException("Active Pokemon is null or fainted, so no switching in")
     }
 
     val unbenched = bench[benchIndex]
