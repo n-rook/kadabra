@@ -213,9 +213,7 @@ private fun parseUpkeepEvent(line: ReceivedMessage): BattleEvent {
 @EventParser("request")
 private fun parseRequestEvent(line: ReceivedMessage): BattleEvent {
   expectLength(line, 1)
-  val requestString = line.contentList[0]
-  return if (requestString.isEmpty()) RequestEvent(null)
-    else RequestEvent(deserializeRequest(line.contentList[0]))
+  return RequestEvent(deserializeRequest(line.contentList[0]))
 }
 
 private fun parseDetailsChangeOrFormeChange(line: ReceivedMessage): BattleEvent {

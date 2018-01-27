@@ -6,8 +6,6 @@ import com.nrook.kadabra.proto.ActionResponse
 import com.nrook.kadabra.proto.LeadChoice
 import com.nrook.kadabra.proto.MoveSelection
 import com.nrook.kadabra.proto.SwitchSelection
-import io.grpc.Status
-import io.grpc.StatusRuntimeException
 
 
 private val random: java.util.Random = java.util.Random()
@@ -24,11 +22,6 @@ class ClientAi {
   }
 
   fun pickAction(request: ActionRequest): ActionResponse {
-    if (request.teamSpecList.isEmpty()) {
-      throw StatusRuntimeException(
-          Status.INVALID_ARGUMENT.withDescription("No team spec!"))
-    }
-
     try {
       val lines = parseLogLines(request.logList)
       logger.info("Parsed ${lines.size} lines")

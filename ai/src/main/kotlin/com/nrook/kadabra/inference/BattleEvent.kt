@@ -324,12 +324,8 @@ class UpkeepEvent private constructor(): BattleEvent {
 
 /**
  * An event issued to ask which options we, the player, will take.
- *
- * @property request The underlying request message. May be null, which happens when we see an
- *    empty request from the server. (This conventionally happens when we don't actually have a
- *    decision to make.)
  */
-data class RequestEvent(val request: RequestMessage?): BattleEvent
+data class RequestEvent(val request: RequestMessage): BattleEvent
 
 /**
  * A choice sent by us to the server.
