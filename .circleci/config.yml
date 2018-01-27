@@ -41,5 +41,5 @@ jobs:
       # run tests!
       - run:
           name: run kotlin tests
-          command: mvn test
+          command: mvn test -e -X
           working_directory: ./ai
