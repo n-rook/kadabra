@@ -44,8 +44,28 @@ function toShowdownInColumnArray(values, size) {
   return values.join(',');
 }
 
+/**
+ * A PokemonSpec proto in JSON form.
+ */
+export class IPokemonSpec {
+  // It would be nice to define this...
+  species
+  item
+  move
+  nature
+  evs
+  ivs
+}
+
+/**
+ * A TeamSpec object. Often sent as a response to certain RPCs.
+ */
+export class ITeamProto {
+  pokemon: IPokemonSpec[]
+}
+
 export class Team {
-  teamObject: any;
+  teamObject: ITeamProto;
 
   constructor(teamObject) {
     this.teamObject = teamObject;

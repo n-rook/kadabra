@@ -1,10 +1,21 @@
 package com.nrook.kadabra.ai.client
 
+import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth
-import com.nrook.kadabra.proto.*
+import com.nrook.kadabra.proto.ActionRequest
+import com.nrook.kadabra.proto.ActionResponse
+import com.nrook.kadabra.proto.MoveStatus
+import com.nrook.kadabra.proto.PokemonSideInfo
+import com.nrook.kadabra.proto.PokemonSpec
+import com.nrook.kadabra.proto.SideInfo
+
+val SOME_TEAM = ImmutableList.of<PokemonSpec>(
+    PokemonSpec.newBuilder()
+        .setSpecies("Alakazam")
+        .build())
 
 class ClientAiTest {
-  lateinit var ai: ClientAi;
+  lateinit var ai: ClientAi
 
   @org.junit.Before
   fun setUp() {
@@ -21,6 +32,7 @@ class ClientAiTest {
   @org.junit.Test
   fun pickStartOfTurnAction() {
     val result = ai.pickAction(ActionRequest.newBuilder()
+        .addAllTeamSpec(SOME_TEAM)
         .addMove(MoveStatus.newBuilder()
             .setId("flareblitz")
             .setPp(5)
@@ -39,6 +51,7 @@ class ClientAiTest {
   @org.junit.Test
   fun dontPickDisabledStuff() {
     val result = ai.pickAction(ActionRequest.newBuilder()
+        .addAllTeamSpec(SOME_TEAM)
         .addMove(MoveStatus.newBuilder()
             .setId("flareblitz")
             .setPp(5)
@@ -71,6 +84,7 @@ class ClientAiTest {
         .build()
 
     val response = ai.pickAction(ActionRequest.newBuilder()
+        .addAllTeamSpec(SOME_TEAM)
         .setSideInfo(SideInfo.newBuilder()
             .addTeam(mon1)
             .addTeam(mon2))

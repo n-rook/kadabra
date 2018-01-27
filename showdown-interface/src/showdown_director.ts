@@ -87,6 +87,12 @@ export class ShowdownDirector {
   challenges: IChallenges;
   _loginStatus: LoginStatus;
   _ourUsername: string;
+  /**
+   * The last team we decided to use.
+   *
+   * We assume any battles which start are started while using this team.
+   */
+  _ourTeam: Team;
   private _outcomeHandles:
       Array<(resolution: IBattleOutcome | Promise.Thenable<IBattleOutcome>) => void>
       = [];
@@ -120,10 +126,6 @@ export class ShowdownDirector {
       return;
     }
 
-    if (!message.splitLines) {
-      return;
-    }
-
     message.splitLines.forEach((submessage) => {
       switch (submessage[0]) {
         case 'formats': {
@@ -151,6 +153,7 @@ export class ShowdownDirector {
             this._battleDirector = new BattleDirector(
               message.header,
               this._ourUsername,
+              this._ourTeam,
               this.battleClient,
               this.connection);
             this._associateAndClearChallengeOutcomeHandles();
@@ -228,6 +231,8 @@ export class ShowdownDirector {
    * This must be called before challenging someone or accepting a challenge.
    */
   private _useTeam(team: Team): Promise<void> {
+      console.log('SETTING TEAM TO ', team);
+      this._ourTeam = team;
       // TODO: Add error handling if team is rejected by server.
       const useteam = '|/utm ' + team.toShowdownPayload();
       return this.connection.send(useteam);

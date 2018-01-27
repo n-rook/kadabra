@@ -6,6 +6,7 @@ import * as sinon from 'sinon';
 
 import {BattleClient} from './battle_client';
 import {BattleDirector} from './battle_director';
+import {Team} from './team';
 import {ShowdownConnection} from './showdown';
 
 const REAL_INIT_LINES = [
@@ -44,6 +45,35 @@ const REAL_INIT_LINES = [
   '|teampreview'
 ];
 
+const TINY_TEAM = {pokemon: [
+  {
+    species: 'Alakazam',
+    ability: 'Synchronize',
+    evs:
+    {
+      hp: 0,
+      attack: 0,
+      defense: 0,
+      specialAttack: 252,
+      specialDefense: 4,
+      speed: 252
+    },
+    ivs:
+    {
+      hp: 31,
+      attack: 0,
+      defense: 31,
+      specialAttack: 31,
+      specialDefense: 31,
+      speed: 31
+    },
+    item: 'Alakazite',
+    nature: 'TIMID',
+    move: ['Psychic', 'Focus Blast', 'Shadow Ball', 'Substitute']
+  }
+]};
+
+
 describe('BattleDirector', function() {
 
   let battleClient: any;
@@ -55,7 +85,7 @@ describe('BattleDirector', function() {
   });
 
   it('initialization', function() {
-    const director = new BattleDirector('room', 'abraca001', battleClient, showdownConnection);
+    const director = new BattleDirector('room', 'abraca001', new Team(TINY_TEAM), battleClient, showdownConnection);
 
     battleClient.chooseLead.returns(Promise.resolve(1));
     showdownConnection.send.returns(Promise.resolve());

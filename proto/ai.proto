@@ -94,6 +94,9 @@ message ActionRequest {
 
   // Information about our available Pokemon.
   SideInfo sideInfo = 5;
+
+  // The team with which we began this battle.
+  repeated PokemonSpec teamSpec = 7;
 }
 
 message ActionResponse {

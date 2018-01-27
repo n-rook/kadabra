@@ -7,6 +7,7 @@ import { get_moves, get_side_info } from './parse_request';
 import { ShowdownConnection } from './showdown';
 import { Result, IBattleOutcome } from './states';
 import { ServerLog, SentMessage } from './log';
+import { Team } from './team';
 
 /**
  * A helper class that sends messages to a specific room.
@@ -109,6 +110,7 @@ export class BattleDirector {
 
   private readonly room: string;
   private readonly ourUsername: string;
+  private readonly ourTeam: Team;
   private readonly battleClient: BattleClient;
   private readonly sender: RoomMessageSender;
   private readonly outcomeTracker: OutcomeTracker;
@@ -125,10 +127,15 @@ export class BattleDirector {
   constructor(
     room: string,
     ourUsername: string,
+    ourTeam: Team,
     battleClient: BattleClient,
     connection: ShowdownConnection) {
     this.room = room;
     this.ourUsername = ourUsername;
+    this.ourTeam = ourTeam;
+    if (!ourTeam) {
+      throw Error('No team passed in!');
+    }
     this.battleClient = battleClient;
     this.sender = new RoomMessageSender(room, connection);
     this.outcomeTracker = new OutcomeTracker();
@@ -260,7 +267,7 @@ export class BattleDirector {
 
     if (parsedRequest.forceSwitch && parsedRequest.forceSwitch[0]) {
       return this.battleClient.selectForceSwitchAction(
-        this.room, get_side_info(parsedRequest), this.logs)
+        this.room, get_side_info(parsedRequest), this.ourTeam.teamObject.pokemon, this.logs)
         .then((action) => this.sendAction(action));
     }
 
@@ -270,7 +277,11 @@ export class BattleDirector {
     }
 
     return this.battleClient.selectAction(
-      this.room, get_moves(parsedRequest), get_side_info(parsedRequest), this.logs)
+      this.room,
+      get_moves(parsedRequest),
+      get_side_info(parsedRequest),
+      this.ourTeam.teamObject.pokemon,
+      this.logs)
       .then((action) => this.sendAction(action));
   }
 

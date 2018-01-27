@@ -12,6 +12,7 @@ import * as logger from 'winston';
 import { IMoveInfo, ISideInfo } from './states';
 import { ServerLog, SentMessage } from './log';
 import { aiFile } from './proto_constants';
+import { IPokemonSpec } from './team';
 
 const aiDescriptor = grpc.load(aiFile);
 
@@ -62,15 +63,22 @@ export class BattleClient {
         `localhost:${port}`, grpc.credentials.createInsecure()));
   }
 
-  private _selectAction(room: string, activeMoves: IMoveInfo[],
-      sideInfo: ISideInfo, logs: ReadonlyArray<ServerLog|SentMessage>, forceSwitch: boolean): Promise<IAction> {
+  private _selectAction(
+      room: string,
+      activeMoves: IMoveInfo[],
+      sideInfo: ISideInfo,
+      logs: ReadonlyArray<ServerLog|SentMessage>,
+      forceSwitch: boolean,
+      teamSpec: IPokemonSpec[]): Promise<IAction> {
+    console.log('Sending team spec:\n', teamSpec);
 
     const request = {
       room: {name: room},
       move: activeMoves,
       sideInfo: convertSideInfoToProto(sideInfo),
       forceSwitch,
-      log: logs.map((m) => m.toLogLine())
+      log: logs.map((m) => m.toLogLine()),
+      teamSpec
     };
 
     return this.stub.selectActionAsync(request)
@@ -85,14 +93,22 @@ export class BattleClient {
       .then((response) => response.leadIndex.toString());
   }
 
-  selectAction(room: string, activeMoves: IMoveInfo[], sideInfo: ISideInfo,
+  selectAction(
+      room: string,
+      activeMoves: IMoveInfo[],
+      sideInfo: ISideInfo,
+      team: IPokemonSpec[],
       logs: ReadonlyArray<ServerLog|SentMessage>): Promise<IAction> {
-    return this._selectAction(room, activeMoves, sideInfo, logs, false);
+    return this._selectAction(room, activeMoves, sideInfo, logs, false, team);
   }
 
-  selectForceSwitchAction(room: string, sideInfo: ISideInfo,
-      logs: ReadonlyArray<ServerLog|SentMessage>): Promise<IAction> {
-    return this._selectAction(room, [], sideInfo, logs, true);
+  selectForceSwitchAction(
+      room: string,
+      sideInfo: ISideInfo,
+      team: IPokemonSpec[],
+      logs: ReadonlyArray<ServerLog|SentMessage>,
+      ): Promise<IAction> {
+    return this._selectAction(room, [], sideInfo, logs, true, team);
   }
 }
 
