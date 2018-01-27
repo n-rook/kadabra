@@ -28,7 +28,10 @@ jobs:
       #     keys:
       #     - v1-dependencies-{{ checksum "pom.xml" }}
 
-      - run: mvn dependency:go-offline
+      - run:
+          name: install maven dependencies
+          command: mvn dependency:go-offline
+          working_directory: ./ai
 
       # - save_cache:
       #     paths:
@@ -36,4 +39,7 @@ jobs:
       #     key: v1-dependencies-{{ checksum "pom.xml" }}
 
       # run tests!
-      - run: mvn test
+      - run:
+          name: run kotlin tests
+          command: mvn test
+          working_directory: ./ai
