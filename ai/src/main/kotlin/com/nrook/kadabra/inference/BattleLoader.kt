@@ -238,14 +238,7 @@ class BattleLoader(private val pokedex: Pokedex) {
 
     val ourTeamAsBenchedPokemon: ImmutableList.Builder<OurBenchedPokemon> = ImmutableList.builder()
     for (pokemon in teamPreviewRequest.pokemon) {
-      val spec = ourTeam
-          // TODO: This cannot handle Pokemon such as "Greninja-Ash"
-          .find { it.species.name == pokemon.details.species }
-      if (spec == null) {
-        throw IllegalArgumentException(
-            "Could not find corresponding Pokemon for ${pokemon.details.species}. Choices were: " +
-                ourTeam.map { it.species.name }.joinToString(", "))
-      }
+      val spec = findMatchingPokemon(pokemon.details.species, ourTeam)
 
       ourTeamAsBenchedPokemon.add(
           OurBenchedPokemon(
@@ -257,6 +250,19 @@ class BattleLoader(private val pokedex: Pokedex) {
     }
 
     return ourTeamAsBenchedPokemon.build()
+  }
+
+  private fun findMatchingPokemon(detailsName: String, ourTeam: List<PokemonSpec>): PokemonSpec {
+    for (possibility in pokedex.getPossibleSpeciesByAppearanceName(detailsName)) {
+      val match = ourTeam.find { it.species == possibility }
+      if (match != null) {
+        return match
+      }
+    }
+
+    throw IllegalArgumentException(
+        "Could not find corresponding Pokemon for $detailsName. Choices were: " +
+            ourTeam.map { it.species.name }.joinToString(", "))
   }
 
   private fun findTheirSide(

@@ -1,6 +1,7 @@
 package com.nrook.kadabra.info
 
 import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 
 /**
@@ -43,6 +44,23 @@ class Pokedex private constructor(
   fun getSpeciesByName(name: String): Species {
     val species = speciesByName[name]
     return species ?: throw NoSuchElementException("We cannot find a Pokemon named $name.")
+  }
+
+  /**
+   * Given the name under which a species appears, find the species itself.
+   *
+   * For example, Venusaur-Mega appears under the name "Venusaur" in team preview. So find
+   * "Venusaur" rather than "Venasaur-Mega".
+   */
+  fun getPossibleSpeciesByAppearanceName(name: String): ImmutableSet<Species> {
+    val possibleSpecies = ImmutableSet.builder<Species>()
+
+    val baseSpecies = getSpeciesByName(name)
+    possibleSpecies.add(baseSpecies)
+
+    possibleSpecies.addAll(baseSpecies.otherForms.map { getSpeciesById(it) })
+
+    return possibleSpecies.build()
   }
 
   fun getMoveById(id: MoveId): Move {

@@ -67,6 +67,11 @@ data class Species(
     val otherForms: Set<PokemonId>,
 
     /**
+     * If this is an alternate form of a Pokemon, this is the Pokemon's base species' name.
+     */
+    val baseSpecies: String?,
+
+    /**
      * If this is an alternate form of some Pokemon, this is a short string which describes that
      * form. For instance, for Charizard-Mega-X, this is "Mega-X".
      */

@@ -23,7 +23,7 @@ val CHARIZARD: Species = Species(
         Stat.SPEED to 100
     ),
     AbilitySet(AbilityId("Blaze"), null, AbilityId("Solar Power")),
-    1, 1, setOf(), null)
+    1, 1, setOf(), null, null)
 
 
 val BLASTOISE: Species = Species(
@@ -44,7 +44,8 @@ val BLASTOISE: Species = Species(
     heightmm = 1600,
     weightg = 85500,
     otherForms = setOf(),
-    form = null)
+    form = null,
+    baseSpecies = null)
 
 val MAGCARGO: Species = Species(
     PokemonId("magcargo"),
@@ -64,7 +65,8 @@ val MAGCARGO: Species = Species(
     heightmm = 800,
     weightg = 55000,
     otherForms = setOf(),
-    form = null
+    form = null,
+    baseSpecies = null
 )
 
 val EARTHQUAKE: Move = Move(

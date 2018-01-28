@@ -20,7 +20,7 @@ private val logger = mu.KLogging().logger()
 
 private fun <T, V> findOrThrow(list: List<T>, target: V, transform: (T) -> V): T {
   return list.find { transform(it) == target } ?:
-      throw AssertionError("Could not find $target in $list")
+      throw RuntimeException("Could not find $target in $list")
 }
 
 private fun buildActionResponseFromChoice(
@@ -34,24 +34,24 @@ private fun buildActionResponseFromChoice(
   when (choice) {
     is MoveChoice -> {
       val activePokemonInfo = sideInfo.teamList.find { it.active } ?:
-          throw AssertionError("Move choice cannot be made with no active Pokemon\n" +
+          throw IllegalStateException("Move choice cannot be made with no active Pokemon\n" +
               sideInfo.toString())
       // I suspect this doesn't work
       val activePokemon = team.find { it.species.name == activePokemonInfo.species } ?:
-          throw AssertionError(
+          throw IllegalStateException(
               "Could not find team member with species " +
                   "${activePokemonInfo.species}; only species are " +
                   team.map { it.species }.joinToString(", "))
       val moveIndex = activePokemon.moves.indexOf(choice.move)
       if (moveIndex == -1) {
-        throw AssertionError("Could not find move ${choice.move.id}; only moves are " +
+        throw IllegalStateException("Could not find move ${choice.move.id}; only moves are " +
             activePokemon.moves.map { it.id }.joinToString(", "))
       }
       responseBuilder.moveBuilder.index = moveIndex
     }
     is SwitchChoice -> {
       val switchTarget = team.find { it.species.id == choice.target } ?:
-          throw AssertionError("Could not find switch target with species " +
+          throw IllegalStateException("Could not find switch target with species " +
               "${choice.target}; only choices were " +
               team.map { it.species }.joinToString { ", " })
       val switchTargetInfo =
@@ -62,10 +62,10 @@ private fun buildActionResponseFromChoice(
         throw AssertionError("impossible")
       }
       if (switchTargetInfo.active) {
-        throw AssertionError("Cannot switch to active Pokemon")
+        throw IllegalStateException("Cannot switch to active Pokemon")
       }
       if (switchTargetInfo.fainted) {
-        throw AssertionError("Cannot switch to fainted Pokemon")
+        throw IllegalStateException("Cannot switch to fainted Pokemon")
       }
 
       responseBuilder.switchBuilder.index = switchTargetIndex + 1

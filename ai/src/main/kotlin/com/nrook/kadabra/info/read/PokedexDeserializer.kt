@@ -55,6 +55,7 @@ private fun deserializeSpecies(
 
   val otherFormes = convertFormListToSet(species, "otherFormes")
   val form = species["forme"]?.asString
+  val baseSpecies = species["baseSpecies"]?.asString
 
   return Species(
       id = id,
@@ -66,6 +67,7 @@ private fun deserializeSpecies(
       ability = abilities,
       heightmm = heightMm,
       weightg = weightG,
+      baseSpecies = baseSpecies,
       otherForms = otherFormes,
       form = form
   )

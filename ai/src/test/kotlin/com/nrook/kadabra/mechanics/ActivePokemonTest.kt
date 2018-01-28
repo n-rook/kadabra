@@ -23,7 +23,7 @@ class ActivePokemonTest {
           Stat.SPEED to 100
       ),
       AbilitySet(AbilityId("Blaze"), null, AbilityId("Solar Power")),
-      1, 1, setOf(), null)
+      1, 1, setOf(), null, form = null)
 
   @Test
   fun getStat() {
