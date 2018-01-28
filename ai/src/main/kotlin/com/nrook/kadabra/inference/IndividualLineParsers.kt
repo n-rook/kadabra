@@ -323,6 +323,7 @@ private fun parseStatusString(status: String): Condition {
   return when (status) {
     "" -> Condition.OK
     "par" -> Condition.PARALYSIS
+    "brn" -> Condition.BURN
     else -> throw IllegalArgumentException("Unknown status $status")
   }
 }

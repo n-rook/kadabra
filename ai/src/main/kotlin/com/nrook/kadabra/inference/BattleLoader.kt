@@ -239,7 +239,7 @@ class BattleLoader(private val pokedex: Pokedex) {
     val ourTeamAsBenchedPokemon: ImmutableList.Builder<OurBenchedPokemon> = ImmutableList.builder()
     for (pokemon in teamPreviewRequest.pokemon) {
       val spec = ourTeam
-          // TODO: This may not work, or it may only work for some species (i.e. not Arceus)
+          // TODO: This cannot handle Pokemon such as "Greninja-Ash"
           .find { it.species.name == pokemon.details.species }
       if (spec == null) {
         throw IllegalArgumentException(

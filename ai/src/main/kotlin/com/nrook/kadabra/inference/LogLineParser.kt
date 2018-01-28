@@ -9,7 +9,7 @@ import mu.KLogging
 
 private val logger = KLogging().logger()
 
-fun parseLogLines(logLines: List<LogLine>): List<BattleEvent> {
+fun parseLogLines(logLines: List<LogLine>): ImmutableList<BattleEvent> {
 //  val us = identifyWhichPlayerIsUs(logLines)
 
   val events: ImmutableList.Builder<BattleEvent> = ImmutableList.builder()

@@ -3,7 +3,12 @@ package com.nrook.kadabra
 import com.google.common.collect.ImmutableList
 import com.google.common.io.Resources
 import com.google.gson.GsonBuilder
+import com.nrook.kadabra.ai.client.ErrorHandlingClientAi
 import com.nrook.kadabra.ai.client.RandomClientAi
+import com.nrook.kadabra.ai.client.RealClientAi
+import com.nrook.kadabra.ai.perfect.MixedStrategyAiWrapper
+import com.nrook.kadabra.ai.perfect.MonteCarloAi
+import com.nrook.kadabra.inference.BattleLoader
 import com.nrook.kadabra.info.TeamPokemon
 import com.nrook.kadabra.info.read.getGen7Pokedex
 import com.nrook.kadabra.teambuilder.TeamLoader
@@ -48,11 +53,23 @@ private fun getUsageData(): UsageDataset {
 
 fun createAndStartAiServer(port: Int): AiServer {
   val pokedex = getGen7Pokedex()
-  val teamSelector = UsageDatasetTeamPicker.create(pokedex, Random(), getUsageData(), 0.005)
+  val usageDataset = getUsageData()
+  val random = Random()
+  val teamSelector = UsageDatasetTeamPicker.create(pokedex, random, usageDataset, 0.005)
+  val ai = MonteCarloAi(1000)
+
+  val clientAi = ErrorHandlingClientAi(ImmutableList.of(
+      RealClientAi(
+          pokedex,
+          usageDataset,
+          BattleLoader(pokedex),
+          MixedStrategyAiWrapper(ai, random)),
+      RandomClientAi()
+  ))
 
   val server = ServerBuilder.forPort(port)
       .addService(TeamService(mapOf("gen7ou" to teamSelector)))
-      .addService(BattleService(RandomClientAi()))
+      .addService(BattleService(clientAi))
       .build()
   println("starting server on port " + port)
   server.start()

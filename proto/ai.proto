@@ -108,7 +108,7 @@ message ActionResponse {
 
 // Represents selecting a move.
 message MoveSelection {
-  // The index of the move to select.
+  // The index of the move to select. Starts at 1.
   int32 index = 1;
 
   // Whether or not we should Mega Evolve the current Pokemon.
@@ -118,7 +118,7 @@ message MoveSelection {
 // Represents deciding to switch Pokemon.
 message SwitchSelection {
 
-  // The index of the new Pokemon to send out.
+  // The index of the new Pokemon to send out. Starts at 1.
   int32 index = 1;
 }
 
