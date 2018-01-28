@@ -1,10 +1,33 @@
 package com.nrook.kadabra.info
 
+import com.google.common.collect.ImmutableMap
 import com.nrook.kadabra.mechanics.EvSpread
 import com.nrook.kadabra.mechanics.IvSpread
 import com.nrook.kadabra.mechanics.Level
 import com.nrook.kadabra.mechanics.Nature
 import com.nrook.kadabra.mechanics.PokemonSpec
+
+private fun protoEvSpreadConverter(evSpread: com.nrook.kadabra.proto.EvSpread): EvSpread {
+  return EvSpread(ImmutableMap.builder<Stat, Int>()
+      .put(Stat.HP, evSpread.hp)
+      .put(Stat.ATTACK, evSpread.attack)
+      .put(Stat.DEFENSE, evSpread.defense)
+      .put(Stat.SPECIAL_ATTACK, evSpread.specialAttack)
+      .put(Stat.SPECIAL_DEFENSE, evSpread.specialDefense)
+      .put(Stat.SPEED, evSpread.speed)
+      .build())
+}
+
+private fun protoIvSpreadConverter(ivSpread: com.nrook.kadabra.proto.IvSpread): IvSpread {
+  return IvSpread(ImmutableMap.builder<Stat, Int>()
+      .put(Stat.HP, ivSpread.hp)
+      .put(Stat.ATTACK, ivSpread.attack)
+      .put(Stat.DEFENSE, ivSpread.defense)
+      .put(Stat.SPECIAL_ATTACK, ivSpread.specialAttack)
+      .put(Stat.SPECIAL_DEFENSE, ivSpread.specialDefense)
+      .put(Stat.SPEED, ivSpread.speed)
+      .build())
+}
 
 /**
  * Represents a single Pokemon on a saved team.
@@ -28,6 +51,22 @@ data class TeamPokemon(
     val level: Level,
     val moves: List<Move>
 ) {
+  companion object {
+    fun fromSpecProto(pokedex: Pokedex, spec: com.nrook.kadabra.proto.PokemonSpec): TeamPokemon {
+      return TeamPokemon(
+          species = pokedex.getSpeciesByName(spec.species),
+          item = spec.item,
+          ability = AbilityId(spec.ability),
+          gender = null,  // PokemonSpec currently does not have gender
+          nature = Nature.valueOf(spec.nature.name),
+          evSpread = protoEvSpreadConverter(spec.evs),
+          ivSpread = protoIvSpreadConverter(spec.ivs),
+          level = Level.MAX,
+          moves = spec.moveList.map { pokedex.getMoveByName(it) }
+      )
+    }
+  }
+
   /**
    * @param actualGender The gender selected for this Pokemon in this particular game.
    *  If null, selects [Gender.FEMALE] if ambiguous.

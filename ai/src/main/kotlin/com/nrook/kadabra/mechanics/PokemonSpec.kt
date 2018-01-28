@@ -104,6 +104,10 @@ data class IvSpread(val values: Map<Stat, Int>) {
 }
 
 data class Level(val value: Int) {
+  companion object {
+    val MAX = Level(100)
+  }
+
   init {
     if (value < 1 || value > 100) {
       throw IllegalArgumentException("Illegal level $value")
